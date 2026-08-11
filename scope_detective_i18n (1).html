@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Detective — GHG Matching Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+SC:wght@500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C2B22;
+    --paper:#F7F5EE;
+    --paper-2:#EFEBDF;
+    --forest:#1B4332;
+    --forest-light:#2D6A4F;
+    --scope1-bg:#FDECC8;
+    --scope1-border:#F2CD86;
+    --scope2-bg:#DCE9F5;
+    --scope2-border:#AECBE8;
+    --category-bg:#DCEBDA;
+    --category-border:#B7D6B4;
+    --good:#2F9E44;
+    --good-bg:#DFF5E1;
+    --bad:#E03131;
+    --bad-bg:#FBE1E1;
+    --line-idle:#B9C4B4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Noto Sans Thai','Noto Sans SC','Poppins',sans-serif;
+    background:
+      radial-gradient(circle at 8% 12%, rgba(27,67,50,0.05), transparent 40%),
+      radial-gradient(circle at 92% 88%, rgba(62,113,168,0.06), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:64px 14px 60px;
+  }
+
+  /* language switcher */
+  .lang-switch{
+    position:fixed;
+    top:14px; right:14px;
+    display:flex; gap:4px;
+    background:#fff;
+    border:1px solid var(--paper-2);
+    border-radius:99px;
+    padding:4px;
+    box-shadow:0 8px 20px -12px rgba(27,67,50,.3);
+    z-index:50;
+  }
+  .lang-btn{
+    font-family:'Poppins',sans-serif;
+    font-size:12px; font-weight:700;
+    border:none; background:transparent; color:#7a887c;
+    padding:6px 12px; border-radius:99px; cursor:pointer;
+    transition:background .12s ease, color .12s ease;
+  }
+  .lang-btn.active{ background:var(--forest); color:#fff; }
+
+  .eyebrow{ font-family:'Poppins',sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--forest-light); font-weight:600; margin-bottom:6px; text-align:center; }
+  h1{ font-family:'Poppins',sans-serif; font-size:clamp(22px,4vw,30px); font-weight:800; margin:0 0 6px; color:var(--forest); text-align:center; }
+  .sub{ max-width:620px; text-align:center; font-size:14px; line-height:1.6; color:#4b5a4f; margin-bottom:14px; }
+
+  .card{ width:100%; max-width:980px; background:#fff; border-radius:20px; border:1px solid var(--paper-2); box-shadow:0 18px 40px -22px rgba(27,67,50,.35); padding:30px clamp(14px,4vw,40px) 34px; display:none; }
+  .card.visible{ display:block; }
+
+  /* start screen */
+  #startCard{ max-width:440px; text-align:center; }
+  #startCard .badge{ width:56px;height:56px;border-radius:50%; background:linear-gradient(135deg,var(--forest-light),var(--forest)); display:flex;align-items:center;justify-content:center; margin:0 auto 14px; font-size:24px; }
+  #startCard label{ display:block; text-align:left; font-size:13px; font-weight:600; color:var(--forest); margin-bottom:6px; }
+  .field{ margin-bottom:16px; }
+  #startCard input{ width:100%; padding:12px 14px; border-radius:11px; border:1.5px solid var(--paper-2); font-family:inherit; font-size:15px; outline:none; }
+  #startCard input:focus{ border-color:var(--forest-light); }
+
+  .btn{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; padding:12px 24px; border-radius:11px; border:none; cursor:pointer; background:var(--forest); color:#fff; transition:transform .12s ease, background .12s ease; width:100%; }
+  .btn:hover{ background:var(--forest-light); transform:translateY(-1px); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+  .btn.ghost{ background:transparent; color:var(--forest); border:1.5px solid var(--forest); width:auto; }
+  .btn.auto{ width:auto; }
+
+  .game-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px; flex-wrap:wrap; }
+  .board-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:19px; color:var(--forest); margin:0; }
+  .board-hint{ font-size:15.5px; line-height:1.6; color:#5b6a5e; margin:4px 0 0; max-width:600px; }
+  .player-chip{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; background:var(--paper); border:1px solid var(--paper-2); padding:6px 12px; border-radius:99px; color:var(--forest); white-space:nowrap; }
+  .progress-row{ display:flex; align-items:center; gap:10px; margin:18px 0 26px; }
+  .track{ flex:1; height:8px; background:var(--paper-2); border-radius:99px; overflow:hidden; }
+  .track-fill{ height:100%; background:linear-gradient(90deg,var(--forest-light),var(--forest)); width:0%; transition:width .3s ease; border-radius:99px; }
+  .progress-label{ font-family:'Poppins',sans-serif; font-weight:700; font-size:14.5px; color:var(--forest); white-space:nowrap; }
+
+  .cols{ position:relative; display:flex; gap:64px; align-items:stretch; }
+  svg#link-layer{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:0; }
+  .col{ position:relative; z-index:1; display:flex; flex-direction:column; gap:10px; }
+  .col-scope{ width:20%; min-width:130px; }
+  .col-activity{ width:46%; min-width:220px; }
+  .col-category{ width:32%; min-width:160px; }
+  .col-label{ font-family:'Poppins',sans-serif; font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#8a988c; margin-bottom:2px; }
+  /* the scope/category node lists are shorter than the activity list, so
+     center them vertically against the full column height */
+  #colScope, #colCategory{ display:flex; flex-direction:column; gap:18px; flex:1; justify-content:center; }
+  #colActivity{ display:flex; flex-direction:column; gap:14px; }
+
+  .node{ position:relative; font-size:16px; line-height:1.55; padding:13px 16px; border-radius:12px; border:2px solid transparent; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease; user-select:none; letter-spacing:.01em; }
+  .node.scope{ font-family:'Poppins',sans-serif; font-weight:700; text-align:center; }
+  .node.scope .sub-label{ display:block; font-size:12.5px; font-weight:500; opacity:.8; margin-top:4px; line-height:1.4; }
+  .node.scope.s1{ background:var(--scope1-bg); border-color:var(--scope1-border); color:#7A4E0B; }
+  .node.scope.s2{ background:var(--scope2-bg); border-color:var(--scope2-border); color:#204568; }
+  .node.category{ background:var(--category-bg); border-color:var(--category-border); font-family:'Poppins',sans-serif; font-weight:600; color:#2E4F2C; }
+  .node.activity{ background:#fff; border:2px solid #E4E0D3; }
+  .node.activity:hover{ box-shadow:0 6px 14px -8px rgba(0,0,0,.25); }
+  .node.activity.selected{ border-color:var(--forest); background:#EFF6F1; }
+  .node:hover.scope, .node:hover.category{ transform:translateY(-1px); }
+
+  /* connector dots — real elements (not ::before/::after) so JS can read their
+     exact center with getBoundingClientRect and draw lines that touch them
+     precisely, instead of guessing an offset from the box edge */
+  .dot{
+    position:absolute; top:50%; width:11px; height:11px; border-radius:50%;
+    transform:translateY(-50%); border:2px solid #fff; box-shadow:0 0 0 1px var(--paper-2);
+    pointer-events:none;
+  }
+  .dot-left{ left:-32px; }
+  .dot-right{ right:-32px; }
+  .node.scope .dot{ background:#8a988c; }
+  .node.scope.s1 .dot{ background:#E8A33D; }
+  .node.scope.s2 .dot{ background:#3E71A8; }
+  .node.category .dot{ background:#5B8C5A; }
+  .node.activity .dot{ background:#C9C2AE; }
+  .node.activity.selected .dot{ background:var(--forest); }
+
+  .chips{ display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; }
+  .chip{ font-size:12.5px; font-family:'Poppins',sans-serif; font-weight:600; padding:4px 10px; border-radius:99px; background:var(--paper-2); color:#7a887c; line-height:1.5; }
+  .chip.filled{ background:#E4EFE3; color:var(--forest); }
+  .chip.wrong{ background:var(--bad-bg); color:var(--bad); }
+  .chip.correct{ background:var(--good-bg); color:var(--good); }
+
+  .path-idle{ stroke:var(--line-idle); stroke-width:2; fill:none; }
+  .path-good{ stroke:var(--good); stroke-width:2.5; fill:none; }
+  .path-bad{ stroke:var(--bad); stroke-width:2.5; fill:none; stroke-dasharray:4 4; }
+
+  .footer-row{ display:flex; justify-content:space-between; align-items:center; margin-top:26px; gap:12px; flex-wrap:wrap; }
+  .msg{ font-size:15px; line-height:1.5; color:#5b6a5e; }
+
+  #resultCard{ max-width:600px; text-align:center; }
+  #resultCard .badge{ width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--forest-light),var(--forest));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px; }
+  #resultCard h2{ font-family:'Poppins',sans-serif; color:var(--forest); margin:0 0 6px; }
+  #resultCard p{ color:#4b5a4f; font-size:14px; margin:0 0 20px; }
+  .stat-row{ display:flex; justify-content:center; gap:26px; margin-bottom:24px; }
+  .stat{ text-align:center; }
+  .stat .n{ font-family:'Poppins',sans-serif; font-weight:800; font-size:26px; color:var(--forest); }
+  .stat .l{ font-size:11.5px; color:#6b7a6e; }
+  .section-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:var(--forest); margin:0 0 10px; text-align:left; display:flex; justify-content:space-between; align-items:center; }
+  .lb-list{ list-style:none; padding:0; margin:0 0 20px; text-align:left; border:1px solid var(--paper-2); border-radius:12px; overflow:hidden; }
+  .lb-row{ display:flex; justify-content:space-between; padding:9px 14px; font-size:13px; border-bottom:1px solid var(--paper-2); }
+  .lb-row:last-child{ border-bottom:none; }
+  .lb-row.me{ background:#EFF6F1; font-weight:700; color:var(--forest); }
+  .lb-rank{ width:22px; display:inline-block; color:#8a988c; font-weight:600; }
+  .lb-empty{ font-size:13px; color:#8a988c; padding:14px; text-align:center; }
+  .end-actions{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .link-btn{ background:none; border:none; color:var(--forest); font-family:'Poppins',sans-serif; font-weight:600; font-size:12.5px; text-decoration:underline; cursor:pointer; padding:0; }
+
+  /* modal */
+  .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(20,30,22,.45); z-index:100; align-items:center; justify-content:center; padding:16px; }
+  .modal-overlay.visible{ display:flex; }
+  .modal{ background:#fff; border-radius:18px; max-width:640px; width:100%; max-height:85vh; overflow:hidden; padding:22px; display:flex; flex-direction:column; }
+  .modal h3{ font-family:'Poppins',sans-serif; color:var(--forest); margin:0 0 4px; }
+  .modal .count{ font-size:12.5px; color:#7a887c; margin:0 0 14px; }
+  .table-scroll{ overflow:auto; -webkit-overflow-scrolling:touch; border-radius:10px; border:1px solid var(--paper-2); flex:1; min-height:0; }
+  table.players{ width:100%; min-width:720px; border-collapse:collapse; font-size:12.5px; }
+  table.players th{ text-align:left; font-family:'Poppins',sans-serif; font-weight:700; color:#8a988c; padding:8px 10px; border-bottom:2px solid var(--paper-2); position:sticky; top:0; background:#fff; white-space:nowrap; }
+  table.players td{ padding:8px 10px; border-bottom:1px solid var(--paper-2); }
+  .modal-close{ }
+  .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap; flex-shrink:0; }
+  .finished-at{ font-family:'Poppins',sans-serif; font-weight:600; font-size:12.5px; color:var(--forest-light); margin:-14px 0 20px !important; }
+
+  @media (max-width:480px){
+    .modal{ padding:16px; border-radius:16px; }
+    .modal-actions{ flex-direction:column-reverse; }
+    .modal-actions .btn{ width:100%; }
+    .footer-row .btn.auto{ width:100%; }
+    .footer-row{ flex-direction:column-reverse; align-items:stretch; }
+  }
+
+  @media (max-width:820px){
+    .cols{ gap:14px; }
+    svg#link-layer{ display:none; }
+    .dot{ display:none; }
+    body{ padding-top:80px; }
+  }
+
+  /* phones: keep the same left-to-right Scope | Activity | Category
+     layout as the laptop view (not stacked top-to-bottom) — just compact
+     everything down so 3 narrow columns fit side by side */
+  @media (max-width:600px){
+    .cols{ gap:6px; }
+    .col-scope{ width:24%; min-width:0; }
+    .col-activity{ width:42%; min-width:0; }
+    .col-category{ width:34%; min-width:0; }
+    .col-label{ font-size:9.5px; margin-bottom:0; }
+    #colScope, #colCategory{ gap:8px; }
+    #colActivity{ gap:8px; }
+    .node{ font-size:11px; line-height:1.35; padding:7px 8px; border-radius:9px; letter-spacing:0; }
+    .node.scope .sub-label{ display:none; }
+    .chips{ gap:3px; margin-top:5px; }
+    .chip{ font-size:8.5px; padding:2px 6px; }
+  }
+
+  .req-star{ color:var(--bad); }
+  .start-error{ font-size:12.5px; color:var(--bad); margin:-8px 0 16px; min-height:16px; text-align:left; }
+
+  /* ---------- part stepper (Part 1/2/3) ---------- */
+  .part-stepper{
+    display:none; align-items:center; gap:8px;
+    width:100%; max-width:980px; margin:0 0 18px;
+  }
+  .part-stepper.visible{ display:flex; }
+  .part-pill{
+    display:flex; align-items:center; gap:8px;
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:13px;
+    padding:8px 16px; border-radius:99px; background:#fff; border:1.5px solid var(--paper-2);
+    color:#8a988c; white-space:nowrap; flex:1; justify-content:center;
+  }
+  .part-pill .num{
+    width:20px; height:20px; border-radius:50%; background:var(--paper-2);
+    display:inline-flex; align-items:center; justify-content:center; font-size:11.5px; flex-shrink:0;
+  }
+  .part-pill.active{ background:var(--forest); color:#fff; border-color:var(--forest); }
+  .part-pill.active .num{ background:rgba(255,255,255,.25); }
+  .part-pill.done{ color:var(--forest); border-color:var(--good-bg); background:var(--good-bg); }
+  .part-pill.done .num{ background:var(--good); color:#fff; }
+  @media (max-width:640px){ .part-pill span:last-child{ display:none; } .part-pill{ flex:0 0 auto; padding:8px 12px; } }
+
+  /* ---------- Part 1: quiz ---------- */
+  .quiz-q{ margin-bottom:26px; }
+  .quiz-q:last-child{ margin-bottom:0; }
+  .quiz-q-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; color:var(--forest); margin:0 0 12px; line-height:1.5; }
+  .quiz-q-num{ color:var(--forest-light); margin-right:6px; }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
+  .quiz-option{
+    display:flex; align-items:flex-start; gap:12px; text-align:left;
+    font-size:15px; line-height:1.5; padding:13px 16px; border-radius:12px;
+    border:2px solid #E4E0D3; background:#fff; cursor:pointer;
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .quiz-option:hover{ box-shadow:0 6px 14px -8px rgba(0,0,0,.2); }
+  .quiz-option.selected{ border-color:var(--forest); background:#EFF6F1; }
+  .quiz-option .opt-letter{
+    font-family:'Poppins',sans-serif; font-weight:700; color:var(--forest-light);
+    flex-shrink:0; width:22px;
+  }
+
+  /* ---------- Part 3: open text reflection ---------- */
+  #reflectionCard textarea{
+    width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--paper-2);
+    font-family:inherit; font-size:15.5px; line-height:1.6; outline:none; resize:vertical; min-height:130px;
+  }
+  #reflectionCard textarea:focus{ border-color:var(--forest-light); }
+  .part3-preview{ font-size:12.5px; color:#5b6a5e; margin-top:6px; max-width:420px; }
+</style>
+</head>
+<body>
+
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="th">ไทย</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="zh">中文</button>
+  </div>
+
+  <div class="eyebrow">Sustain Connect · Week 2 Quest</div>
+  <h1 id="pageTitle">Scope Detective</h1>
+  <p class="sub" id="pageSub"></p>
+
+  <div class="part-stepper" id="partStepper">
+    <div class="part-pill" data-part="1"><span class="num">1</span><span id="partLabel1"></span></div>
+    <div class="part-pill" data-part="2"><span class="num">2</span><span id="partLabel2"></span></div>
+    <div class="part-pill" data-part="3"><span class="num">3</span><span id="partLabel3"></span></div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="card visible" id="startCard">
+    <div class="badge">🌱</div>
+    <div class="field">
+      <label id="lblName" for="nameInput"></label>
+      <input id="nameInput" type="text" maxlength="40">
+    </div>
+    <div class="field">
+      <label id="lblEmail" for="emailInput"></label>
+      <input id="emailInput" type="email" maxlength="80">
+    </div>
+    <div class="field">
+      <label id="lblDept" for="deptInput"></label>
+      <input id="deptInput" type="text" maxlength="60">
+    </div>
+    <p class="start-error" id="startError"></p>
+    <button class="btn" id="startBtn" disabled></button>
+  </div>
+
+  <!-- PART 1: QUIZ -->
+  <div class="card" id="quizCard">
+    <p class="board-title" id="quizTitle"></p>
+    <p class="board-hint" id="quizHint"></p>
+    <div id="quizList"></div>
+    <div class="footer-row">
+      <div class="msg" id="quizMsg"></div>
+      <button class="btn auto" id="quizNextBtn" disabled></button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="card" id="gameCard">
+    <div class="game-head">
+      <div>
+        <p class="board-title" id="gameTitle"></p>
+        <p class="board-hint" id="gameHint"></p>
+      </div>
+      <div class="player-chip" id="playerChip">👤 —</div>
+    </div>
+
+    <div class="progress-row">
+      <div class="track"><div class="track-fill" id="trackFill"></div></div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
+
+    <div class="cols">
+      <svg id="link-layer"></svg>
+      <div class="col col-scope">
+        <div class="col-label" id="colLabelScope"></div>
+        <div id="colScope"></div>
+      </div>
+      <div class="col col-activity">
+        <div class="col-label" id="colLabelActivity"></div>
+        <div id="colActivity"></div>
+      </div>
+      <div class="col col-category">
+        <div class="col-label" id="colLabelCategory"></div>
+        <div id="colCategory"></div>
+      </div>
+    </div>
+
+    <div class="footer-row">
+      <div class="msg" id="msg"></div>
+      <button class="btn auto" id="submitBtn" disabled></button>
+    </div>
+  </div>
+
+  <!-- PART 3: OPEN REFLECTION -->
+  <div class="card" id="reflectionCard">
+    <p class="board-title" id="reflectionTitle"></p>
+    <p class="board-hint" id="reflectionHint"></p>
+    <div class="field">
+      <label id="lblPart3" for="part3Input"></label>
+      <textarea id="part3Input" maxlength="1000"></textarea>
+    </div>
+    <p class="start-error" id="part3Error"></p>
+    <div class="footer-row">
+      <div class="msg" id="part3Msg"></div>
+      <button class="btn auto" id="finishBtn"></button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="card" id="resultCard">
+    <div class="badge">🌿</div>
+    <h2 id="resultHeadline"></h2>
+    <p id="resultSub"></p>
+    <p class="finished-at" id="finishedAtDisplay"></p>
+    <div class="stat-row">
+      <div class="stat"><div class="n" id="finalQuizScore">0/6</div><div class="l" id="statQuizLabel"></div></div>
+      <div class="stat"><div class="n" id="finalScore">0/16</div><div class="l" id="statScoreLabel"></div></div>
+      <div class="stat"><div class="n" id="finalPart3">—</div><div class="l" id="statPart3Label"></div></div>
+    </div>
+    <p class="section-title">
+      <span id="lbTitle"></span>
+      <button class="link-btn" id="viewAllBtn"></button>
+    </p>
+    <ul class="lb-list" id="lbList"><li class="lb-empty">…</li></ul>
+    <div class="end-actions">
+      <button class="btn ghost" id="playAgainBtn"></button>
+    </div>
+  </div>
+
+  <!-- ALL PLAYERS MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle"></h3>
+      <p class="count" id="modalCount"></p>
+      <div class="table-scroll">
+        <table class="players">
+          <thead>
+            <tr>
+              <th id="thName"></th>
+              <th id="thEmail"></th>
+              <th id="thDept"></th>
+              <th id="thQuiz"></th>
+              <th id="thMatch"></th>
+              <th id="thPart3"></th>
+              <th id="thFinished"></th>
+            </tr>
+          </thead>
+          <tbody id="modalTbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-actions">
+        <button class="btn auto" id="downloadCsvBtn"></button>
+        <button class="btn ghost modal-close" id="modalCloseBtn"></button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- content data (ids stable across languages) ---------- */
+const activityIds = ['a1','a2','a3','a4','a5','a6','a7','a8'];
+const scopeIds = ['s1','s2'];
+const catIds = ['fuel','fug','proc','elec','heat'];
+
+const answerKey = {
+  a1:{scope:'s1',cat:'fuel'}, a2:{scope:'s1',cat:'fuel'},
+  a3:{scope:'s2',cat:'elec'}, a4:{scope:'s2',cat:'heat'},
+  a5:{scope:'s1',cat:'fug'}, a6:{scope:'s2',cat:'elec'},
+  a7:{scope:'s1',cat:'proc'}, a8:{scope:'s1',cat:'fug'}
+};
+
+const quizIds = ['q1','q2','q3','q4','q5','q6'];
+// correct option index per question (0=A, 1=B, 2=C, 3=D)
+const quizAnswerKey = { q1:1, q2:2, q3:2, q4:1, q5:1, q6:2 };
+
+const I18N = {
+  th:{
+    locale:'th-TH',
+    pageTitle:'Scope Detective',
+    pageSub:'จับคู่กิจกรรมกับ Scope และประเภทการปล่อยก๊าซเรือนกระจก ในหน้าเดียว — เฉลยและคะแนนจะแสดงหลังกดส่งคำตอบ',
+    lblName:'ชื่อ-นามสกุล',
+    namePh:'กรอกชื่อ-นามสกุลของคุณ',
+    lblEmail:'อีเมล',
+    emailPh:'name@behnmeyer.com',
+    lblDept:'แผนก / บริษัท',
+    deptPh:'เช่น Sustainability, Behn Meyer Thailand',
+    errorRequired:'กรุณากรอกชื่อ-นามสกุล อีเมล และแผนก/บริษัท ให้ครบก่อนเริ่มเกม',
+    errorEmail:'รูปแบบอีเมลไม่ถูกต้อง',
+    startBtn:'เริ่มเกม',
+    gameTitle:'จับคู่ให้ครบทั้ง 8 กิจกรรม',
+    gameHint:'คลิกกิจกรรมตรงกลางเพื่อเลือก จากนั้นคลิก Scope ทางซ้าย และคลิกประเภทการปล่อยก๊าซทางขวา ระบบจะยังไม่บอกว่าถูกหรือผิด จนกว่าจะกด "ส่งคำตอบ"',
+    colScope:'Scope', colActivity:'กิจกรรม', colCategory:'ประเภทการปล่อยก๊าซ',
+    progress:(d,t)=>`${d} / ${t} จับคู่ครบ`,
+    submitBtn:'ส่งคำตอบและเฉลย',
+    submitDone:'เฉลยแล้ว ✓',
+    msgPickActivity:'เลือกกิจกรรมตรงกลางก่อน',
+    msgAssign:'เลือก Scope ทางซ้าย และประเภทการปล่อยก๊าซทางขวาให้กิจกรรมนี้',
+    msgScore:(s)=>`คะแนนของคุณ: ${s} / 16`,
+    chipScopeEmpty:'Scope: ยังไม่เลือก',
+    chipCatEmpty:'ประเภท: ยังไม่เลือก',
+    chipScopePrefix:'Scope: ',
+    chipCatPrefix:'ประเภท: ',
+    correctPrefix:'ที่ถูกคือ: ',
+    resultPerfectTitle:'สมบูรณ์แบบ! 🎉', resultPerfectSub:'คุณจับคู่ถูกทุกข้อ สุดยอด ESG Champion!',
+    resultGreatTitle:'เก่งมาก!', resultGreatSub:'เกือบครบแล้ว ลองทบทวนข้อที่พลาดอีกนิดเดียว',
+    resultTryTitle:'จบเควสแล้ว', resultTrySub:'ขอบคุณที่ร่วมเควสนี้ครับ',
+    statScoreLabel:'คะแนนจับคู่', statQuizLabel:'คะแนนแบบทดสอบ', statPart3Label:'คำถามปลายเปิด',
+    part3Submitted:'ส่งแล้ว รอตรวจ',
+    finishedAtLabel:(s)=>`เล่นจบเมื่อ ${s} น.`,
+    lbTitle:'🏆 กระดานคะแนน (Top 10)', lbEmpty:'ยังไม่มีข้อมูลกระดานคะแนน',
+    playAgainBtn:'เล่นอีกครั้ง',
+    viewAllBtn:'ดูรายชื่อผู้เล่นทั้งหมด',
+    downloadCsv:'ดาวน์โหลด CSV',
+    modalTitle:'สรุปรายชื่อผู้เล่นทั้งหมด',
+    modalCount:(n)=>`ผู้เล่นทั้งหมด ${n} คน`,
+    thName:'ชื่อ', thEmail:'อีเมล', thDept:'แผนก/บริษัท', thQuiz:'แบบทดสอบ', thMatch:'จับคู่', thPart3:'คำถามปลายเปิด', thFinished:'เสร็จเมื่อ',
+    modalClose:'ปิด',
+    defaultName:'ผู้เล่นไม่ระบุชื่อ',
+    part1Label:'แบบทดสอบ', part2Label:'จับคู่กิจกรรม', part3Label:'คำถามปลายเปิด',
+    quizTitle:'ส่วนที่ 1: แบบทดสอบความรู้ (6 ข้อ)',
+    quizHint:'เลือกคำตอบที่ถูกต้องที่สุดในแต่ละข้อ ระบบจะยังไม่บอกว่าถูกหรือผิด จนกว่าจะดูผลสรุปตอนจบ',
+    quizNextBtn:'ไปส่วนที่ 2: จับคู่กิจกรรม →',
+    quizMsgIncomplete:'กรุณาตอบให้ครบทุกข้อก่อนไปต่อ',
+    reflectionTitle:'ส่วนที่ 3: ลองคิดดูสิ',
+    reflectionHint:'ลองคิดถึงแผนกของคุณ — แหล่งกำเนิดการปล่อยก๊าซเรือนกระจก Scope 1 และ Scope 2 ของแผนกคุณมีอะไรบ้าง? (คำตอบนี้จะถูกตรวจและให้คะแนนโดยทีมงานภายหลัง)',
+    lblPart3:'คำตอบของคุณ',
+    part3Ph:'เช่น Scope 1: รถโฟล์คลิฟท์ใช้ LPG ในคลังสินค้า / Scope 2: ไฟฟ้าที่ใช้เดินเครื่องจักร...',
+    part3ErrorRequired:'กรุณากรอกคำตอบก่อนส่ง',
+    finishBtn:'ส่งคำตอบและจบเควส',
+    quiz:{
+      q1:{ q:'คาร์บอนฟุตพริ้นท์ (Carbon Footprint) คืออะไร?', options:[
+        'ปริมาณของเสียที่บริษัทผลิตขึ้น',
+        'ปริมาณรวมของก๊าซเรือนกระจก (GHG) ที่ปล่อยออกมาจากกิจกรรมของมนุษย์',
+        'ปริมาณการใช้เชื้อเพลิงในทรัพย์สินของบริษัทเอง',
+        'ปริมาณพลังงานที่บริษัทใช้ในแต่ละปี'
+      ]},
+      q2:{ q:'การปล่อยก๊าซเรือนกระจกแบ่งออกเป็นกี่ประเภท และมีอะไรบ้าง?', options:[
+        'มีเพียง 1 ประเภท: ทางตรง',
+        'มีเพียง 1 ประเภท: ทางอ้อม',
+        'มี 3 ประเภท: Scope 1, 2 และ 3',
+        'มี 2 ประเภท: ของเสียแบบแข็งและของเหลว'
+      ]},
+      q3:{ q:'ข้อใดต่อไปนี้ประกอบด้วยการปล่อยก๊าซทางอ้อมเท่านั้น?', options:[
+        'การเผาไหม้เชื้อเพลิง',
+        'ไฟฟ้าและปฏิกิริยาเคมี',
+        'ไฟฟ้าและกิจกรรมต้นน้ำ (upstream)',
+        'กิจกรรมต้นน้ำและสารทำความเย็นรั่วไหล'
+      ]},
+      q4:{ q:'รถบรรทุกของบริษัทเผาผลาญน้ำมันดีเซลเพื่อขนส่งสินค้าให้ลูกค้า การปล่อยก๊าซนี้จัดอยู่ใน Scope ใด และเพราะเหตุใด?', options:[
+        'Scope 1 เพราะรถบรรทุกเป็นยานพาหนะขนาดใหญ่',
+        'Scope 1 เพราะเชื้อเพลิงถูกเผาไหม้โดยตรงจากยานพาหนะที่บริษัทเป็นเจ้าของ',
+        'Scope 2 เพราะการจัดส่งเป็นบริการ ไม่ใช่สินค้า',
+        'Scope 3 เพราะลูกค้าเป็นผู้รับสินค้า'
+      ]},
+      q5:{ q:'ตามเป้าหมาย SBTi ของ Behn Meyer การปล่อยก๊าซเรือนกระจก (Scope 1&2) จะลดลงเท่าใดภายในปี 2030?', options:['25%','42%','50%','100%'] },
+      q6:{ q:'เป้าหมายด้านพลังงานของ Behn Meyer สำหรับปี 2040 คืออะไร?', options:[
+        'ลดการใช้ไฟฟ้าลง 50%',
+        'เปลี่ยนรถขนส่งทั้งหมดเป็นรถยนต์ไฟฟ้า',
+        'ใช้ไฟฟ้าจากพลังงานหมุนเวียน 100%',
+        'หยุดใช้เชื้อเพลิงฟอสซิลโดยสิ้นเชิง'
+      ]}
+    },
+    scope:{ s1:{label:'Scope 1', sub:'การปล่อยก๊าซทางตรง'}, s2:{label:'Scope 2', sub:'การปล่อยทางอ้อมจากพลังงาน'} },
+    cat:{ fuel:'การเผาไหม้เชื้อเพลิง', fug:'การรั่วไหล (Fugitive)', proc:'การปล่อยจากกระบวนการผลิต', elec:'การใช้ไฟฟ้า', heat:'ความร้อน/ไอน้ำ' },
+    activity:{
+      a1:'รถบริษัทใช้น้ำมันดีเซลเพื่อขนส่งสินค้า',
+      a2:'รถโฟล์คลิฟท์ในคลังสินค้าใช้แก๊ส LPG',
+      a3:'ไฟฟ้าที่ซื้อมาใช้เดินเครื่องจักรผลิต',
+      a4:'ไอน้ำที่ซื้อมาใช้ในกระบวนการผลิต',
+      a5:'สารทำความเย็นรั่วไหลจากระบบเครื่องปรับอากาศ',
+      a6:'ไฟฟ้าที่ซื้อมาใช้กับไฟส่องสว่างและเครื่องปรับอากาศในสำนักงาน',
+      a7:'ปฏิกิริยาเคมีที่เกิดขึ้นระหว่างการผลิตสินค้า',
+      a8:'แก๊สรั่วไหลจากข้อต่อท่อในถังเก็บสาร'
+    }
+  },
+  en:{
+    locale:'en-US',
+    pageTitle:'Scope Detective',
+    pageSub:'Match each activity to its Scope and emission category on one page — your answers are revealed after you submit.',
+    lblName:'Full name',
+    namePh:'Enter your full name',
+    lblEmail:'Email',
+    emailPh:'name@behnmeyer.com',
+    lblDept:'Department / Company',
+    deptPh:'e.g. Sustainability, Behn Meyer Thailand',
+    errorRequired:'Please fill in your full name, email, and department/company before starting.',
+    errorEmail:'Please enter a valid email address.',
+    startBtn:'Start game',
+    gameTitle:'Match all 8 activities',
+    gameHint:'Click an activity in the middle to select it, then click a Scope on the left and an emission category on the right. Correct/incorrect answers stay hidden until you press "Submit answers".',
+    colScope:'Scope', colActivity:'Activity', colCategory:'Emission category',
+    progress:(d,t)=>`${d} / ${t} matched`,
+    submitBtn:'Submit answers',
+    submitDone:'Revealed ✓',
+    msgPickActivity:'Select an activity first',
+    msgAssign:'Pick a Scope on the left and an emission category on the right for this activity',
+    msgScore:(s)=>`Your score: ${s} / 16`,
+    chipScopeEmpty:'Scope: not selected',
+    chipCatEmpty:'Category: not selected',
+    chipScopePrefix:'Scope: ',
+    chipCatPrefix:'Category: ',
+    correctPrefix:'Correct answer: ',
+    resultPerfectTitle:'Perfect! 🎉', resultPerfectSub:'You matched everything correctly — true ESG Champion!',
+    resultGreatTitle:'Great job!', resultGreatSub:'Almost there — review the ones you missed.',
+    resultTryTitle:'Quest complete', resultTrySub:'Thanks for taking part in this quest!',
+    statScoreLabel:'Matching score', statQuizLabel:'Quiz score', statPart3Label:'Open question',
+    part3Submitted:'Submitted, pending review',
+    finishedAtLabel:(s)=>`Finished at ${s}`,
+    lbTitle:'🏆 Leaderboard (Top 10)', lbEmpty:'No leaderboard data yet',
+    playAgainBtn:'Play again',
+    viewAllBtn:'View all players',
+    downloadCsv:'Download CSV',
+    modalTitle:'All players summary',
+    modalCount:(n)=>`${n} player(s) total`,
+    thName:'Name', thEmail:'Email', thDept:'Department/Company', thQuiz:'Quiz', thMatch:'Matching', thPart3:'Open question', thFinished:'Finished at',
+    modalClose:'Close',
+    defaultName:'Unnamed player',
+    part1Label:'Quiz', part2Label:'Matching', part3Label:'Open question',
+    quizTitle:'Part 1: Knowledge quiz (6 questions)',
+    quizHint:'Pick the best answer for each question. Correct/incorrect stays hidden until the final summary.',
+    quizNextBtn:'Go to Part 2: Matching →',
+    quizMsgIncomplete:'Please answer all 6 questions before continuing',
+    reflectionTitle:'Part 3: Think it through',
+    reflectionHint:'Think about your department. What are the Scope 1 and Scope 2 GHG emission sources? (This answer will be reviewed and scored by the team later.)',
+    lblPart3:'Your answer',
+    part3Ph:'e.g. Scope 1: forklift running on LPG in the warehouse / Scope 2: electricity used to run machines...',
+    part3ErrorRequired:'Please write an answer before submitting',
+    finishBtn:'Submit and finish the quest',
+    quiz:{
+      q1:{ q:'What is a carbon footprint?', options:[
+        'The amount of waste a company produces',
+        'The total amount of greenhouse gases (GHGs) released from human activities',
+        'The amount of fuel consumption in company own assets',
+        'The amount of energy a company uses each year'
+      ]},
+      q2:{ q:'How many types of GHG emissions are there, and what are they?', options:[
+        'Only 1 type: direct',
+        'Only 1 type: indirect',
+        '3 types: Scope 1, 2, and 3',
+        '2 types: solid waste and liquid waste'
+      ]},
+      q3:{ q:'Which option below contains only indirect emissions?', options:[
+        'Fuel combustion',
+        'Electricity and chemical reaction',
+        'Electricity and upstream activity',
+        'Upstream activity and refrigerant leakage'
+      ]},
+      q4:{ q:'A company truck burns diesel to deliver products to customers. Which scope does this emission belong to, and why?', options:[
+        'Scope 1, because trucks are large vehicles',
+        'Scope 1, because the fuel is burned directly by a company-owned vehicle',
+        'Scope 2, because delivery is a service, not a product',
+        'Scope 3, because customers receive the delivery'
+      ]},
+      q5:{ q:"According to Behn Meyer's SBTi target, how much will GHG emissions (Scope 1&2) be reduced by 2030?", options:['25%','42%','50%','100%'] },
+      q6:{ q:"What is Behn Meyer's energy target for 2040?", options:[
+        'Reduce electricity use by 50%',
+        'Replace all delivery vehicles with electric vehicles',
+        'Source 100% of electricity from renewable energy',
+        'Stop using fossil fuels completely'
+      ]}
+    },
+    scope:{ s1:{label:'Scope 1', sub:'Direct emissions'}, s2:{label:'Scope 2', sub:'Indirect emissions from energy'} },
+    cat:{ fuel:'Fuel combustion', fug:'Fugitive', proc:'Process emissions', elec:'Electricity consumption', heat:'Heat' },
+    activity:{
+      a1:'Company vehicle burns diesel for delivery',
+      a2:'Forklift in warehouse runs on LPG',
+      a3:'Electricity purchased to run production machines',
+      a4:'Purchased steam used in production process',
+      a5:'Refrigerant leaks from air conditioning system',
+      a6:'Electricity purchased for office lighting and air conditioning',
+      a7:'Chemical reaction during product manufacturing',
+      a8:'Gas leaks from pipe fittings in storage tanks'
+    }
+  },
+  zh:{
+    locale:'zh-CN',
+    pageTitle:'范围侦探 Scope Detective',
+    pageSub:'在同一页面完成两次配对：将每项活动与其范围（Scope）和排放类别匹配 — 提交后才会显示答案。',
+    lblName:'姓名',
+    namePh:'请输入您的姓名',
+    lblEmail:'电子邮箱',
+    emailPh:'name@behnmeyer.com',
+    lblDept:'部门 / 公司',
+    deptPh:'例如：Sustainability, Behn Meyer Thailand',
+    errorRequired:'开始游戏前，请填写姓名、电子邮箱和部门/公司。',
+    errorEmail:'请输入有效的电子邮箱地址。',
+    startBtn:'开始游戏',
+    gameTitle:'完成全部 8 项活动的配对',
+    gameHint:'先点击中间的活动进行选择，然后点击左侧的范围（Scope）和右侧的排放类别。答案在您点击"提交答案"之前不会显示对错。',
+    colScope:'范围 Scope', colActivity:'活动', colCategory:'排放类别',
+    progress:(d,t)=>`已完成 ${d} / ${t}`,
+    submitBtn:'提交答案并查看结果',
+    submitDone:'已公布结果 ✓',
+    msgPickActivity:'请先选择一项活动',
+    msgAssign:'请为该活动选择左侧的范围和右侧的排放类别',
+    msgScore:(s)=>`您的得分：${s} / 16`,
+    chipScopeEmpty:'范围：未选择',
+    chipCatEmpty:'类别：未选择',
+    chipScopePrefix:'范围：',
+    chipCatPrefix:'类别：',
+    correctPrefix:'正确答案：',
+    resultPerfectTitle:'完美！🎉', resultPerfectSub:'全部匹配正确，真正的 ESG 冠军！',
+    resultGreatTitle:'干得好！', resultGreatSub:'非常接近了，再检查一下答错的部分吧。',
+    resultTryTitle:'任务完成', resultTrySub:'感谢您参与本次任务！',
+    statScoreLabel:'配对得分', statQuizLabel:'测验得分', statPart3Label:'开放式问题',
+    part3Submitted:'已提交，待审核',
+    finishedAtLabel:(s)=>`完成时间 ${s}`,
+    lbTitle:'🏆 排行榜（前10名）', lbEmpty:'暂无排行榜数据',
+    playAgainBtn:'再玩一次',
+    viewAllBtn:'查看全部玩家名单',
+    downloadCsv:'下载 CSV',
+    modalTitle:'全部玩家名单',
+    modalCount:(n)=>`共 ${n} 位玩家`,
+    thName:'姓名', thEmail:'电子邮箱', thDept:'部门/公司', thQuiz:'测验', thMatch:'配对', thPart3:'开放式问题', thFinished:'完成时间',
+    modalClose:'关闭',
+    defaultName:'匿名玩家',
+    part1Label:'测验', part2Label:'配对', part3Label:'开放式问题',
+    quizTitle:'第一部分：知识测验（6题）',
+    quizHint:'为每道题选择最佳答案。答案在最终结果公布前不会显示对错。',
+    quizNextBtn:'前往第二部分：配对 →',
+    quizMsgIncomplete:'请先回答全部6道题再继续',
+    reflectionTitle:'第三部分：思考一下',
+    reflectionHint:'想一想您所在的部门。您部门的范围一（Scope 1）和范围二（Scope 2）温室气体排放源是什么？（此答案将由团队后续审核并评分。）',
+    lblPart3:'您的答案',
+    part3Ph:'例如：范围一：仓库叉车使用液化石油气 / 范围二：用于运行机器的电力……',
+    part3ErrorRequired:'请填写答案后再提交',
+    finishBtn:'提交并完成任务',
+    quiz:{
+      q1:{ q:'什么是碳足迹（Carbon Footprint）？', options:[
+        '公司产生的废物量',
+        '人类活动所排放的温室气体（GHG）总量',
+        '公司自有资产的燃料消耗量',
+        '公司每年使用的能源量'
+      ]},
+      q2:{ q:'温室气体排放分为几种类型？分别是什么？', options:[
+        '只有1种：直接排放',
+        '只有1种：间接排放',
+        '有3种：范围一、二、三（Scope 1, 2, 3）',
+        '有2种：固体废物和液体废物'
+      ]},
+      q3:{ q:'以下哪个选项仅包含间接排放？', options:[
+        '燃料燃烧',
+        '电力和化学反应',
+        '电力和上游活动',
+        '上游活动和制冷剂泄漏'
+      ]},
+      q4:{ q:'公司卡车燃烧柴油为客户配送产品。这项排放属于哪个范围？为什么？', options:[
+        '范围一，因为卡车是大型车辆',
+        '范围一，因为燃料是由公司自有车辆直接燃烧的',
+        '范围二，因为配送是一种服务，不是产品',
+        '范围三，因为客户是收货方'
+      ]},
+      q5:{ q:'根据 Behn Meyer 的 SBTi 目标，到 2030 年温室气体排放（范围一和二）将减少多少？', options:['25%','42%','50%','100%'] },
+      q6:{ q:'Behn Meyer 到 2040 年的能源目标是什么？', options:[
+        '将电力使用量减少50%',
+        '将所有运输车辆更换为电动车',
+        '100%使用可再生能源电力',
+        '完全停止使用化石燃料'
+      ]}
+    },
+    scope:{ s1:{label:'Scope 1', sub:'直接排放'}, s2:{label:'Scope 2', sub:'能源间接排放'} },
+    cat:{ fuel:'燃料燃烧', fug:'逃逸排放', proc:'过程排放', elec:'电力消耗', heat:'热力/蒸汽' },
+    activity:{
+      a1:'公司车辆燃烧柴油进行送货',
+      a2:'仓库叉车使用液化石油气（LPG）运行',
+      a3:'购买的电力用于运行生产机器',
+      a4:'购买的蒸汽用于生产过程',
+      a5:'空调系统制冷剂泄漏',
+      a6:'购买的电力用于办公室照明和空调',
+      a7:'产品制造过程中的化学反应',
+      a8:'储罐管道接头处气体泄漏'
+    }
+  }
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ---------- state ---------- */
+const state = {
+  lang:'th',
+  playerName:'',
+  playerEmail:'',
+  playerDept:'',
+  selectedActivity:null,
+  assignments:{},
+  submitted:false,
+  quizAnswers:{},   // qid -> selected option index
+  quizSelected:null,
+  part3Answer:'',
+  matchScore:0,
+  perfectActivities:0,
+};
+activityIds.forEach(id => state.assignments[id] = { scope:null, cat:null });
+
+/* ---------- DOM refs ---------- */
+const $ = (id)=>document.getElementById(id);
+const startCard=$('startCard'), quizCard=$('quizCard'), gameCard=$('gameCard'), reflectionCard=$('reflectionCard'), resultCard=$('resultCard');
+const nameInput=$('nameInput'), emailInput=$('emailInput'), deptInput=$('deptInput'), startBtn=$('startBtn');
+const playerChip=$('playerChip');
+const colScope=$('colScope'), colActivity=$('colActivity'), colCategory=$('colCategory');
+const svg=$('link-layer'), cols=document.querySelector('.cols');
+const submitBtn=$('submitBtn'), msg=$('msg');
+const trackFill=$('trackFill'), progressLabel=$('progressLabel');
+const modalOverlay=$('modalOverlay'), modalTbody=$('modalTbody'), modalCount=$('modalCount');
+const quizList=$('quizList'), quizNextBtn=$('quizNextBtn'), quizMsg=$('quizMsg');
+const part3Input=$('part3Input'), finishBtn=$('finishBtn'), part3Error=$('part3Error'), part3Msg=$('part3Msg');
+const partStepper=$('partStepper');
+
+function T(){ return I18N[state.lang]; }
+
+const ALL_CARDS = [startCard, quizCard, gameCard, reflectionCard, resultCard];
+function showCard(card){
+  ALL_CARDS.forEach(c=>c.classList.remove('visible'));
+  card.classList.add('visible');
+  // the part stepper only makes sense during the 3 quest parts
+  const showStepper = (card===quizCard || card===gameCard || card===reflectionCard);
+  partStepper.classList.toggle('visible', showStepper);
+  if(showStepper){
+    const activePart = card===quizCard ? 1 : card===gameCard ? 2 : 3;
+    updatePartStepper(activePart);
+  }
+}
+
+function updatePartStepper(activePart){
+  [1,2,3].forEach(p=>{
+    const pill = partStepper.querySelector(`.part-pill[data-part="${p}"]`);
+    if(!pill) return;
+    pill.classList.toggle('active', p===activePart);
+    pill.classList.toggle('done', p<activePart);
+  });
+}
+
+/* ---------- language ---------- */
+function setLanguage(lang){
+  state.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b=> b.classList.toggle('active', b.dataset.lang===lang));
+  document.documentElement.lang = lang;
+  applyStaticText();
+  if(gameCard.classList.contains('visible')) applyGameText();
+}
+
+document.querySelectorAll('.lang-btn').forEach(b=>{
+  b.addEventListener('click', ()=> setLanguage(b.dataset.lang));
+});
+
+/* null-safe setters — if an element is ever missing (stale cache, future
+   edit that renames an id, etc.) this skips it instead of throwing and
+   freezing the whole page. */
+function setText(id, text){ const el = document.getElementById(id); if(el) el.textContent = text; }
+function setHTML(id, html){ const el = document.getElementById(id); if(el) el.innerHTML = html; }
+
+function applyStaticText(){
+  const t = T();
+  setText('pageTitle', t.pageTitle);
+  setText('pageSub', t.pageSub);
+  setHTML('lblName', t.lblName + ' <span class="req-star">*</span>');
+  if(nameInput) nameInput.placeholder = t.namePh;
+  setHTML('lblEmail', t.lblEmail + ' <span class="req-star">*</span>');
+  if(emailInput) emailInput.placeholder = t.emailPh;
+  setHTML('lblDept', t.lblDept + ' <span class="req-star">*</span>');
+  if(deptInput) deptInput.placeholder = t.deptPh;
+  if(startBtn) startBtn.textContent = t.startBtn;
+
+  setText('gameTitle', t.gameTitle);
+  setText('gameHint', t.gameHint);
+  setText('colLabelScope', t.colScope);
+  setText('colLabelActivity', t.colActivity);
+  setText('colLabelCategory', t.colCategory);
+  if(submitBtn) submitBtn.textContent = state.submitted ? t.submitDone : t.submitBtn;
+
+  setText('partLabel1', t.part1Label);
+  setText('partLabel2', t.part2Label);
+  setText('partLabel3', t.part3Label);
+
+  setText('quizTitle', t.quizTitle);
+  setText('quizHint', t.quizHint);
+  if(quizNextBtn) quizNextBtn.textContent = t.quizNextBtn;
+
+  setText('reflectionTitle', t.reflectionTitle);
+  setText('reflectionHint', t.reflectionHint);
+  setHTML('lblPart3', t.lblPart3 + ' <span class="req-star">*</span>');
+  if(part3Input) part3Input.placeholder = t.part3Ph;
+  if(finishBtn) finishBtn.textContent = t.finishBtn;
+
+  setText('statScoreLabel', t.statScoreLabel);
+  setText('statQuizLabel', t.statQuizLabel);
+  setText('statPart3Label', t.statPart3Label);
+  setText('lbTitle', t.lbTitle);
+  setText('viewAllBtn', t.viewAllBtn);
+  setText('playAgainBtn', t.playAgainBtn);
+
+  setText('modalTitle', t.modalTitle);
+  setText('thName', t.thName);
+  setText('thEmail', t.thEmail);
+  setText('thDept', t.thDept);
+  setText('thQuiz', t.thQuiz);
+  setText('thMatch', t.thMatch);
+  setText('thPart3', t.thPart3);
+  setText('thFinished', t.thFinished);
+  setText('downloadCsvBtn', t.downloadCsv);
+  setText('modalCloseBtn', t.modalClose);
+
+  if(playerChip && playerChip.dataset.hasName === '1'){
+    playerChip.textContent = '👤 ' + state.playerName;
+  }
+
+  // re-render quiz text if the quiz screen has already been built
+  if(quizList && quizList.children.length) applyQuizText();
+}
+
+/* re-render dynamic in-game text (labels, chips) when language changes mid-game */
+function applyGameText(){
+  const t = T();
+  scopeIds.forEach(id=>{
+    const el = colScope.querySelector(`.node[data-id="${id}"]`);
+    if(el) el.innerHTML = `${t.scope[id].label}<span class="sub-label">${t.scope[id].sub}</span><span class="dot dot-right"></span>`;
+  });
+  catIds.forEach(id=>{
+    const el = colCategory.querySelector(`.node[data-id="${id}"]`);
+    const textEl = el && el.querySelector('.cat-text');
+    if(textEl) textEl.textContent = t.cat[id];
+  });
+  activityIds.forEach(id=>{
+    const el = colActivity.querySelector(`.node.activity[data-id="${id}"]`);
+    if(!el) return;
+    el.querySelector('.a-text').textContent = t.activity[id];
+    refreshChips(id);
+  });
+  updateProgress();
+}
+
+/* ---------- start (registration is mandatory) ---------- */
+const startError = $('startError');
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateStartForm(){
+  const ok = nameInput.value.trim().length > 0
+    && emailPattern.test(emailInput.value.trim())
+    && deptInput.value.trim().length > 0;
+  startBtn.disabled = !ok;
+  return ok;
+}
+nameInput.addEventListener('input', ()=>{ validateStartForm(); startError.textContent=''; });
+emailInput.addEventListener('input', ()=>{ validateStartForm(); startError.textContent=''; });
+deptInput.addEventListener('input', ()=>{ validateStartForm(); startError.textContent=''; });
+
+startBtn.addEventListener('click', ()=>{
+  const t = T();
+  if(nameInput.value.trim() && emailInput.value.trim() && !emailPattern.test(emailInput.value.trim())){
+    startError.textContent = t.errorEmail;
+    return;
+  }
+  if(!validateStartForm()){
+    startError.textContent = t.errorRequired;
+    return;
+  }
+  state.playerName = nameInput.value.trim();
+  state.playerEmail = emailInput.value.trim();
+  state.playerDept = deptInput.value.trim();
+  playerChip.dataset.hasName = '1';
+  playerChip.textContent = '👤 ' + state.playerName;
+  buildQuiz();
+  showCard(quizCard);
+});
+nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ emailInput.focus(); } });
+emailInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ deptInput.focus(); } });
+deptInput.addEventListener('keydown', e=>{ if(e.key==='Enter') startBtn.click(); });
+
+/* ---------- Part 1: quiz ---------- */
+function buildQuiz(){
+  state.quizAnswers = {};
+  quizList.innerHTML = '';
+  quizNextBtn.disabled = true;
+  quizMsg.textContent = '';
+  const t = T();
+
+  quizIds.forEach((qid, qIndex)=>{
+    const q = t.quiz[qid];
+    const block = document.createElement('div');
+    block.className = 'quiz-q';
+    block.dataset.id = qid;
+
+    const title = document.createElement('p');
+    title.className = 'quiz-q-title';
+    title.innerHTML = `<span class="quiz-q-num">Q${qIndex+1}.</span><span class="quiz-q-text">${q.q}</span>`;
+    block.appendChild(title);
+
+    const optWrap = document.createElement('div');
+    optWrap.className = 'quiz-options';
+    q.options.forEach((optText, optIndex)=>{
+      const letter = String.fromCharCode(65 + optIndex); // A, B, C, D
+      const opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'quiz-option';
+      opt.dataset.opt = optIndex;
+      opt.innerHTML = `<span class="opt-letter">${letter}</span><span class="opt-text">${optText}</span>`;
+      opt.addEventListener('click', ()=> onQuizOptionClick(qid, optIndex, block));
+      optWrap.appendChild(opt);
+    });
+    block.appendChild(optWrap);
+    quizList.appendChild(block);
+  });
+}
+
+function applyQuizText(){
+  const t = T();
+  quizIds.forEach(qid=>{
+    const block = quizList.querySelector(`.quiz-q[data-id="${qid}"]`);
+    if(!block) return;
+    const q = t.quiz[qid];
+    block.querySelector('.quiz-q-text').textContent = q.q;
+    block.querySelectorAll('.quiz-option').forEach((opt, i)=>{
+      opt.querySelector('.opt-text').textContent = q.options[i];
+    });
+  });
+  quizMsg.textContent = quizMsg.dataset.incomplete === '1' ? t.quizMsgIncomplete : '';
+}
+
+function onQuizOptionClick(qid, optIndex, block){
+  state.quizAnswers[qid] = optIndex;
+  block.querySelectorAll('.quiz-option').forEach((opt,i)=>{
+    opt.classList.toggle('selected', i===optIndex);
+  });
+  quizNextBtn.disabled = quizIds.some(id => state.quizAnswers[id] === undefined);
+  quizMsg.dataset.incomplete = '0';
+  quizMsg.textContent = '';
+}
+
+quizNextBtn.addEventListener('click', ()=>{
+  const t = T();
+  if(quizIds.some(id => state.quizAnswers[id] === undefined)){
+    quizMsg.dataset.incomplete = '1';
+    quizMsg.textContent = t.quizMsgIncomplete;
+    return;
+  }
+  buildGame();
+  showCard(gameCard);
+});
+
+/* ---------- build game ---------- */
+function buildGame(){
+  const t = T();
+  state.selectedActivity = null;
+  state.submitted = false;
+  activityIds.forEach(id => state.assignments[id] = { scope:null, cat:null });
+  colScope.innerHTML = ''; colActivity.innerHTML = ''; colCategory.innerHTML = '';
+  svg.innerHTML = '';
+  submitBtn.disabled = true;
+  submitBtn.textContent = t.submitBtn;
+  msg.textContent = '';
+
+  const orderedActivities = shuffle(activityIds);
+  const orderedScopes = shuffle(scopeIds);
+  const orderedCats = shuffle(catIds);
+
+  orderedScopes.forEach(id=>{
+    const div = document.createElement('div');
+    div.className = 'node scope ' + id;
+    div.dataset.id = id;
+    div.innerHTML = `${t.scope[id].label}<span class="sub-label">${t.scope[id].sub}</span><span class="dot dot-right"></span>`;
+    div.addEventListener('click', ()=>onSideClick('scope', id));
+    colScope.appendChild(div);
+  });
+
+  orderedCats.forEach(id=>{
+    const div = document.createElement('div');
+    div.className = 'node category';
+    div.dataset.id = id;
+    div.innerHTML = `<span class="cat-text"></span><span class="dot dot-left"></span>`;
+    div.querySelector('.cat-text').textContent = t.cat[id];
+    div.addEventListener('click', ()=>onSideClick('cat', id));
+    colCategory.appendChild(div);
+  });
+
+  orderedActivities.forEach(id=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'node activity';
+    wrap.dataset.id = id;
+    wrap.innerHTML = `<span class="dot dot-left"></span><span class="dot dot-right"></span>
+      <div class="a-text">${t.activity[id]}</div>
+      <div class="chips">
+        <span class="chip" data-role="scope">${t.chipScopeEmpty}</span>
+        <span class="chip" data-role="cat">${t.chipCatEmpty}</span>
+      </div>`;
+    wrap.addEventListener('click', ()=>onActivityClick(id, wrap));
+    colActivity.appendChild(wrap);
+  });
+
+  updateProgress();
+}
+
+function onActivityClick(id, el){
+  if(state.submitted) return;
+  const t = T();
+  document.querySelectorAll('.node.activity').forEach(n=>n.classList.remove('selected'));
+  if(state.selectedActivity === id){
+    state.selectedActivity = null;
+    msg.textContent = '';
+    return;
+  }
+  state.selectedActivity = id;
+  el.classList.add('selected');
+  msg.textContent = t.msgAssign;
+}
+
+function onSideClick(kind, targetId){
+  const t = T();
+  if(state.submitted) return;
+  if(!state.selectedActivity){
+    msg.textContent = t.msgPickActivity;
+    return;
+  }
+  const a = state.assignments[state.selectedActivity];
+  if(kind === 'scope') a.scope = targetId; else a.cat = targetId;
+  refreshChips(state.selectedActivity);
+  redrawAllLines();
+  updateProgress();
+  msg.textContent = '';
+}
+
+function refreshChips(activityId){
+  const t = T();
+  const el = colActivity.querySelector(`.node.activity[data-id="${activityId}"]`);
+  if(!el) return;
+  const a = state.assignments[activityId];
+  const scopeChip = el.querySelector('.chip[data-role="scope"]');
+  const catChip = el.querySelector('.chip[data-role="cat"]');
+  if(a.scope){
+    scopeChip.textContent = t.chipScopePrefix + t.scope[a.scope].label;
+    scopeChip.classList.add('filled');
+  } else {
+    scopeChip.textContent = t.chipScopeEmpty;
+    scopeChip.classList.remove('filled');
+  }
+  if(a.cat){
+    catChip.textContent = t.chipCatPrefix + t.cat[a.cat];
+    catChip.classList.add('filled');
+  } else {
+    catChip.textContent = t.chipCatEmpty;
+    catChip.classList.remove('filled');
+  }
+}
+
+function redrawAllLines(){
+  svg.innerHTML = '';
+  const boardRect = cols.getBoundingClientRect();
+  if(boardRect.width < 820) return;
+  activityIds.forEach(id=>{
+    const assign = state.assignments[id];
+    const actEl = colActivity.querySelector(`.node.activity[data-id="${id}"]`);
+    if(!actEl) return;
+    if(assign.scope){
+      const scopeEl = colScope.querySelector(`.node[data-id="${assign.scope}"]`);
+      if(scopeEl) drawLine(scopeEl, actEl, boardRect, 'idle');
+    }
+    if(assign.cat){
+      const catEl = colCategory.querySelector(`.node[data-id="${assign.cat}"]`);
+      if(catEl) drawLine(actEl, catEl, boardRect, 'idle');
+    }
+  });
+}
+
+function drawLine(fromEl, toEl, boardRect, status){
+  // anchor to the real dot elements, not the box edge — this is what makes
+  // the line actually touch the connector dot instead of stopping short of it
+  const fromDot = fromEl.querySelector('.dot-right') || fromEl;
+  const toDot = toEl.querySelector('.dot-left') || toEl;
+  const f = fromDot.getBoundingClientRect();
+  const t2 = toDot.getBoundingClientRect();
+  const x1 = f.left + f.width/2 - boardRect.left;
+  const y1 = f.top + f.height/2 - boardRect.top;
+  const x2 = t2.left + t2.width/2 - boardRect.left;
+  const y2 = t2.top + t2.height/2 - boardRect.top;
+  const midX = (x1+x2)/2;
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+  path.setAttribute('class', status === 'good' ? 'path-good' : status === 'bad' ? 'path-bad' : 'path-idle');
+  svg.appendChild(path);
+}
+
+function updateProgress(){
+  const t = T();
+  const done = activityIds.filter(id=>{
+    const x = state.assignments[id];
+    return x.scope && x.cat;
+  }).length;
+  progressLabel.textContent = t.progress(done, activityIds.length);
+  trackFill.style.width = (done/activityIds.length*100) + '%';
+  submitBtn.disabled = done < activityIds.length;
+}
+
+window.addEventListener('resize', ()=>{
+  try{ redrawAllLines(); }catch(e){ /* non-fatal — lines are cosmetic, game state is unaffected */ }
+});
+
+/* ---------- submit & reveal (Part 2) ---------- */
+submitBtn.addEventListener('click', async ()=>{
+  if(state.submitted) return; // guard: ignore double-clicks / repeated taps
+  state.submitted = true;
+  submitBtn.disabled = true; // lock immediately, before any async work
+
+  const t = T();
+  document.querySelectorAll('.node.activity').forEach(n=>n.classList.remove('selected'));
+  state.selectedActivity = null;
+
+  let score = 0;
+  let perfectActivities = 0;
+  const boardRect = cols.getBoundingClientRect();
+  svg.innerHTML = '';
+
+  activityIds.forEach(id=>{
+    const assign = state.assignments[id];
+    const key = answerKey[id];
+    const actEl = colActivity.querySelector(`.node.activity[data-id="${id}"]`);
+    const scopeChip = actEl.querySelector('.chip[data-role="scope"]');
+    const catChip = actEl.querySelector('.chip[data-role="cat"]');
+
+    const scopeOk = assign.scope === key.scope;
+    const catOk = assign.cat === key.cat;
+    if(scopeOk) score++;
+    if(catOk) score++;
+    if(scopeOk && catOk) perfectActivities++;
+
+    scopeChip.classList.toggle('correct', scopeOk);
+    scopeChip.classList.toggle('wrong', !scopeOk);
+    if(!scopeOk) scopeChip.textContent = t.correctPrefix + t.scope[key.scope].label;
+
+    catChip.classList.toggle('correct', catOk);
+    catChip.classList.toggle('wrong', !catOk);
+    if(!catOk) catChip.textContent = t.correctPrefix + t.cat[key.cat];
+
+    if(boardRect.width >= 820){
+      const scopeEl = colScope.querySelector(`.node[data-id="${assign.scope}"]`);
+      if(scopeEl) drawLine(scopeEl, actEl, boardRect, scopeOk ? 'good' : 'bad');
+      const catEl = colCategory.querySelector(`.node[data-id="${assign.cat}"]`);
+      if(catEl) drawLine(actEl, catEl, boardRect, catOk ? 'good' : 'bad');
+    }
+  });
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = t.submitDone;
+  msg.textContent = t.msgScore(score);
+
+  state.matchScore = score;
+  state.perfectActivities = perfectActivities;
+
+  setTimeout(()=>{ showCard(reflectionCard); part3Input.focus(); }, 900);
+});
+
+/* ---------- Part 3: open reflection ---------- */
+finishBtn.addEventListener('click', async ()=>{
+  const t = T();
+  const answer = part3Input.value.trim();
+  if(!answer){
+    part3Error.textContent = t.part3ErrorRequired;
+    return;
+  }
+  part3Error.textContent = '';
+  finishBtn.disabled = true;
+  part3Msg.textContent = '';
+  state.part3Answer = answer;
+
+  const finishedAtISO = new Date().toISOString();
+  const quizScore = quizIds.reduce((sum,id)=> sum + (state.quizAnswers[id]===quizAnswerKey[id] ? 1 : 0), 0);
+
+  await finishAndShowResults(quizScore, state.matchScore, state.perfectActivities, answer, finishedAtISO);
+});
+
+async function finishAndShowResults(quizScore, matchScore, perfectActivities, part3Answer, finishedAtISO){
+  const t = T();
+  $('finalQuizScore').textContent = `${quizScore}/6`;
+  $('finalScore').textContent = `${matchScore}/16`;
+  $('finalPart3').textContent = t.part3Submitted;
+  const headline = $('resultHeadline');
+  const sub = $('resultSub');
+  const finishedDt = new Date(finishedAtISO);
+  const timeStr = finishedDt.toLocaleTimeString(t.locale, { hour:'2-digit', minute:'2-digit' });
+  const dateStr = finishedDt.toLocaleDateString(t.locale, { day:'numeric', month:'short', year:'numeric' });
+  $('finishedAtDisplay').textContent = t.finishedAtLabel(`${timeStr} · ${dateStr}`);
+
+  const autoTotal = quizScore + matchScore; // out of 22 — Part 3 is scored manually, not counted here
+  if(autoTotal === 22){ headline.textContent = t.resultPerfectTitle; sub.textContent = t.resultPerfectSub; }
+  else if(autoTotal >= 15){ headline.textContent = t.resultGreatTitle; sub.textContent = t.resultGreatSub; }
+  else { headline.textContent = t.resultTryTitle; sub.textContent = t.resultTrySub; }
+
+  setTimeout(()=>showCard(resultCard), 400);
+  await saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer, finishedAtISO);
+}
+
+/* ---------- Google Sheets backend (write + read) ----------
+   This game no longer uses window.storage at all — that API only works
+   for viewers logged into a paid Claude plan, which breaks the "anyone,
+   no login" goal for a company-wide link. Google Sheets is now the only
+   data store, for both saving new results (POST to the Apps Script web
+   app) and reading the accumulated history back (GET from the sheet's
+   published-to-web CSV link). Neither requires the visitor to have any
+   account at all — Google or Claude.
+
+   SETUP — 2 things to configure below:
+   1. WRITE: Extensions > Apps Script in the sheet, paste the doPost()
+      script from the setup notes, Deploy > Web app
+      (Execute as: Me, Who has access: Anyone). Paste that URL into
+      GOOGLE_SHEETS_WEBHOOK_URL.
+   2. READ: File > Share > Publish to web, select the "Responses" sheet,
+      format CSV, click Publish. Paste that URL into
+      GOOGLE_SHEETS_CSV_URL. (Note: Google's published-CSV cache can lag
+      by up to a few minutes, so a just-submitted result may not appear
+      in the read-back list immediately — the code below compensates by
+      always showing the current player's own result locally too.) */
+
+const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwksnq1QEVdF9DAnmJ_zm-U-M4SZfynwAzKd-oR8eQEo3FYHeHCSLrxdbwTKrC_ukTSfw/exec';
+const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1790406900&single=true&output=csv';
+
+async function sendToGoogleSheets(entry){
+  if(!GOOGLE_SHEETS_WEBHOOK_URL) return; // not configured yet — safe no-op
+  try{
+    await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+      method:'POST',
+      mode:'no-cors', // Apps Script web apps don't return readable CORS headers;
+                       // this still delivers the POST, we just can't read the response
+      headers:{ 'Content-Type':'text/plain' },
+      body: JSON.stringify(entry)
+    });
+  }catch(e){
+    // non-fatal — the score is still shown to the player locally
+  }
+}
+
+/* tiny CSV parser — handles quoted fields with commas/newlines, which
+   Part 3's free-text answers will regularly contain */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0; i<text.length; i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=''; }
+      else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c === '\r'){ /* skip, \n handles the line break */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function csvRowsToEntries(rows){
+  if(rows.length < 2) return [];
+  const header = rows[0].map(h => h.trim());
+  const idx = (name) => header.indexOf(name);
+  return rows.slice(1).filter(r => r.length > 1 && r[idx('Name')]).map(r=>{
+    const quizAnswers = {};
+    quizIds.forEach((qid,i)=>{ quizAnswers[qid] = Number(r[idx('Q'+(i+1))]) || 0; });
+    return {
+      name: r[idx('Name')],
+      email: r[idx('Email')],
+      dept: r[idx('Dept')],
+      quizAnswers,
+      quizScore: Number(r[idx('QuizScore')]) || 0,
+      matchScore: Number(r[idx('MatchScore')]) || 0,
+      autoTotal: Number(r[idx('AutoTotal')]) || 0,
+      part3Answer: r[idx('Part3Answer')] || '',
+      lang: r[idx('Language')] || 'th',
+      finishedAt: r[idx('FinishedAt')]
+    };
+  });
+}
+
+async function loadEntries(){
+  if(!GOOGLE_SHEETS_CSV_URL) return []; // not configured yet — safe no-op
+  try{
+    const res = await fetch(GOOGLE_SHEETS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return [];
+    const text = await res.text();
+    return csvRowsToEntries(parseCSV(text));
+  }catch(e){
+    return []; // leaderboard/CSV export will just show what we have locally
+  }
+}
+
+async function saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer, finishedAtISO){
+  const entry = {
+    name: state.playerName,
+    email: state.playerEmail,
+    dept: state.playerDept,
+    quizAnswers: quizIds.reduce((o,id)=>{ o[id] = state.quizAnswers[id] === quizAnswerKey[id] ? 1 : 0; return o; }, {}),
+    quizScore: quizScore,
+    matchScore: matchScore,
+    autoTotal: quizScore + matchScore, // out of 22 — Part 3 is scored manually
+    part3Answer: part3Answer,
+    part3Score: null, // filled in manually by whoever reviews the sheet
+    lang: state.lang,
+    finishedAt: finishedAtISO
+  };
+
+  await sendToGoogleSheets(entry); // write first
+
+  let entries = await loadEntries(); // read back everyone's history
+  // the published CSV can lag a few minutes behind the write above, and
+  // Google Sheets can reformat the datetime text on its way back out — so
+  // compare actual timestamps (not exact strings) to reliably tell whether
+  // our just-submitted result is already present, avoiding a duplicate entry
+  const myTime = new Date(entry.finishedAt).getTime();
+  const alreadyThere = entries.some(e =>
+    e.name === entry.name && Math.abs(new Date(e.finishedAt).getTime() - myTime) < 2000
+  );
+  if(!alreadyThere){
+    entries.push(entry);
+  }
+
+  renderLeaderboard(entries, finishedAtISO);
+  window._allEntries = entries;
+}
+
+function renderLeaderboard(entries, myFinishedAt){
+  const t = T();
+  const lbList = $('lbList');
+  const top10 = [...entries].sort((a,b)=>
+    b.autoTotal - a.autoTotal || new Date(a.finishedAt) - new Date(b.finishedAt)
+  ).slice(0,10);
+  lbList.innerHTML = '';
+  if(top10.length === 0){
+    lbList.innerHTML = `<li class="lb-empty">${t.lbEmpty}</li>`;
+    return;
+  }
+  top10.forEach((e, i)=>{
+    const li = document.createElement('li');
+    const myTime = new Date(myFinishedAt).getTime();
+    const isMe = e.name === state.playerName && Math.abs(new Date(e.finishedAt).getTime() - myTime) < 2000;
+    li.className = 'lb-row' + (isMe ? ' me' : '');
+    li.innerHTML = `<span><span class="lb-rank">#${i+1}</span>${escapeHtml(e.name)}</span><span>${e.autoTotal}/22</span>`;
+    lbList.appendChild(li);
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+/* ---------- all players modal ---------- */
+$('viewAllBtn').addEventListener('click', async ()=>{
+  const t = T();
+  const entries = window._allEntries || await loadEntries();
+  const sorted = [...entries].sort((a,b)=> new Date(b.finishedAt) - new Date(a.finishedAt));
+  modalCount.textContent = t.modalCount(sorted.length);
+  modalTbody.innerHTML = '';
+  sorted.forEach(e=>{
+    const tr = document.createElement('tr');
+    const dt = new Date(e.finishedAt);
+    const formatted = dt.toLocaleString(t.locale, { dateStyle:'medium', timeStyle:'short' });
+    const part3Preview = (e.part3Answer || '').slice(0, 60) + ((e.part3Answer||'').length > 60 ? '…' : '');
+    tr.innerHTML = `<td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.email)||'—'}</td><td>${escapeHtml(e.dept)||'—'}</td><td>${e.quizScore}/6</td><td>${e.matchScore}/16</td><td title="${escapeHtml(e.part3Answer)}">${escapeHtml(part3Preview)||'—'}</td><td>${formatted}</td>`;
+    modalTbody.appendChild(tr);
+  });
+  modalOverlay.classList.add('visible');
+});
+$('modalCloseBtn').addEventListener('click', ()=> modalOverlay.classList.remove('visible'));
+modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) modalOverlay.classList.remove('visible'); });
+
+/* ---------- CSV export ---------- */
+function csvEscape(val){
+  const s = String(val ?? '');
+  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+
+$('downloadCsvBtn').addEventListener('click', async ()=>{
+  const t = T();
+  const entries = window._allEntries || await loadEntries();
+  const sorted = [...entries].sort((a,b)=> new Date(b.finishedAt) - new Date(a.finishedAt));
+
+  const header = [
+    t.thName, t.thEmail, t.thDept,
+    ...quizIds.map((id,i)=>`Q${i+1}`),
+    'Quiz Score (max 6)', 'Match Score (max 16)', 'Auto Total (max 22)',
+    'Part 3 Answer', 'Part 3 Score (fill in manually)',
+    t.thFinished, 'Language'
+  ];
+  const rows = sorted.map(e=>[
+    e.name, e.email, e.dept,
+    ...quizIds.map(id => (e.quizAnswers && e.quizAnswers[id]) ?? ''),
+    e.quizScore, e.matchScore, e.autoTotal,
+    e.part3Answer, '',
+    new Date(e.finishedAt).toLocaleString(t.locale, { dateStyle:'medium', timeStyle:'short' }),
+    e.lang
+  ]);
+  const csv = [header, ...rows].map(r => r.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' }); // BOM so Excel reads Thai/Chinese correctly
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `scope_detective_players_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+$('playAgainBtn').addEventListener('click', ()=>{
+  nameInput.value = '';
+  emailInput.value = '';
+  deptInput.value = '';
+  part3Input.value = '';
+  part3Error.textContent = '';
+  finishBtn.disabled = false;
+  state.quizAnswers = {};
+  state.part3Answer = '';
+  state.matchScore = 0;
+  state.perfectActivities = 0;
+  playerChip.dataset.hasName = '0';
+  validateStartForm();
+  startError.textContent = '';
+  showCard(startCard);
+});
+
+/* ---------- global safety net ----------
+   A single unexpected error in one interaction (e.g. a rendering glitch)
+   should never freeze the rest of the game — log it and keep going. */
+window.addEventListener('error', (e)=>{ console.error('Scope Detective error:', e.error || e.message); });
+window.addEventListener('unhandledrejection', (e)=>{ console.error('Scope Detective rejection:', e.reason); });
+
+/* ---------- init ---------- */
+try{
+  setLanguage('th');
+}catch(e){
+  console.error('Init error:', e);
+  // even if language setup partially fails, make sure the start screen is visible
+  document.getElementById('startCard').classList.add('visible');
+}
+</script>
+</body>
+</html>
