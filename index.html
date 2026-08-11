@@ -1364,10 +1364,15 @@ async function saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer,
   await sendToGoogleSheets(entry); // write first
 
   let entries = await loadEntries(); // read back everyone's history
-  // the published CSV can lag a few minutes behind the write above, so make
-  // sure the current player still sees their own result even if it's not
-  // in the fetched list yet
-  if(!entries.some(e => e.name===entry.name && e.finishedAt===entry.finishedAt)){
+  // the published CSV can lag a few minutes behind the write above, and
+  // Google Sheets can reformat the datetime text on its way back out — so
+  // compare actual timestamps (not exact strings) to reliably tell whether
+  // our just-submitted result is already present, avoiding a duplicate entry
+  const myTime = new Date(entry.finishedAt).getTime();
+  const alreadyThere = entries.some(e =>
+    e.name === entry.name && Math.abs(new Date(e.finishedAt).getTime() - myTime) < 2000
+  );
+  if(!alreadyThere){
     entries.push(entry);
   }
 
@@ -1378,7 +1383,9 @@ async function saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer,
 function renderLeaderboard(entries, myFinishedAt){
   const t = T();
   const lbList = $('lbList');
-  const top10 = [...entries].sort((a,b)=> b.autoTotal - a.autoTotal).slice(0,10);
+  const top10 = [...entries].sort((a,b)=>
+    b.autoTotal - a.autoTotal || new Date(a.finishedAt) - new Date(b.finishedAt)
+  ).slice(0,10);
   lbList.innerHTML = '';
   if(top10.length === 0){
     lbList.innerHTML = `<li class="lb-empty">${t.lbEmpty}</li>`;
@@ -1386,7 +1393,8 @@ function renderLeaderboard(entries, myFinishedAt){
   }
   top10.forEach((e, i)=>{
     const li = document.createElement('li');
-    const isMe = e.name === state.playerName && e.finishedAt === myFinishedAt;
+    const myTime = new Date(myFinishedAt).getTime();
+    const isMe = e.name === state.playerName && Math.abs(new Date(e.finishedAt).getTime() - myTime) < 2000;
     li.className = 'lb-row' + (isMe ? ' me' : '');
     li.innerHTML = `<span><span class="lb-rank">#${i+1}</span>${escapeHtml(e.name)}</span><span>${e.autoTotal}/22</span>`;
     lbList.appendChild(li);
