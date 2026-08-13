@@ -393,7 +393,6 @@
           <thead>
             <tr>
               <th id="thName"></th>
-              <th id="thEmail"></th>
               <th id="thDept"></th>
               <th id="thQuiz"></th>
               <th id="thMatch"></th>
@@ -405,7 +404,6 @@
         </table>
       </div>
       <div class="modal-actions">
-        <button class="btn auto" id="downloadCsvBtn"></button>
         <button class="btn ghost modal-close" id="modalCloseBtn"></button>
       </div>
     </div>
@@ -465,10 +463,9 @@ const I18N = {
     lbTitle:'🏆 กระดานคะแนน (Top 10)', lbEmpty:'ยังไม่มีข้อมูลกระดานคะแนน',
     playAgainBtn:'เล่นอีกครั้ง',
     viewAllBtn:'ดูรายชื่อผู้เล่นทั้งหมด',
-    downloadCsv:'ดาวน์โหลด CSV',
     modalTitle:'สรุปรายชื่อผู้เล่นทั้งหมด',
     modalCount:(n)=>`ผู้เล่นทั้งหมด ${n} คน`,
-    thName:'ชื่อ', thEmail:'อีเมล', thDept:'แผนก/บริษัท', thQuiz:'แบบทดสอบ', thMatch:'จับคู่', thPart3:'คำถามปลายเปิด', thFinished:'เสร็จเมื่อ',
+    thName:'ชื่อ', thDept:'แผนก/บริษัท', thQuiz:'แบบทดสอบ', thMatch:'จับคู่', thPart3:'คำถามปลายเปิด', thFinished:'เสร็จเมื่อ',
     modalClose:'ปิด',
     defaultName:'ผู้เล่นไม่ระบุชื่อ',
     part1Label:'แบบทดสอบ', part2Label:'จับคู่กิจกรรม', part3Label:'คำถามปลายเปิด',
@@ -564,10 +561,9 @@ const I18N = {
     lbTitle:'🏆 Leaderboard (Top 10)', lbEmpty:'No leaderboard data yet',
     playAgainBtn:'Play again',
     viewAllBtn:'View all players',
-    downloadCsv:'Download CSV',
     modalTitle:'All players summary',
     modalCount:(n)=>`${n} player(s) total`,
-    thName:'Name', thEmail:'Email', thDept:'Department/Company', thQuiz:'Quiz', thMatch:'Matching', thPart3:'Open question', thFinished:'Finished at',
+    thName:'Name', thDept:'Department/Company', thQuiz:'Quiz', thMatch:'Matching', thPart3:'Open question', thFinished:'Finished at',
     modalClose:'Close',
     defaultName:'Unnamed player',
     part1Label:'Quiz', part2Label:'Matching', part3Label:'Open question',
@@ -663,10 +659,9 @@ const I18N = {
     lbTitle:'🏆 排行榜（前10名）', lbEmpty:'暂无排行榜数据',
     playAgainBtn:'再玩一次',
     viewAllBtn:'查看全部玩家名单',
-    downloadCsv:'下载 CSV',
     modalTitle:'全部玩家名单',
     modalCount:(n)=>`共 ${n} 位玩家`,
-    thName:'姓名', thEmail:'电子邮箱', thDept:'部门/公司', thQuiz:'测验', thMatch:'配对', thPart3:'开放式问题', thFinished:'完成时间',
+    thName:'姓名', thDept:'部门/公司', thQuiz:'测验', thMatch:'配对', thPart3:'开放式问题', thFinished:'完成时间',
     modalClose:'关闭',
     defaultName:'匿名玩家',
     part1Label:'测验', part2Label:'配对', part3Label:'开放式问题',
@@ -853,13 +848,11 @@ function applyStaticText(){
 
   setText('modalTitle', t.modalTitle);
   setText('thName', t.thName);
-  setText('thEmail', t.thEmail);
   setText('thDept', t.thDept);
   setText('thQuiz', t.thQuiz);
   setText('thMatch', t.thMatch);
   setText('thPart3', t.thPart3);
   setText('thFinished', t.thFinished);
-  setText('downloadCsvBtn', t.downloadCsv);
   setText('modalCloseBtn', t.modalClose);
 
   if(playerChip && playerChip.dataset.hasName === '1'){
@@ -1419,52 +1412,13 @@ $('viewAllBtn').addEventListener('click', async ()=>{
     const dt = new Date(e.finishedAt);
     const formatted = dt.toLocaleString(t.locale, { dateStyle:'medium', timeStyle:'short' });
     const part3Preview = (e.part3Answer || '').slice(0, 60) + ((e.part3Answer||'').length > 60 ? '…' : '');
-    tr.innerHTML = `<td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.email)||'—'}</td><td>${escapeHtml(e.dept)||'—'}</td><td>${e.quizScore}/6</td><td>${e.matchScore}/16</td><td title="${escapeHtml(e.part3Answer)}">${escapeHtml(part3Preview)||'—'}</td><td>${formatted}</td>`;
+    tr.innerHTML = `<td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.dept)||'—'}</td><td>${e.quizScore}/6</td><td>${e.matchScore}/16</td><td title="${escapeHtml(e.part3Answer)}">${escapeHtml(part3Preview)||'—'}</td><td>${formatted}</td>`;
     modalTbody.appendChild(tr);
   });
   modalOverlay.classList.add('visible');
 });
 $('modalCloseBtn').addEventListener('click', ()=> modalOverlay.classList.remove('visible'));
 modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) modalOverlay.classList.remove('visible'); });
-
-/* ---------- CSV export ---------- */
-function csvEscape(val){
-  const s = String(val ?? '');
-  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
-  return s;
-}
-
-$('downloadCsvBtn').addEventListener('click', async ()=>{
-  const t = T();
-  const entries = window._allEntries || await loadEntries();
-  const sorted = [...entries].sort((a,b)=> new Date(b.finishedAt) - new Date(a.finishedAt));
-
-  const header = [
-    t.thName, t.thEmail, t.thDept,
-    ...quizIds.map((id,i)=>`Q${i+1}`),
-    'Quiz Score (max 6)', 'Match Score (max 16)', 'Auto Total (max 22)',
-    'Part 3 Answer', 'Part 3 Score (fill in manually)',
-    t.thFinished, 'Language'
-  ];
-  const rows = sorted.map(e=>[
-    e.name, e.email, e.dept,
-    ...quizIds.map(id => (e.quizAnswers && e.quizAnswers[id]) ?? ''),
-    e.quizScore, e.matchScore, e.autoTotal,
-    e.part3Answer, '',
-    new Date(e.finishedAt).toLocaleString(t.locale, { dateStyle:'medium', timeStyle:'short' }),
-    e.lang
-  ]);
-  const csv = [header, ...rows].map(r => r.map(csvEscape).join(',')).join('\r\n');
-  const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' }); // BOM so Excel reads Thai/Chinese correctly
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `scope_detective_players_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
 
 $('playAgainBtn').addEventListener('click', ()=>{
   nameInput.value = '';
