@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESG Pillars Quest</title>
+<style>
+  :root{
+    --primary:#1b7a4d;
+    --primary-dark:#0f5c38;
+    --accent:#e8a33d;
+    --bg:#f4f8f6;
+    --card:#ffffff;
+    --text:#1f2b26;
+    --muted:#6b7a74;
+    --border:#dfe8e4;
+    --danger:#c0483a;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Sarabun","Noto Sans Thai",sans-serif;
+    background:linear-gradient(160deg,var(--bg) 0%,#eaf3ee 100%);
+    color:var(--text);
+    min-height:100vh;
+    padding:20px 12px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:24px 20px;
+    box-shadow:0 6px 24px rgba(15,92,56,0.08);
+    margin-bottom:16px;
+  }
+  h1{font-size:1.4rem;margin:0 0 4px;color:var(--primary-dark);}
+  h2{font-size:1.1rem;margin:0 0 12px;color:var(--primary-dark);}
+  p.sub{color:var(--muted);margin:0 0 18px;font-size:0.92rem;}
+  .lang-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .lang-btn{
+    flex:1;min-width:80px;padding:10px 8px;border-radius:10px;border:2px solid var(--border);
+    background:#fff;cursor:pointer;font-weight:600;font-size:0.9rem;color:var(--muted);
+    transition:all .15s;
+  }
+  .lang-btn.active{border-color:var(--primary);color:var(--primary-dark);background:#eafaf1;}
+  .lang-float{
+    position:fixed;top:12px;right:12px;z-index:50;display:flex;gap:4px;
+    background:#fff;border-radius:20px;padding:4px;box-shadow:0 4px 14px rgba(15,92,56,0.14);
+    border:1px solid var(--border);
+  }
+  .lang-float button{
+    border:none;background:transparent;padding:6px 10px;border-radius:16px;font-size:0.78rem;
+    font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;
+  }
+  .lang-float button.active{background:var(--primary);color:#fff;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-row .btn{margin-top:0;}
+  .btn-back{flex:0 0 40%;}
+  .btn-forward{flex:1;}
+  label{display:block;font-size:0.85rem;font-weight:600;color:var(--text);margin:14px 0 6px;}
+  input[type=text],input[type=email],textarea{
+    width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--border);
+    font-size:0.95rem;font-family:inherit;background:#fbfdfc;
+  }
+  textarea{min-height:110px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--primary);}
+  .btn{
+    display:inline-block;width:100%;padding:13px 18px;border:none;border-radius:12px;
+    background:var(--primary);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;
+    margin-top:18px;transition:background .15s;
+  }
+  .btn:hover{background:var(--primary-dark);}
+  .btn:disabled{background:#b7c4bd;cursor:not-allowed;}
+  .btn-secondary{background:#fff;color:var(--primary-dark);border:2px solid var(--primary);}
+  .btn-secondary:hover{background:#eafaf1;}
+  .err{color:var(--danger);font-size:0.82rem;margin-top:4px;min-height:16px;}
+  .progress-wrap{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .progress-bar{flex:1;height:8px;background:var(--border);border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);transition:width .3s;}
+  .progress-label{font-size:0.78rem;color:var(--muted);white-space:nowrap;}
+  .pts-badge{
+    display:inline-block;background:#fff3e0;color:#a86a12;font-size:0.75rem;font-weight:700;
+    padding:3px 10px;border-radius:20px;margin-bottom:10px;
+  }
+  .option{
+    display:flex;align-items:center;gap:10px;padding:13px 14px;border:1.5px solid var(--border);
+    border-radius:11px;margin-bottom:10px;cursor:pointer;transition:all .12s;background:#fff;
+  }
+  .option:hover{border-color:var(--primary);background:#f4faf6;}
+  .option.selected{border-color:var(--primary);background:#eafaf1;font-weight:600;}
+  .option .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
+  .option.selected .dot{border-color:var(--primary);background:var(--primary);}
+  .match-wrap{display:flex;gap:14px;position:relative;}
+  .match-col{flex:1;display:flex;flex-direction:column;gap:10px;}
+  .match-item{
+    padding:12px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;
+    cursor:pointer;background:#fff;text-align:center;transition:all .12s;position:relative;
+  }
+  .match-item.term{text-align:left;}
+  .match-item:hover{border-color:var(--primary);}
+  .match-item.picked{border-color:var(--accent);background:#fff8ec;}
+  .match-item.linked{border-color:var(--primary-dark);border-width:2px;background:#eafaf1;}
+  .match-item.correct{border-color:#2e9e5b;background:#e6f7ec;}
+  .match-item.incorrect{border-color:var(--danger);background:#fdecea;}
+  .match-item{position:relative;}
+  .dot-connector{
+    position:absolute;top:50%;width:11px;height:11px;border-radius:50%;
+    background:#fff;border:2px solid var(--border);transform:translateY(-50%);
+    transition:all .12s;
+  }
+  #q2_terms .dot-connector{right:-6px;}
+  #q2_pillars .dot-connector{left:-6px;}
+  .match-item.picked .dot-connector{border-color:var(--accent);background:var(--accent);}
+  .match-item.linked .dot-connector{border-color:var(--primary-dark);background:var(--primary-dark);}
+  .match-item.correct .dot-connector{border-color:#2e9e5b;background:#2e9e5b;}
+  .match-item.incorrect .dot-connector{border-color:var(--danger);background:var(--danger);}
+  svg.link-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+  .hint{font-size:0.78rem;color:var(--muted);margin-bottom:12px;}
+  .counter{font-size:0.78rem;color:var(--muted);text-align:right;margin-top:4px;}
+  table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:8px;}
+  th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left;}
+  th{color:var(--muted);font-weight:600;}
+  #leaderboardTable td:first-child, #leaderboardTable th:first-child{width:34px;text-align:center;}
+  #leaderboardTable tr.rank-1 td{background:#fff8e6;font-weight:700;}
+  #leaderboardTable tr.rank-2 td{background:#f3f5f7;font-weight:700;}
+  #leaderboardTable tr.rank-3 td{background:#fbeee6;font-weight:700;}
+  .score-hero{text-align:center;padding:8px 0 4px;}
+  .score-num{font-size:2.6rem;font-weight:800;color:var(--primary-dark);}
+  .score-note{font-size:0.85rem;color:var(--muted);margin-top:4px;}
+  .pending{background:#fff8ec;border:1px solid #f0d9a8;border-radius:10px;padding:12px 14px;font-size:0.85rem;color:#8a6414;margin-top:10px;}
+  .review-box{background:#f8faf9;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:0.85rem;}
+  .review-box b{color:var(--primary-dark);}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="lang-float" id="langFloat">
+  <button data-lang="th">ไทย</button>
+  <button data-lang="en">EN</button>
+  <button data-lang="zh">中文</button>
+</div>
+
+<div class="wrap">
+
+  <div class="card" id="screen-register">
+    <h1 data-i18n="appTitle">ESG Pillars Quest</h1>
+    <p class="sub" data-i18n="registerSub">Register to start the quest</p>
+    <label data-i18n="labelName">Full name</label>
+    <input type="text" id="regName">
+    <label data-i18n="labelEmail">Email</label>
+    <input type="email" id="regEmail">
+    <label data-i18n="labelDept">Department</label>
+    <input type="text" id="regDept">
+    <div class="err" id="regErr"></div>
+    <button class="btn" id="btnStart" data-i18n="btnStart">Start</button>
+  </div>
+
+  <div class="card hidden" id="screen-quiz">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">1 / 4</div>
+    </div>
+
+    <!-- Q1 -->
+    <div id="q1">
+      <div class="pts-badge">20 <span data-i18n="pts">points</span></div>
+      <h2 data-i18n="q1_title">Can a company survive if it loses just one of these four (Environment, Social, Governance, Supply Chain)?</h2>
+      <div id="q1_options"></div>
+      <div class="err" id="q1_err"></div>
+      <button class="btn" id="q1_next" data-i18n="btnNext">Next</button>
+    </div>
+
+    <!-- Q2 -->
+    <div id="q2" class="hidden">
+      <div class="pts-badge">20 <span data-i18n="pts">points</span></div>
+      <h2 data-i18n="q2_title">Match each term with the correct pillar</h2>
+      <p class="hint" data-i18n="q2_hint">Tap a term, then tap the matching pillar.</p>
+      <div class="match-wrap">
+        <svg class="link-lines" id="linkSvg"></svg>
+        <div class="match-col" id="q2_terms"></div>
+        <div class="match-col" id="q2_pillars"></div>
+      </div>
+      <div class="err" id="q2_err"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-back" id="q2_back" data-i18n="btnBack">Back</button>
+        <button class="btn btn-forward" id="q2_next" data-i18n="btnNext">Next</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div id="q3" class="hidden">
+      <div class="pts-badge">40 <span data-i18n="pts">points</span></div>
+      <h2 data-i18n="q3_title">Think about your role. Which sustainability issues does your work support?</h2>
+      <p class="hint" data-i18n="q3_hint">Hint: look back at the Sustainability focus areas you learned earlier.</p>
+      <textarea id="q3_text" placeholder=""></textarea>
+      <div class="err" id="q3_err"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-back" id="q3_back" data-i18n="btnBack">Back</button>
+        <button class="btn btn-forward" id="q3_next" data-i18n="btnNext">Next</button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div id="q4" class="hidden">
+      <div class="pts-badge">20 <span data-i18n="pts">points</span></div>
+      <h2 data-i18n="q4_title">What's one small action you'll start today for a more sustainable future?</h2>
+      <textarea id="q4_text" placeholder=""></textarea>
+      <div class="err" id="q4_err"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-back" id="q4_back" data-i18n="btnBack">Back</button>
+        <button class="btn btn-forward" id="q4_next" data-i18n="btnSubmit">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="screen-result">
+    <div class="score-hero">
+      <div class="score-num" id="autoScoreNum">0/40</div>
+      <div class="score-note" data-i18n="autoScoreNote">Auto-graded score (Q1 + Q2)</div>
+    </div>
+    <div class="review-box" id="q1ReviewBox"></div>
+    <div class="review-box" id="q2ReviewBox"></div>
+    <div class="pending" data-i18n="pendingNote">Q3 and Q4 are reflection questions and will be reviewed by the admin. Your final score will include those points.</div>
+    <div class="review-box" id="reviewBox"></div>
+    <button class="btn btn-secondary" id="btnViewLeaderboard" data-i18n="viewLeaderboardBtn">View leaderboard</button>
+  </div>
+
+  <div class="card hidden" id="screen-leaderboard">
+    <h2 data-i18n="leaderboardTitle">Leaderboard</h2>
+    <p class="hint" data-i18n="leaderboardHint">Ranked by auto-graded score (Q1 + Q2, out of 40). Final ranking will also include Q3 and Q4 once reviewed.</p>
+    <div id="leaderboardLoading" class="hint" data-i18n="leaderboardLoading">Loading...</div>
+    <table id="leaderboardTable">
+      <thead><tr>
+        <th data-i18n="thRank">#</th><th data-i18n="thName">Name</th><th data-i18n="thDept">Dept</th><th data-i18n="thAuto">Auto</th>
+      </tr></thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+    <button class="btn btn-secondary" id="btnBackFromLeaderboard" data-i18n="backToResultsBtn">Back to my result</button>
+  </div>
+
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+// TODO: paste the Apps Script web app URL (POST) and the published CSV URL for the "ESG_Responses" tab.
+const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycby2ZO6yUHTuT7Vd2ylwdkvyxVtWNWttthzzviBAEYnJzm6QbPnlivfZ5unAcdbtPhqdBQ/exec'; // e.g. https://script.google.com/macros/s/XXXX/exec
+// The leaderboard reads through the same Apps Script web app (doGet), so the
+// Google Sheet itself never needs to be published / made public.
+const QUEST_ID = 'ESG_Pillars';
+
+/* ================= I18N ================= */
+const I18N = {
+  en: {
+    appTitle: "ESG Pillars Quest",
+    chooseLang: "Choose your language",
+    registerSub: "Register to start the quest",
+    labelName: "Full name", labelEmail: "Email", labelDept: "Department",
+    btnStart: "Start", btnNext: "Next", btnSubmit: "Submit", btnBack: "Back", pts: "points",
+    q1ReviewTitle: "Question 1", q2ReviewTitle: "Question 2 - matching",
+    yourAnswer: "Your answer:", correctAnswer: "Correct answer:",
+    q1_title: "Can a company survive if it loses just one of these four (Environment, Social, Governance, Supply Chain)?",
+    q1_a: "Yes, if the other three are strong enough",
+    q1_b: "No, because all four must work together",
+    q1_c: "Yes, but it would need time to adapt",
+    q2_title: "Match each term with the correct pillar",
+    q2_hint: "Tap a term, then tap the matching pillar.",
+    q3_title: "Think about your role. Which sustainability issues does your work support?",
+    q3_hint: "Hint: look back at the Sustainability focus areas you learned earlier.",
+    q4_title: "What's one small action you'll start today for a more sustainable future?",
+    autoScoreNote: "Auto-graded score (Q1 + Q2)",
+    pendingNote: "Q3 and Q4 are reflection questions and will be reviewed by the admin. Your final score will include those points.",
+    leaderboardTitle: "Leaderboard", thName: "Name", thDept: "Dept", thAuto: "Auto", thRank: "#",
+    viewLeaderboardBtn: "View leaderboard", backToResultsBtn: "Back to my result",
+    leaderboardHint: "Ranked by auto-graded score (Q1 + Q2, out of 40). Final ranking will also include Q3 and Q4 once reviewed.",
+    leaderboardLoading: "Loading...", leaderboardEmpty: "No results yet.",
+    errRegister: "Please fill in all fields with a valid email.",
+    errSelect: "Please select an answer.",
+    errMatch: "Please match all 4 terms before continuing.",
+    errText: "Please write your answer before continuing.",
+    reviewLabel3: "Your answer (Q3):", reviewLabel4: "Your answer (Q4):",
+    terms: ["Carbon emissions", "Human right", "Code of conduct", "Supplier Due Diligent"],
+    pillars: ["Governance", "Environment", "Social", "Sustainable Procurement"]
+  },
+  th: {
+    appTitle: "ภารกิจ ESG Pillars",
+    chooseLang: "เลือกภาษาที่ต้องการ",
+    registerSub: "ลงทะเบียนเพื่อเริ่มภารกิจ",
+    labelName: "ชื่อ-นามสกุล", labelEmail: "อีเมล", labelDept: "แผนก",
+    btnStart: "เริ่มเลย", btnNext: "ถัดไป", btnSubmit: "ส่งคำตอบ", btnBack: "ย้อนกลับ", pts: "คะแนน",
+    q1ReviewTitle: "ข้อ 1", q2ReviewTitle: "ข้อ 2 - จับคู่",
+    yourAnswer: "คำตอบของคุณ:", correctAnswer: "คำตอบที่ถูกต้อง:",
+    q1_title: "องค์กรจะอยู่รอดได้หรือไม่ ถ้าขาดไปเพียงหนึ่งใน 4 เสาหลักนี้ (Environment, Social, Governance, Supply Chain)?",
+    q1_a: "อยู่รอดได้ ถ้าอีกสามด้านแข็งแกร่งพอ",
+    q1_b: "อยู่รอดไม่ได้ เพราะทั้งสี่ด้านต้องทำงานร่วมกัน",
+    q1_c: "อยู่รอดได้ แต่ต้องใช้เวลาปรับตัว",
+    q2_title: "จับคู่คำศัพท์กับเสาหลักที่ถูกต้อง",
+    q2_hint: "แตะคำศัพท์ก่อน แล้วแตะเสาหลักที่ตรงกัน",
+    q3_title: "ลองนึกถึงบทบาทของคุณ งานของคุณสนับสนุนประเด็นความยั่งยืนด้านใดบ้าง",
+    q3_hint: "คำใบ้: ลองย้อนกลับไปดู Sustainability focus areas ที่เคยเรียนมา",
+    q4_title: "อะไรคือการกระทำเล็กๆ หนึ่งอย่างที่คุณจะเริ่มทำวันนี้ เพื่ออนาคตที่ยั่งยืนกว่าเดิม?",
+    autoScoreNote: "คะแนนที่ตรวจอัตโนมัติ (ข้อ 1 + ข้อ 2)",
+    pendingNote: "ข้อ 3 และข้อ 4 เป็นคำถามปลายเปิด ทีมงานจะตรวจให้คะแนนภายหลัง คะแนนรวมสุดท้ายจะรวมส่วนนี้ด้วย",
+    leaderboardTitle: "กระดานผู้นำ (Leaderboard)", thName: "ชื่อ", thDept: "แผนก", thAuto: "คะแนนอัตโนมัติ", thRank: "อันดับ",
+    viewLeaderboardBtn: "ดู Leaderboard", backToResultsBtn: "กลับไปดูคะแนนของฉัน",
+    leaderboardHint: "จัดอันดับตามคะแนนที่ตรวจอัตโนมัติ (ข้อ 1 + ข้อ 2 เต็ม 40) อันดับสุดท้ายจะรวมข้อ 3 และข้อ 4 หลังตรวจเสร็จ",
+    leaderboardLoading: "กำลังโหลด...", leaderboardEmpty: "ยังไม่มีข้อมูลผู้เล่น",
+    errRegister: "กรุณากรอกข้อมูลให้ครบและอีเมลให้ถูกต้อง",
+    errSelect: "กรุณาเลือกคำตอบ",
+    errMatch: "กรุณาจับคู่ให้ครบทั้ง 4 คู่ก่อนไปต่อ",
+    errText: "กรุณาพิมพ์คำตอบก่อนไปต่อ",
+    reviewLabel3: "คำตอบของคุณ (ข้อ 3):", reviewLabel4: "คำตอบของคุณ (ข้อ 4):",
+    terms: ["การปล่อยก๊าซเรือนกระจก", "สิทธิมนุษยชน", "จรรยาบรรณ (Code of Conduct)", "การตรวจสอบคู่ค้าอย่างรอบคอบ (Supplier Due Diligence)"],
+    pillars: ["การกำกับดูแล (Governance)", "สิ่งแวดล้อม (Environment)", "สังคม (Social)", "การจัดซื้อจัดจ้างอย่างยั่งยืน (Supply Chain)"]
+  },
+  zh: {
+    appTitle: "ESG 支柱任务",
+    chooseLang: "请选择语言",
+    registerSub: "注册以开始任务",
+    labelName: "姓名", labelEmail: "电子邮件", labelDept: "部门",
+    btnStart: "开始", btnNext: "下一步", btnSubmit: "提交", btnBack: "上一步", pts: "分",
+    q1ReviewTitle: "第1题", q2ReviewTitle: "第2题 - 配对",
+    yourAnswer: "你的答案：", correctAnswer: "正确答案：",
+    q1_title: "如果企业失去环境、社会、治理、供应链这四个支柱中的任何一个，企业还能生存吗？",
+    q1_a: "可以，只要其他三个足够强大",
+    q1_b: "不能，因为这四个方面必须共同发挥作用",
+    q1_c: "可以，但需要时间适应",
+    q2_title: "将每个术语与正确的支柱配对",
+    q2_hint: "先点击术语，再点击对应的支柱。",
+    q3_title: "想一想你的工作角色。你的工作支持哪些可持续发展议题？",
+    q3_hint: "提示：请回顾之前学过的 Sustainability focus areas（可持续发展重点领域）。",
+    q4_title: "从今天开始，你会采取哪一个微小的行动，为更可持续的未来做出贡献？",
+    autoScoreNote: "自动评分（第1题 + 第2题）",
+    pendingNote: "第3题和第4题为开放式问题，将由管理员审核评分，最终总分将包含这部分分数。",
+    leaderboardTitle: "排行榜", thName: "姓名", thDept: "部门", thAuto: "自动得分", thRank: "名次",
+    viewLeaderboardBtn: "查看排行榜", backToResultsBtn: "返回我的成绩",
+    leaderboardHint: "按自动评分排名（第1题+第2题，满分40）。最终排名将在第3、4题审核后更新。",
+    leaderboardLoading: "加载中...", leaderboardEmpty: "暂无数据。",
+    errRegister: "请填写所有字段并输入正确的电子邮件。",
+    errSelect: "请选择一个答案。",
+    errMatch: "请先完成全部4组配对再继续。",
+    errText: "请先输入答案再继续。",
+    reviewLabel3: "你的答案（第3题）：", reviewLabel4: "你的答案（第4题）：",
+    terms: ["碳排放", "人权", "行为准则", "供应商尽职调查"],
+    pillars: ["治理 (Governance)", "环境 (Environment)", "社会 (Social)", "可持续采购 (供应链)"]
+  }
+};
+
+// Correct mapping is defined by INDEX position in the canonical (English) term/pillar lists,
+// so it stays correct regardless of language / shuffle order.
+// terms[0]=Carbon emissions -> pillars[1]=Environment
+// terms[1]=Human right -> pillars[2]=Social
+// terms[2]=Code of conduct -> pillars[0]=Governance
+// terms[3]=Supplier Due Diligent -> pillars[3]=Sustainable Procurement
+const CORRECT_MATCH = { 0: 1, 1: 2, 2: 0, 3: 3 };
+const Q1_CORRECT_INDEX = 1; // "No, because all four must work together"
+
+/* ================= STATE ================= */
+let lang = 'th';
+let player = { name: '', email: '', dept: '' };
+let q1Selected = null;
+let q2Links = {}; // termIndex -> pillarIndex
+let q2Picked = null; // currently picked term index
+let pillarOrder = []; // shuffled display order of pillar indices
+let q3Text = '', q4Text = '';
+let currentQ = 0; // 0 = not started, 1-4 = question shown in quiz screen
+
+function t(key){ return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key; }
+
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.documentElement.lang = lang;
+  // Re-render whichever dynamic content is currently on screen so labels/options update live.
+  if(currentQ===1) renderQ1();
+  if(currentQ===2) renderQ2();
+}
+
+/* ================= SCREENS ================= */
+function show(id){
+  ['screen-register','screen-quiz','screen-result','screen-leaderboard'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+}
+
+function setLangButtons(){
+  document.querySelectorAll('#langFloat button').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-lang')===lang);
+  });
+}
+document.querySelectorAll('#langFloat button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    lang = btn.getAttribute('data-lang');
+    setLangButtons();
+    applyI18n();
+  });
+});
+setLangButtons();
+applyI18n();
+show('screen-register');
+
+document.getElementById('btnStart').addEventListener('click', ()=>{
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const dept = document.getElementById('regDept').value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if(!name || !dept || !emailOk){
+    document.getElementById('regErr').textContent = t('errRegister');
+    return;
+  }
+  document.getElementById('regErr').textContent = '';
+  player = { name, email, dept };
+  show('screen-quiz');
+  currentQ = 1;
+  renderQ1();
+  renderQ2();
+  updateProgress(1);
+});
+
+/* ================= Q1 ================= */
+function renderQ1(){
+  const wrap = document.getElementById('q1_options');
+  wrap.innerHTML = '';
+  const keys = ['q1_a','q1_b','q1_c'];
+  keys.forEach((k, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'option' + (q1Selected===idx ? ' selected' : '');
+    div.innerHTML = '<span class="dot"></span><span>' + t(k) + '</span>';
+    div.addEventListener('click', ()=>{
+      q1Selected = idx;
+      renderQ1();
+      document.getElementById('q1_err').textContent = '';
+    });
+    wrap.appendChild(div);
+  });
+}
+document.getElementById('q1_next').addEventListener('click', ()=>{
+  if(q1Selected===null){ document.getElementById('q1_err').textContent = t('errSelect'); return; }
+  document.getElementById('q1').classList.add('hidden');
+  document.getElementById('q2').classList.remove('hidden');
+  currentQ = 2;
+  updateProgress(2);
+});
+
+/* ================= Q2 (matching) ================= */
+function shuffledIndices(n){
+  const arr = [...Array(n).keys()];
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+function renderQ2(){
+  if(pillarOrder.length===0) pillarOrder = shuffledIndices(4);
+  const termsWrap = document.getElementById('q2_terms');
+  const pillarsWrap = document.getElementById('q2_pillars');
+  termsWrap.innerHTML = ''; pillarsWrap.innerHTML = '';
+  const terms = t('terms'), pillars = t('pillars');
+
+  terms.forEach((label, idx)=>{
+    const div = document.createElement('div');
+    let cls = 'match-item term';
+    if(q2Picked===idx) cls += ' picked';
+    if(q2Links[idx]!==undefined) cls += ' linked';
+    div.className = cls;
+    div.dataset.idx = idx;
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = label;
+    const dot = document.createElement('span');
+    dot.className = 'dot-connector';
+    div.appendChild(labelSpan);
+    div.appendChild(dot);
+    div.addEventListener('click', ()=> onTermClick(idx));
+    termsWrap.appendChild(div);
+  });
+
+  const linkedPillars = Object.values(q2Links); // pillar indices that already have a term matched to them
+
+  pillarOrder.forEach(pIdx=>{
+    const div = document.createElement('div');
+    let cls = 'match-item';
+    if(linkedPillars.includes(pIdx)) cls += ' linked';
+    div.className = cls;
+    div.dataset.idx = pIdx;
+    const dot = document.createElement('span');
+    dot.className = 'dot-connector';
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = pillars[pIdx];
+    div.appendChild(dot);
+    div.appendChild(labelSpan);
+    div.addEventListener('click', ()=> onPillarClick(pIdx));
+    pillarsWrap.appendChild(div);
+  });
+  drawLines();
+}
+function onTermClick(idx){
+  q2Picked = (q2Picked===idx) ? null : idx;
+  renderQ2();
+}
+function onPillarClick(pIdx){
+  if(q2Picked===null) return;
+  q2Links[q2Picked] = pIdx;
+  q2Picked = null;
+  document.getElementById('q2_err').textContent = '';
+  renderQ2();
+}
+function drawLines(){
+  const svg = document.getElementById('linkSvg');
+  svg.innerHTML = '';
+  const wrap = document.querySelector('.match-wrap');
+  if(!wrap) return;
+  const wrapRect = wrap.getBoundingClientRect();
+  Object.keys(q2Links).forEach(termIdx=>{
+    const pIdx = q2Links[termIdx];
+    const termEl = document.querySelector('#q2_terms .match-item[data-idx="'+termIdx+'"] .dot-connector');
+    const pillarEl = document.querySelector('#q2_pillars .match-item[data-idx="'+pIdx+'"] .dot-connector');
+    if(!termEl || !pillarEl) return;
+    const r1 = termEl.getBoundingClientRect();
+    const r2 = pillarEl.getBoundingClientRect();
+    const x1 = r1.left + r1.width/2 - wrapRect.left, y1 = r1.top + r1.height/2 - wrapRect.top;
+    const x2 = r2.left + r2.width/2 - wrapRect.left, y2 = r2.top + r2.height/2 - wrapRect.top;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', '#1b7a4d'); line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+  });
+}
+window.addEventListener('resize', drawLines);
+
+document.getElementById('q2_next').addEventListener('click', ()=>{
+  if(Object.keys(q2Links).length < 4){
+    document.getElementById('q2_err').textContent = t('errMatch');
+    return;
+  }
+  document.getElementById('q2').classList.add('hidden');
+  document.getElementById('q3').classList.remove('hidden');
+  currentQ = 3;
+  updateProgress(3);
+});
+document.getElementById('q2_back').addEventListener('click', ()=>{
+  document.getElementById('q2').classList.add('hidden');
+  document.getElementById('q1').classList.remove('hidden');
+  currentQ = 1;
+  updateProgress(1);
+});
+
+/* ================= Q3 / Q4 ================= */
+document.getElementById('q3_next').addEventListener('click', ()=>{
+  const val = document.getElementById('q3_text').value.trim();
+  if(!val){ document.getElementById('q3_err').textContent = t('errText'); return; }
+  q3Text = val;
+  document.getElementById('q3').classList.add('hidden');
+  document.getElementById('q4').classList.remove('hidden');
+  currentQ = 4;
+  updateProgress(4);
+});
+document.getElementById('q3_back').addEventListener('click', ()=>{
+  q3Text = document.getElementById('q3_text').value.trim();
+  document.getElementById('q3').classList.add('hidden');
+  document.getElementById('q2').classList.remove('hidden');
+  currentQ = 2;
+  updateProgress(2);
+  drawLines();
+});
+document.getElementById('q4_next').addEventListener('click', ()=>{
+  const val = document.getElementById('q4_text').value.trim();
+  if(!val){ document.getElementById('q4_err').textContent = t('errText'); return; }
+  q4Text = val;
+  finishQuest();
+});
+document.getElementById('q4_back').addEventListener('click', ()=>{
+  q4Text = document.getElementById('q4_text').value.trim();
+  document.getElementById('q4').classList.add('hidden');
+  document.getElementById('q3').classList.remove('hidden');
+  currentQ = 3;
+  updateProgress(3);
+});
+
+function updateProgress(step){
+  document.getElementById('progressFill').style.width = (step/4*100) + '%';
+  document.getElementById('progressLabel').textContent = step + ' / 4';
+}
+
+/* ================= SCORING & SUBMIT ================= */
+function computeAutoScore(){
+  let score = 0;
+  if(q1Selected === Q1_CORRECT_INDEX) score += 20;
+  let correctMatches = 0;
+  Object.keys(q2Links).forEach(termIdx=>{
+    if(CORRECT_MATCH[termIdx] === q2Links[termIdx]) correctMatches++;
+  });
+  score += correctMatches * 5; // 4 pairs x 5 = 20
+  return score;
+}
+
+function finishQuest(){
+  const autoScore = computeAutoScore();
+  document.getElementById('screen-quiz').classList.add('hidden');
+  document.getElementById('autoScoreNum').textContent = autoScore + '/40';
+
+  const keys = ['q1_a','q1_b','q1_c'];
+  const q1Ok = q1Selected === Q1_CORRECT_INDEX;
+  document.getElementById('q1ReviewBox').innerHTML =
+    '<div><b>' + t('q1ReviewTitle') + ' ' + (q1Ok ? '\u2705' : '\u274c') + '</b></div>' +
+    '<div style="margin-top:6px">' + t('yourAnswer') + ' ' + escapeHtml(q1Selected!==null ? t(keys[q1Selected]) : '-') + '</div>' +
+    (q1Ok ? '' : '<div style="margin-top:4px;color:#2e9e5b">' + t('correctAnswer') + ' ' + escapeHtml(t(keys[Q1_CORRECT_INDEX])) + '</div>');
+
+  const terms = t('terms'), pillars = t('pillars');
+  let q2Rows = '';
+  terms.forEach((termLabel, idx)=>{
+    const chosenIdx = q2Links[idx];
+    const isOk = chosenIdx === CORRECT_MATCH[idx];
+    q2Rows += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">' +
+      '<b>' + escapeHtml(termLabel) + '</b> ' + (isOk ? '\u2705' : '\u274c') + '<br>' +
+      '<span style="color:var(--muted)">' + t('yourAnswer') + ' ' + escapeHtml(chosenIdx!==undefined ? pillars[chosenIdx] : '-') + '</span>' +
+      (isOk ? '' : '<br><span style="color:#2e9e5b">' + t('correctAnswer') + ' ' + escapeHtml(pillars[CORRECT_MATCH[idx]]) + '</span>') +
+      '</div>';
+  });
+  document.getElementById('q2ReviewBox').innerHTML = '<b>' + t('q2ReviewTitle') + '</b>' + q2Rows;
+
+  document.getElementById('reviewBox').innerHTML =
+    '<div><b>' + t('reviewLabel3') + '</b><div>' + escapeHtml(q3Text) + '</div></div>' +
+    '<div style="margin-top:10px"><b>' + t('reviewLabel4') + '</b><div>' + escapeHtml(q4Text) + '</div></div>';
+  show('screen-result');
+  submitResult(autoScore);
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function submitResult(autoScore){
+  if(!GOOGLE_SHEETS_WEBHOOK_URL) return;
+  const payload = {
+    quest: QUEST_ID,
+    name: player.name,
+    email: player.email,
+    dept: player.dept,
+    q1Answer: q1Selected,
+    q2Links: JSON.stringify(q2Links),
+    autoScore: autoScore,
+    q3Answer: q3Text,
+    q3Score: '',
+    q4Answer: q4Text,
+    q4Score: '',
+    finishedAt: new Date().toISOString(),
+    lang: lang
+  };
+  fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).catch(()=>{});
+}
+
+function loadLeaderboard(){
+  const loadingEl = document.getElementById('leaderboardLoading');
+  const body = document.getElementById('leaderboardBody');
+  body.innerHTML = '';
+  if(!GOOGLE_SHEETS_WEBHOOK_URL){
+    loadingEl.textContent = t('leaderboardEmpty');
+    loadingEl.classList.remove('hidden');
+    return;
+  }
+  loadingEl.textContent = t('leaderboardLoading');
+  loadingEl.classList.remove('hidden');
+  const url = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID);
+  fetch(url)
+    .then(r=>r.json())
+    .then(players=>{
+      if(!Array.isArray(players) || players.length === 0){
+        loadingEl.textContent = t('leaderboardEmpty');
+        return;
+      }
+      players = players
+        .filter(p => p && p.name)
+        .map(p => ({ name: p.name, dept: p.dept || '', score: parseInt(p.score, 10) || 0 }))
+        .sort((a,b) => b.score - a.score)
+        .slice(0, 20);
+
+      if(players.length === 0){
+        loadingEl.textContent = t('leaderboardEmpty');
+        return;
+      }
+      loadingEl.classList.add('hidden');
+      players.forEach((p, idx)=>{
+        const rank = idx + 1;
+        const medal = rank===1 ? '\u{1F947}' : rank===2 ? '\u{1F948}' : rank===3 ? '\u{1F949}' : rank;
+        const tr = document.createElement('tr');
+        if(rank<=3) tr.className = 'rank-' + rank;
+        tr.innerHTML = '<td>'+ medal +'</td><td>'+ escapeHtml(p.name) +'</td><td>'+ escapeHtml(p.dept) +'</td><td>'+ p.score +'/40</td>';
+        body.appendChild(tr);
+      });
+    })
+    .catch(()=>{
+      loadingEl.textContent = t('leaderboardEmpty');
+      loadingEl.classList.remove('hidden');
+    });
+}
+
+document.getElementById('btnViewLeaderboard').addEventListener('click', ()=>{
+  show('screen-leaderboard');
+  loadLeaderboard();
+});
+document.getElementById('btnBackFromLeaderboard').addEventListener('click', ()=>{
+  show('screen-result');
+});
+</script>
+</body>
+</html>
