@@ -490,7 +490,7 @@ const I18N = {
         'มีเพียง 1 ประเภท: ทางตรง',
         'มีเพียง 1 ประเภท: ทางอ้อม',
         'มี 3 ประเภท: Scope 1, 2 และ 3',
-        'มี 2 ประเภท: ของเสียแบบแข็งและของเหลว'
+        'มี 2 ประเภท: ทางตรงและทางอ้อม'
       ]},
       q3:{ q:'ข้อใดต่อไปนี้ประกอบด้วยการปล่อยก๊าซทางอ้อมเท่านั้น?', options:[
         'การเผาไหม้เชื้อเพลิง',
@@ -513,7 +513,7 @@ const I18N = {
       ]}
     },
     scope:{ s1:{label:'Scope 1', sub:'การปล่อยก๊าซทางตรง'}, s2:{label:'Scope 2', sub:'การปล่อยทางอ้อมจากพลังงาน'} },
-    cat:{ fuel:'การเผาไหม้เชื้อเพลิง', fug:'การรั่วไหล (Fugitive)', proc:'การปล่อยจากกระบวนการผลิต', elec:'การใช้ไฟฟ้า', heat:'ความร้อน/ไอน้ำ' },
+    cat:{ fuel:'การเผาไหม้เชื้อเพลิง', fug:'การรั่วไหล (Fugitive)', proc:'การปล่อยก๊าซเรือนกระจกจากการผลิต', elec:'การใช้ไฟฟ้า', heat:'ความร้อน/ไอน้ำ' },
     activity:{
       a1:'รถบริษัทใช้น้ำมันดีเซลเพื่อขนส่งสินค้า',
       a2:'รถโฟล์คลิฟท์ในคลังสินค้าใช้แก๊ส LPG',
@@ -588,7 +588,7 @@ const I18N = {
         'Only 1 type: direct',
         'Only 1 type: indirect',
         '3 types: Scope 1, 2, and 3',
-        '2 types: solid waste and liquid waste'
+        '2 types: direct and indirect'
       ]},
       q3:{ q:'Which option below contains only indirect emissions?', options:[
         'Fuel combustion',
@@ -611,7 +611,7 @@ const I18N = {
       ]}
     },
     scope:{ s1:{label:'Scope 1', sub:'Direct emissions'}, s2:{label:'Scope 2', sub:'Indirect emissions from energy'} },
-    cat:{ fuel:'Fuel combustion', fug:'Fugitive', proc:'Process emissions', elec:'Electricity consumption', heat:'Heat' },
+    cat:{ fuel:'Fuel combustion', fug:'Fugitive', proc:'GHG emissions from production', elec:'Electricity consumption', heat:'Heat' },
     activity:{
       a1:'Company vehicle burns diesel for delivery',
       a2:'Forklift in warehouse runs on LPG',
@@ -686,7 +686,7 @@ const I18N = {
         '只有1种：直接排放',
         '只有1种：间接排放',
         '有3种：范围一、二、三（Scope 1, 2, 3）',
-        '有2种：固体废物和液体废物'
+        '有2种：直接排放和间接排放'
       ]},
       q3:{ q:'以下哪个选项仅包含间接排放？', options:[
         '燃料燃烧',
@@ -709,7 +709,7 @@ const I18N = {
       ]}
     },
     scope:{ s1:{label:'Scope 1', sub:'直接排放'}, s2:{label:'Scope 2', sub:'能源间接排放'} },
-    cat:{ fuel:'燃料燃烧', fug:'逃逸排放', proc:'过程排放', elec:'电力消耗', heat:'热力/蒸汽' },
+    cat:{ fuel:'燃料燃烧', fug:'逃逸排放', proc:'生产过程产生的温室气体排放', elec:'电力消耗', heat:'热力/蒸汽' },
     activity:{
       a1:'公司车辆燃烧柴油进行送货',
       a2:'仓库叉车使用液化石油气（LPG）运行',
