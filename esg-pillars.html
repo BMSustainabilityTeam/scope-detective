@@ -700,8 +700,31 @@ function renderLeaderboardRows(players){
   });
 }
 
-// Apps Script web apps don't reliably send CORS headers for cross-origin fetch(),
-// so we load the leaderboard via a JSONP <script> tag instead — that's exempt from CORS.
+// Try a normal fetch() first — Apps Script's /exec endpoint usually sends CORS headers
+// fine for a plain GET. Only fall back to JSONP (a <script> tag) if that fails, since
+// modern browsers can block the JSONP redirect target (script.googleusercontent.com)
+// under stricter cross-origin script-loading policies.
+function loadLeaderboardViaJsonp(){
+  const loadingEl = document.getElementById('leaderboardLoading');
+  const callbackName = 'esgLeaderboardCb_' + Date.now();
+  const cleanup = () => {
+    delete window[callbackName];
+    if(scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+  };
+  window[callbackName] = function(players){
+    renderLeaderboardRows(players);
+    cleanup();
+  };
+  const scriptEl = document.createElement('script');
+  scriptEl.src = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID) + '&callback=' + callbackName;
+  scriptEl.onerror = () => {
+    loadingEl.textContent = t('leaderboardEmpty');
+    loadingEl.classList.remove('hidden');
+    cleanup();
+  };
+  document.body.appendChild(scriptEl);
+}
+
 function loadLeaderboard(){
   const loadingEl = document.getElementById('leaderboardLoading');
   const body = document.getElementById('leaderboardBody');
@@ -714,24 +737,11 @@ function loadLeaderboard(){
   loadingEl.textContent = t('leaderboardLoading');
   loadingEl.classList.remove('hidden');
 
-  const callbackName = 'esgLeaderboardCb_' + Date.now();
-  const cleanup = () => {
-    delete window[callbackName];
-    if(scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
-  };
-  window[callbackName] = function(players){
-    renderLeaderboardRows(players);
-    cleanup();
-  };
-
-  const scriptEl = document.createElement('script');
-  scriptEl.src = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID) + '&callback=' + callbackName;
-  scriptEl.onerror = () => {
-    loadingEl.textContent = t('leaderboardEmpty');
-    loadingEl.classList.remove('hidden');
-    cleanup();
-  };
-  document.body.appendChild(scriptEl);
+  const url = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID);
+  fetch(url)
+    .then(r => { if(!r.ok) throw new Error('bad status'); return r.json(); })
+    .then(players => renderLeaderboardRows(players))
+    .catch(() => loadLeaderboardViaJsonp());
 }
 
 document.getElementById('btnViewLeaderboard').addEventListener('click', ()=>{
