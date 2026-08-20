@@ -244,7 +244,10 @@
 
 <script>
 /* ================= CONFIG ================= */
-const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec';
+// TODO: paste the Apps Script web app URL (POST) and the published CSV URL for the "ESG_Responses" tab.
+const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec'; // e.g. https://script.google.com/macros/s/XXXX/exec
+// The leaderboard reads through the same Apps Script web app (doGet), so the
+// Google Sheet itself never needs to be published / made public.
 const QUEST_ID = 'ESG_Pillars';
 
 /* ================= I18N ================= */
@@ -344,18 +347,25 @@ const I18N = {
   }
 };
 
+// Correct mapping is defined by INDEX position in the canonical (English) term/pillar lists,
+// so it stays correct regardless of language / shuffle order.
+// terms[0]=Carbon emissions -> pillars[1]=Environment
+// terms[1]=Human right -> pillars[2]=Social
+// terms[2]=Code of conduct -> pillars[0]=Governance
+// terms[3]=Supplier Due Diligent -> pillars[3]=Sustainable Procurement
 const CORRECT_MATCH = { 0: 1, 1: 2, 2: 0, 3: 3 };
-const Q1_CORRECT_INDEX = 1;
+const Q1_CORRECT_INDEX = 1; // "No, because all four must work together"
 
 /* ================= STATE ================= */
 let lang = 'th';
 let player = { name: '', email: '', dept: '' };
 let q1Selected = null;
-let q2Links = {};
-let q2Picked = null;
-let pillarOrder = [];
+let q2Links = {}; // termIndex -> pillarIndex
+let q2Picked = null; // currently picked term index
+let pillarOrder = []; // shuffled display order of pillar indices
 let q3Text = '', q4Text = '';
-let currentQ = 0;
+let currentQ = 0; // 0 = not started, 1-4 = question shown in quiz screen
+let lastAutoScore = null; // set once the quest is finished; used to re-render the result screen on language switch
 
 function t(key){ return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key; }
 
@@ -365,10 +375,16 @@ function applyI18n(){
     el.textContent = t(key);
   });
   document.documentElement.lang = lang;
+  // Re-render whichever dynamic content is currently on screen so labels/options update live.
   if(currentQ===1) renderQ1();
   if(currentQ===2) renderQ2();
+  const resultScreenVisible = !document.getElementById('screen-result').classList.contains('hidden');
+  if(resultScreenVisible && lastAutoScore !== null) renderResultReview(lastAutoScore);
+  const leaderboardVisible = !document.getElementById('screen-leaderboard').classList.contains('hidden');
+  if(leaderboardVisible) loadLeaderboard();
 }
 
+/* ================= SCREENS ================= */
 function show(id){
   ['screen-register','screen-quiz','screen-result','screen-leaderboard'].forEach(s=>{
     document.getElementById(s).classList.toggle('hidden', s !== id);
@@ -409,6 +425,7 @@ document.getElementById('btnStart').addEventListener('click', ()=>{
   updateProgress(1);
 });
 
+/* ================= Q1 ================= */
 function renderQ1(){
   const wrap = document.getElementById('q1_options');
   wrap.innerHTML = '';
@@ -433,6 +450,7 @@ document.getElementById('q1_next').addEventListener('click', ()=>{
   updateProgress(2);
 });
 
+/* ================= Q2 (matching) ================= */
 function shuffledIndices(n){
   const arr = [...Array(n).keys()];
   for(let i=arr.length-1;i>0;i--){
@@ -465,7 +483,7 @@ function renderQ2(){
     termsWrap.appendChild(div);
   });
 
-  const linkedPillars = Object.values(q2Links);
+  const linkedPillars = Object.values(q2Links); // pillar indices that already have a term matched to them
 
   pillarOrder.forEach(pIdx=>{
     const div = document.createElement('div');
@@ -536,6 +554,7 @@ document.getElementById('q2_back').addEventListener('click', ()=>{
   updateProgress(1);
 });
 
+/* ================= Q3 / Q4 ================= */
 document.getElementById('q3_next').addEventListener('click', ()=>{
   const val = document.getElementById('q3_text').value.trim();
   if(!val){ document.getElementById('q3_err').textContent = t('errText'); return; }
@@ -572,6 +591,7 @@ function updateProgress(step){
   document.getElementById('progressLabel').textContent = step + ' / 4';
 }
 
+/* ================= SCORING & SUBMIT ================= */
 function computeAutoScore(){
   let score = 0;
   if(q1Selected === Q1_CORRECT_INDEX) score += 20;
@@ -579,19 +599,17 @@ function computeAutoScore(){
   Object.keys(q2Links).forEach(termIdx=>{
     if(CORRECT_MATCH[termIdx] === q2Links[termIdx]) correctMatches++;
   });
-  score += correctMatches * 5;
+  score += correctMatches * 5; // 4 pairs x 5 = 20
   return score;
 }
 
-function finishQuest(){
-  const autoScore = computeAutoScore();
-  document.getElementById('screen-quiz').classList.add('hidden');
+function renderResultReview(autoScore){
   document.getElementById('autoScoreNum').textContent = autoScore + '/40';
 
   const keys = ['q1_a','q1_b','q1_c'];
   const q1Ok = q1Selected === Q1_CORRECT_INDEX;
   document.getElementById('q1ReviewBox').innerHTML =
-    '<div><b>' + t('q1ReviewTitle') + ' ' + (q1Ok ? '✅' : '❌') + '</b></div>' +
+    '<div><b>' + t('q1ReviewTitle') + ' ' + (q1Ok ? '\u2705' : '\u274c') + '</b></div>' +
     '<div style="margin-top:6px">' + t('yourAnswer') + ' ' + escapeHtml(q1Selected!==null ? t(keys[q1Selected]) : '-') + '</div>' +
     (q1Ok ? '' : '<div style="margin-top:4px;color:#2e9e5b">' + t('correctAnswer') + ' ' + escapeHtml(t(keys[Q1_CORRECT_INDEX])) + '</div>');
 
@@ -601,16 +619,25 @@ function finishQuest(){
     const chosenIdx = q2Links[idx];
     const isOk = chosenIdx === CORRECT_MATCH[idx];
     q2Rows += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">' +
-      '<b>' + escapeHtml(termLabel) + '</b> ' + (isOk ? '✅' : '❌') + '<br>' +
+      '<b>' + escapeHtml(termLabel) + '</b> ' + (isOk ? '\u2705' : '\u274c') + '<br>' +
       '<span style="color:var(--muted)">' + t('yourAnswer') + ' ' + escapeHtml(chosenIdx!==undefined ? pillars[chosenIdx] : '-') + '</span>' +
       (isOk ? '' : '<br><span style="color:#2e9e5b">' + t('correctAnswer') + ' ' + escapeHtml(pillars[CORRECT_MATCH[idx]]) + '</span>') +
       '</div>';
   });
   document.getElementById('q2ReviewBox').innerHTML = '<b>' + t('q2ReviewTitle') + '</b>' + q2Rows;
 
+  // q3Text / q4Text are the player's own written answers, not template text — they stay
+  // as typed regardless of the language toggle. Only the surrounding labels get translated.
   document.getElementById('reviewBox').innerHTML =
     '<div><b>' + t('reviewLabel3') + '</b><div>' + escapeHtml(q3Text) + '</div></div>' +
     '<div style="margin-top:10px"><b>' + t('reviewLabel4') + '</b><div>' + escapeHtml(q4Text) + '</div></div>';
+}
+
+function finishQuest(){
+  const autoScore = computeAutoScore();
+  lastAutoScore = autoScore;
+  document.getElementById('screen-quiz').classList.add('hidden');
+  renderResultReview(autoScore);
   show('screen-result');
   submitResult(autoScore);
 }
@@ -665,7 +692,7 @@ function renderLeaderboardRows(players){
   loadingEl.classList.add('hidden');
   players.forEach((p, idx)=>{
     const rank = idx + 1;
-    const medal = rank===1 ? '🥇' : rank===2 ? '🥈' : rank===3 ? '🥉' : rank;
+    const medal = rank===1 ? '\u{1F947}' : rank===2 ? '\u{1F948}' : rank===3 ? '\u{1F949}' : rank;
     const tr = document.createElement('tr');
     if(rank<=3) tr.className = 'rank-' + rank;
     tr.innerHTML = '<td>'+ medal +'</td><td>'+ escapeHtml(p.name) +'</td><td>'+ escapeHtml(p.dept) +'</td><td>'+ p.score +'/40</td>';
@@ -673,6 +700,8 @@ function renderLeaderboardRows(players){
   });
 }
 
+// Apps Script web apps don't reliably send CORS headers for cross-origin fetch(),
+// so we load the leaderboard via a JSONP <script> tag instead — that's exempt from CORS.
 function loadLeaderboard(){
   const loadingEl = document.getElementById('leaderboardLoading');
   const body = document.getElementById('leaderboardBody');
