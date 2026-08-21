@@ -42,6 +42,20 @@
     flex-direction:column;
     position:relative;
   }
+  @media (min-width:700px){
+    body{ background-attachment:fixed; }
+    .app{
+      max-width:640px;
+      min-height:auto;
+      margin:32px auto;
+      border-radius:10px;
+      box-shadow:0 20px 60px -30px rgba(27,36,48,.35);
+      overflow:hidden;
+    }
+  }
+  @media (min-width:1000px){
+    .app{ max-width:680px; }
+  }
   /* ---------- HEADER ---------- */
   .topbar{
     background:var(--ink);
@@ -189,8 +203,8 @@
   .scenario-text p{margin:0 0 12px;}
   .scenario-text p:last-child{margin-bottom:0;}
   .prompt-label{
-    font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;
-    color:var(--ink-soft);text-transform:uppercase;margin-bottom:10px;
+    font-family:var(--font-th);font-size:14.5px;font-weight:600;line-height:1.6;
+    color:var(--ink);margin-bottom:10px;
   }
   .photo-hint{font-size:12.5px;color:var(--ink-soft);margin:-4px 0 16px;}
   .photo-grid{
@@ -681,7 +695,7 @@
         { key:"conflict", groupId:"g2", th:"ผลประโยชน์ทับซ้อน", en:"Conflict of Interest", zh:"利益冲突" },
         { key:"fraud", groupId:null, th:"การทุจริต", en:"Fraud", zh:"欺诈" },
         { key:"moneylaundering", groupId:"g4", th:"การฟอกเงิน", en:"Money Laundering", zh:"洗钱" },
-        { key:"faircompetition", groupId:"g3", th:"การแข่งขันที่เป็นธรรม", en:"Fair Competition", zh:"公平竞争" },
+        { key:"faircompetition", groupId:null, th:"การแข่งขันที่เป็นธรรม", en:"Fair Competition", zh:"公平竞争" },
         { key:"infomanagement", groupId:"g3", th:"การจัดการข้อมูล", en:"Information Management", zh:"信息管理" }
       ],
       groupExplain: {
@@ -696,9 +710,9 @@
           zh:"该供应商由你的近亲属所有，却从未向团队披露这层关系。"
         },
         g3: {
-          th:"การเปิดเผยราคาของซัพพลายเออร์รายอื่นให้กับซัพพลายเออร์ที่ตนต้องการเลือก เป็นการเปิดเผยข้อมูลทางธุรกิจที่ไม่เหมาะสม และอาจทำลายการแข่งขันที่เป็นธรรม",
-          en:"Sharing a competing supplier's pricing with your preferred supplier is an improper disclosure of business information, and can undermine fair competition. (Information Management / Fair Competition)",
-          zh:"把其他供应商的报价透露给你属意的供应商，属于不当披露商业信息的行为，也可能破坏公平竞争。"
+          th:"การเปิดเผยราคาของซัพพลายเออร์รายอื่นให้กับซัพพลายเออร์ที่ตนต้องการเลือก เป็นการเปิดเผยข้อมูลทางธุรกิจที่เป็นความลับให้กับผู้ที่ไม่มีสิทธิ์รับรู้ ถือเป็นการจัดการข้อมูลที่ไม่เหมาะสม",
+          en:"Sharing a competing supplier's pricing with your preferred supplier is disclosing confidential business information to someone not authorized to see it — an improper handling of information.",
+          zh:"把其他供应商的报价透露给你属意的供应商，等于把机密商业信息泄露给无权知悉的人，属于不当的信息管理行为。"
         },
         g4: {
           th:"การอนุมัติให้ชำระเงินไปยังบริษัทอื่นที่ไม่เกี่ยวข้องกับธุรกรรม โดยไม่มีการตรวจสอบหรือคำอธิบายที่ชัดเจน ถือเป็นสัญญาณเตือนที่ควรตรวจสอบเพิ่มเติม",
