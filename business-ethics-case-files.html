@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CASE FILES: Business Ethics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-soft:#5B6675;
+    --paper:#F3EEE1;
+    --paper-card:#FFFDF7;
+    --paper-line:#DCD4BC;
+    --brass:#B9862B;
+    --brass-light:#E7C583;
+    --red:#A8384A;
+    --red-bg:#F6E3E4;
+    --green:#3E7A68;
+    --green-bg:#E4EEE7;
+    --font-th:'IBM Plex Sans Thai','Noto Sans SC',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-th);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(27,36,48,0.06) 1px, transparent 0) 0 0/22px 22px,
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  /* ---------- HEADER ---------- */
+  .topbar{
+    background:var(--ink);
+    color:var(--paper);
+    padding:16px 20px 14px;
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .brand{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .brand .kicker{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:2.5px;
+    color:var(--brass-light);
+    text-transform:uppercase;
+  }
+  .brand .title{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .lang-switch{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;gap:2px;}
+  .lang-btn{
+    font-family:var(--font-mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;
+    background:transparent;border:none;color:rgba(243,238,225,.6);
+    padding:5px 9px;border-radius:999px;cursor:pointer;
+  }
+  .lang-btn.active{background:var(--brass);color:var(--ink);}
+  .lb-btn{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.5px;
+    background:transparent;
+    border:1px solid var(--brass);
+    color:var(--brass-light);
+    padding:7px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+    display:flex;align-items:center;gap:5px;
+    transition:background .15s ease;
+  }
+  .lb-btn:hover{background:rgba(185,134,43,.15);}
+  .lb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .progress-row{display:flex;gap:5px;margin-top:12px;}
+  .progress-dot{
+    flex:1;height:4px;border-radius:2px;
+    background:rgba(255,255,255,.15);
+    overflow:hidden;
+  }
+  .progress-dot.done{background:var(--brass);}
+  .progress-dot.current{background:rgba(231,197,131,.5);}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1;padding:22px 18px 40px;display:flex;flex-direction:column;gap:16px;}
+
+  /* ---------- INTRO ---------- */
+  .intro-card{
+    background:var(--paper-card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:28px 22px;
+    box-shadow:0 1px 0 var(--paper-line), 0 8px 24px -14px rgba(27,36,48,.25);
+    position:relative;
+  }
+  .folder-tab{
+    position:absolute;top:-14px;left:22px;
+    background:var(--brass);
+    color:var(--ink);
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:1.5px;
+    padding:5px 12px;
+    border-radius:3px 3px 0 0;
+    transform:rotate(-1.2deg);
+    font-weight:700;
+  }
+  .intro-card h1{
+    font-size:20px;line-height:1.4;margin:10px 0 8px;
+  }
+  .intro-card p{
+    font-size:14px;line-height:1.7;color:var(--ink-soft);margin:0 0 18px;
+  }
+  .case-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;}
+  .case-chip{
+    font-size:12px;background:var(--paper);border:1px solid var(--paper-line);
+    padding:5px 10px;border-radius:999px;color:var(--ink-soft);
+  }
+  .field-label{
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:1px;
+    color:var(--ink-soft);text-transform:uppercase;margin-bottom:6px;display:block;
+  }
+  .field-group{margin-bottom:14px;}
+  input.text-input{
+    width:100%;
+    font-family:var(--font-th);
+    font-size:15px;
+    padding:13px 14px;
+    border:1.5px solid var(--paper-line);
+    border-radius:4px;
+    background:var(--paper);
+  }
+  input.text-input:focus{outline:none;border-color:var(--brass);}
+  .privacy-note{font-size:11.5px;color:var(--ink-soft);line-height:1.6;margin:2px 0 18px;}
+  .btn-primary{
+    width:100%;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--font-th);
+    font-weight:600;
+    font-size:15px;
+    padding:14px;
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .btn-primary:hover{background:#2A3547;}
+  .btn-primary:active{transform:scale(.98);}
+
+  /* ---------- QUESTION CARD ---------- */
+  .case-card{
+    background:var(--paper-card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:24px 20px 22px;
+    position:relative;
+    box-shadow:0 1px 0 var(--paper-line), 0 8px 24px -14px rgba(27,36,48,.25);
+  }
+  .case-meta{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
+  .case-icon{
+    width:38px;height:38px;border-radius:8px;
+    background:var(--paper);border:1px solid var(--paper-line);
+    display:flex;align-items:center;justify-content:center;font-size:19px;
+    flex-shrink:0;
+  }
+  .case-meta-text .case-no{
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:1.5px;color:var(--brass);
+    text-transform:uppercase;font-weight:700;
+  }
+  .case-meta-text .case-cat{font-size:13px;color:var(--ink-soft);}
+  .scenario-text{
+    font-size:16px;line-height:1.75;font-weight:500;margin:6px 0 20px;
+  }
+  .scenario-text p{margin:0 0 12px;}
+  .scenario-text p:last-child{margin-bottom:0;}
+  .prompt-label{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;
+    color:var(--ink-soft);text-transform:uppercase;margin-bottom:10px;
+  }
+  .photo-hint{font-size:12.5px;color:var(--ink-soft);margin:-4px 0 16px;}
+  .photo-grid{
+    display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-bottom:20px;
+  }
+  .photo-thumb{
+    position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;
+    border:1px solid var(--paper-line);background:var(--paper);
+  }
+  .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-remove{
+    position:absolute;top:4px;right:4px;
+    width:20px;height:20px;border-radius:50%;
+    background:rgba(27,36,48,.75);color:#fff;border:none;
+    font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    line-height:1;
+  }
+  .photo-add-tile{
+    aspect-ratio:1;border-radius:6px;border:1.5px dashed var(--paper-line);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    cursor:pointer;color:var(--brass);font-size:12px;font-weight:600;padding:6px;
+    background:var(--paper);
+  }
+  .photo-add-tile:hover{border-color:var(--brass);}
+  .options{display:flex;flex-direction:column;gap:9px;}
+  .option{
+    display:flex;align-items:flex-start;gap:12px;
+    text-align:left;
+    background:var(--paper);
+    border:1.5px solid var(--paper-line);
+    border-radius:4px;
+    padding:12px 13px;
+    cursor:pointer;
+    font-family:var(--font-th);
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--ink);
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .option:hover{border-color:var(--brass);}
+  .option .opt-letter{
+    font-family:var(--font-mono);
+    font-weight:700;font-size:13px;
+    width:24px;height:24px;border-radius:5px;
+    background:var(--ink);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;margin-top:1px;
+  }
+  .option.correct{border-color:var(--green);background:var(--green-bg);}
+  .option.correct .opt-letter{background:var(--green);}
+  .option.wrong-selected{border-color:var(--red);background:var(--red-bg);}
+  .option.wrong-selected .opt-letter{background:var(--red);}
+  .option.disabled{cursor:default;}
+  .option.dim{opacity:.5;}
+  .option.missed{border-color:var(--brass);background:rgba(185,134,43,.12);}
+  .option.ms-checked{border-color:var(--brass);background:rgba(185,134,43,.08);}
+  .opt-checkbox{
+    font-family:var(--font-mono);font-weight:700;font-size:13px;
+    width:24px;height:24px;border-radius:5px;
+    background:var(--paper-card);border:1.5px solid var(--paper-line);color:var(--brass);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;margin-top:1px;
+  }
+  .option.correct .opt-checkbox{background:var(--green);border-color:var(--green);color:#fff;}
+  .option.wrong-selected .opt-checkbox{background:var(--red);border-color:var(--red);color:#fff;}
+  .option.missed .opt-checkbox{background:var(--brass);border-color:var(--brass);color:#fff;}
+  .option.ms-checked .opt-checkbox{border-color:var(--brass);color:var(--brass);}
+  .ms-explain-list{display:flex;flex-direction:column;gap:9px;}
+  .ms-explain-item{
+    font-size:13.5px;line-height:1.7;color:var(--ink-soft);
+    background:var(--paper);border:1px solid var(--paper-line);border-radius:4px;
+    padding:9px 11px;
+  }
+  #confirmMultiBtn:disabled{opacity:.4;cursor:not-allowed;}
+
+  /* stamp */
+  .stamp-wrap{position:relative;height:0;}
+  .stamp{
+    position:absolute;
+    right:6px;top:-58px;
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:1.5px;
+    padding:8px 14px;
+    border:3px double;
+    border-radius:6px;
+    text-transform:uppercase;
+    transform:rotate(-9deg) scale(1);
+    animation:stamp-in .35s cubic-bezier(.2,1.4,.4,1);
+    pointer-events:none;
+    background:rgba(255,253,247,.9);
+    z-index:5;
+    white-space:nowrap;
+  }
+  .stamp.clear{color:var(--green);border-color:var(--green);}
+  .stamp.flag{color:var(--red);border-color:var(--red);}
+  @keyframes stamp-in{
+    0%{opacity:0;transform:rotate(-9deg) scale(2.2);}
+    60%{opacity:1;}
+    100%{opacity:1;transform:rotate(-9deg) scale(1);}
+  }
+  .reveal-panel{
+    margin-top:20px;
+    padding-top:16px;
+    border-top:1px dashed var(--paper-line);
+    animation:fade-up .3s ease;
+  }
+  @keyframes fade-up{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .principle-tag{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:11px;letter-spacing:1px;
+    background:var(--ink);color:var(--brass-light);
+    padding:4px 10px;border-radius:999px;
+    margin-bottom:10px;
+  }
+  .explain-text{font-size:14px;line-height:1.75;color:var(--ink-soft);}
+  .points-earned{
+    font-family:var(--font-mono);font-size:13px;font-weight:700;
+    color:var(--brass);margin-top:12px;
+  }
+  .btn-next{
+    margin-top:18px;width:100%;
+    background:var(--brass);color:var(--ink);
+    font-family:var(--font-th);font-weight:700;font-size:14.5px;
+    padding:13px;border:none;border-radius:4px;cursor:pointer;
+  }
+  .btn-next:hover{background:var(--brass-light);}
+
+  /* ---------- END SCREEN ---------- */
+  .end-card{
+    background:var(--ink);color:var(--paper);
+    border-radius:4px;padding:30px 22px;text-align:center;
+  }
+  .end-kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--brass-light);text-transform:uppercase;}
+  .end-score{font-family:var(--font-mono);font-size:52px;font-weight:700;margin:8px 0 2px;color:var(--brass-light);}
+  .end-score-label{font-size:13px;color:rgba(243,238,225,.7);margin-bottom:22px;}
+  .breakdown{display:flex;flex-direction:column;gap:7px;margin-bottom:22px;text-align:left;}
+  .breakdown-item{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,.05);
+    border-radius:4px;padding:9px 11px;font-size:13px;
+  }
+  .breakdown-item .bi-cat{flex:1;}
+  .breakdown-item .bi-pts{font-family:var(--font-mono);color:var(--brass-light);}
+  .btn-submit{
+    width:100%;background:var(--brass);color:var(--ink);
+    font-family:var(--font-th);font-weight:700;font-size:15px;
+    padding:14px;border:none;border-radius:4px;cursor:pointer;
+  }
+  .submitted-note{font-size:12.5px;color:rgba(243,238,225,.7);margin-top:12px;}
+  .rank-callout{
+    background:rgba(185,134,43,.15);border:1px solid var(--brass);
+    border-radius:6px;padding:12px;margin-top:14px;
+    font-family:var(--font-mono);font-size:13px;color:var(--brass-light);
+  }
+  .btn-replay{
+    width:100%;background:transparent;color:var(--brass-light);
+    font-family:var(--font-th);font-weight:600;font-size:13.5px;
+    padding:11px;border:1px solid var(--brass);border-radius:4px;cursor:pointer;
+    margin-top:10px;
+  }
+  .btn-replay:hover{background:rgba(185,134,43,.15);}
+
+  /* ---------- LEADERBOARD PAGE ---------- */
+  .lb-page{
+    background:var(--paper-card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:22px 20px 24px;
+    box-shadow:0 1px 0 var(--paper-line), 0 8px 24px -14px rgba(27,36,48,.25);
+    animation:fade-up .3s ease;
+  }
+  .lb-page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .lb-page-head h2{font-size:18px;margin:0;}
+  .lb-back{
+    background:none;border:1px solid var(--paper-line);border-radius:999px;
+    font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);
+    cursor:pointer;padding:6px 12px;display:flex;align-items:center;gap:5px;
+  }
+  .lb-back:hover{border-color:var(--brass);color:var(--ink);}
+  .lb-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .my-rank-card{
+    background:var(--green-bg);border:1px solid var(--green);border-radius:6px;
+    padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .my-rank-card .mrc-label{font-size:11.5px;color:var(--ink-soft);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase;}
+  .my-rank-card .mrc-rank{font-family:var(--font-mono);font-weight:700;font-size:20px;color:var(--green);}
+  .my-rank-card .mrc-score{font-family:var(--font-mono);font-weight:700;font-size:14px;color:var(--ink);}
+  .lb-row{
+    display:flex;align-items:center;gap:11px;
+    padding:10px 8px;border-bottom:1px solid var(--paper-line);
+  }
+  .lb-row.me{background:var(--green-bg);border-radius:6px;border-bottom:1px solid transparent;}
+  .lb-rank{
+    font-family:var(--font-mono);font-weight:700;font-size:13px;
+    width:26px;text-align:center;color:var(--ink-soft);flex-shrink:0;
+  }
+  .lb-rank.top1{color:var(--brass);}
+  .lb-name-wrap{flex:1;min-width:0;}
+  .lb-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lb-sub-name{font-size:11px;color:var(--ink-soft);}
+  .lb-score{font-family:var(--font-mono);font-weight:700;font-size:14px;color:var(--ink);flex-shrink:0;}
+  .lb-empty{font-size:13.5px;color:var(--ink-soft);text-align:center;padding:30px 10px;}
+
+  @media (max-width:360px){
+    .end-score{font-size:44px;}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+
+  const TRANSLATIONS = {
+    th: {
+      kicker: "แฟ้มคดี · จริยธรรมทางธุรกิจ",
+      title: "🗂 สืบสวนจริยธรรมองค์กร",
+      lbBtn: "กระดานเกียรติยศ",
+      introTitle: "คุณคือนักสืบจริยธรรมประจำองค์กร",
+      introBody: "มี 6 สถานการณ์รอให้คุณตัดสินใจ แต่ละข้อได้ 10 คะแนนเมื่อตอบถูก พร้อมคำอธิบายทันที แล้วไปดูอันดับของคุณบนกระดานเกียรติยศแบบเรียลไทม์",
+      namePlaceholder: "พิมพ์ชื่อหรือชื่อเล่นของคุณ",
+      emailPlaceholder: "อีเมล",
+      deptPlaceholder: "แผนก, ประเทศ (เช่น ฝ่ายขาย, ไทย)",
+      privacyNote: "ชื่อและคะแนนของคุณจะแสดงบนกระดานเกียรติยศที่ผู้เล่นคนอื่นมองเห็นได้",
+      startBtn: "เริ่มสืบสวน",
+      caseLabel: "คดีที่",
+      whatWouldYouDo: "คุณจะทำอย่างไร?",
+      multiPrompt: "หลักการจริยธรรมทางธุรกิจข้อใดที่อาจถูกละเมิดในสถานการณ์นี้? (เลือกได้มากกว่า 1 ข้อ)",
+      confirmBtn: "ยืนยันคำตอบ",
+      photoPrompt: "ภารกิจโบนัส: นโยบายการแจ้งเบาะแส (Whistleblowing Policy) เก็บไว้ที่ไหน? (20 คะแนน)<br>ใครจะหาเจอบ้าางนะ! หากหาเจอแล้วให้แคปหน้าจอ แล้วส่งภาพเข้ามาให้เราดูได้เลย",
+      photoHint: "แอดมินจะตรวจภาพหน้าจอและให้คะแนนโบนัสสูงสุด 20 คะแนนภายหลัง",
+      addPhotoBtn: "+ แนบภาพหน้าจอ",
+      pendingReview: "รอตรวจ",
+      principleLabel: "หลักการ",
+      nextBtn: "คดีถัดไป →",
+      lastNextBtn: "ดูผลสรุป",
+      stampClear: "ผ่านการตรวจสอบ",
+      stampFlag: "พบความเสี่ยง",
+      endKicker: "การสืบสวนเสร็จสิ้น",
+      endScoreLabel: (name) => `คะแนนรวมของ ${name}`,
+      submitBtn: "ส่งคะแนนขึ้นกระดานเกียรติยศ",
+      submittedNote: "ส่งคะแนนแล้ว — ดูอันดับของคุณได้ที่กระดานเกียรติยศ",
+      replayBtn: "เล่นอีกครั้ง ↺",
+      lbTitle: "🏅 กระดานเกียรติยศ",
+      backBtn: "กลับ",
+      lbSub: "อัปเดตอัตโนมัติทุก 5 วินาที",
+      lbLoading: "กำลังโหลดอันดับ...",
+      lbEmpty: "ยังไม่มีใครส่งคะแนน — เป็นคนแรกเลย!",
+      you: "(คุณ)",
+      myRankLabel: "อันดับของคุณ",
+      of: "จาก",
+      people: "คน",
+      pointsSuffix: "คะแนน"
+    },
+    en: {
+      kicker: "Case File · Business Ethics",
+      title: "🗂 Corporate Ethics Investigation",
+      lbBtn: "Leaderboard",
+      introTitle: "You are the company's ethics investigator",
+      introBody: "Six scenarios are waiting for your judgment. Score 10 points for each correct answer, with an instant explanation — then check your rank on the live leaderboard.",
+      namePlaceholder: "Enter your name or nickname",
+      emailPlaceholder: "Email",
+      deptPlaceholder: "Department, Country (e.g. Sales, Thailand)",
+      privacyNote: "Your name and score will appear on the leaderboard, visible to other players.",
+      startBtn: "Start Investigation",
+      caseLabel: "CASE",
+      whatWouldYouDo: "What would you do?",
+      multiPrompt: "Which Business Ethics principles may have been breached in this situation? (Select all that apply)",
+      confirmBtn: "Confirm Answers",
+      photoPrompt: "BONUS CHALLENGE: Where is the Whistleblowing Policy? (20 points)<br>Think you can find it? Take a screenshot once you do, and send it our way",
+      photoHint: "An admin will review your screenshot and award up to 20 bonus points later",
+      addPhotoBtn: "+ Add Screenshot",
+      pendingReview: "Pending Review",
+      principleLabel: "Principle",
+      nextBtn: "Next Case →",
+      lastNextBtn: "See Results",
+      stampClear: "Cleared",
+      stampFlag: "Flag Raised",
+      endKicker: "Investigation Complete",
+      endScoreLabel: (name) => `Total score for ${name}`,
+      submitBtn: "Submit score to leaderboard",
+      submittedNote: "Score submitted — check your rank on the leaderboard.",
+      replayBtn: "Play again ↺",
+      lbTitle: "🏅 Leaderboard",
+      backBtn: "Back",
+      lbSub: "Auto-updates every 5 seconds",
+      lbLoading: "Loading rankings...",
+      lbEmpty: "No one has submitted yet — be the first!",
+      you: "(You)",
+      myRankLabel: "Your rank",
+      of: "of",
+      people: "players",
+      pointsSuffix: "pts"
+    },
+    zh: {
+      kicker: "案例档案 · 商业道德",
+      title: "🗂 企业道德调查",
+      lbBtn: "排行榜",
+      introTitle: "您是企业道德调查员",
+      introBody: "六个真实情境等您来判断。每答对一题得10分，并立即显示解释，之后可在实时排行榜上查看您的名次。",
+      namePlaceholder: "输入您的姓名或昵称",
+      emailPlaceholder: "电子邮箱",
+      deptPlaceholder: "部门, 国家（例如 Sales, Thailand）",
+      privacyNote: "您的姓名和分数将显示在排行榜上，其他玩家可以看到。",
+      startBtn: "开始调查",
+      caseLabel: "案例",
+      whatWouldYouDo: "您会怎么做？",
+      multiPrompt: "在这种情况下，可能违反了哪些商业道德原则？（可多选）",
+      confirmBtn: "确认答案",
+      photoPrompt: "奖励挑战：举报政策（Whistleblowing Policy）存放在哪里？（20分）<br>看看你能不能找到！找到后截图，发给我们看看吧",
+      photoHint: "管理员稍后会审核你的截图，并给予最多20分的奖励",
+      addPhotoBtn: "+ 添加截图",
+      pendingReview: "待审核",
+      principleLabel: "原则",
+      nextBtn: "下一案例 →",
+      lastNextBtn: "查看结果",
+      stampClear: "审核通过",
+      stampFlag: "发现问题",
+      endKicker: "调查完成",
+      endScoreLabel: (name) => `${name} 的总分`,
+      submitBtn: "提交分数到排行榜",
+      submittedNote: "分数已提交 — 前往排行榜查看您的名次。",
+      replayBtn: "再玩一次 ↺",
+      lbTitle: "🏅 排行榜",
+      backBtn: "返回",
+      lbSub: "每5秒自动更新",
+      lbLoading: "正在加载排名...",
+      lbEmpty: "还没有人提交 — 成为第一人吧！",
+      you: "（您）",
+      myRankLabel: "您的排名",
+      of: "/",
+      people: "人",
+      pointsSuffix: "分"
+    }
+  };
+
+  const CASES = [
+    {
+      icon: "🎁",
+      cat: { th:"การต่อต้านคอร์รัปชัน", en:"Anti-Corruption", zh:"反腐败" },
+      scenario: {
+        th:"ซัพพลายเออร์รายหนึ่งเสนอของขวัญราคาแพงให้คุณ ก่อนที่คุณจะตัดสินใจเรื่องสัญญากับเขา",
+        en:"A supplier offers you an expensive gift right before you decide on their contract.",
+        zh:"一位供应商在你即将决定合同之前，送给你一份昂贵的礼物。"
+      },
+      options: [
+        { correct:false, th:"รับไว้เงียบ ๆ เพราะคิดว่าเป็นเรื่องส่วนตัว ไม่เกี่ยวกับบริษัท", en:"Accept it quietly — it's personal, not related to the company.", zh:"悄悄收下 — 这是私事，与公司无关。" },
+        { correct:true, th:"ปฏิเสธของขวัญอย่างสุภาพ และแจ้งหัวหน้างานหรือฝ่ายกำกับดูแลให้ทราบ", en:"Politely decline the gift and inform your manager or the Compliance team.", zh:"礼貌地拒绝礼物，并告知主管或合规团队。" },
+        { correct:false, th:"รับไว้ก่อน แล้วค่อยพิจารณาเรื่องสัญญาแยกกันทีหลัง", en:"Accept it now, then decide on the contract separately later.", zh:"先收下，之后再单独考虑合同事宜。" },
+        { correct:false, th:"รับไว้ เพราะมั่นใจว่าจะไม่กระทบการตัดสินใจของตัวเอง", en:"Accept it — you're confident it won't affect your decision.", zh:"收下，因为你确信这不会影响自己的判断。" }
+      ],
+      explain: {
+        th:"การรับของขวัญราคาแพงก่อนตัดสินใจเรื่องสัญญา อาจถูกมองว่าเป็นการติดสินบนแม้ไม่ได้ตั้งใจ ควรปฏิเสธอย่างสุภาพและแจ้งให้ทราบอย่างโปร่งใสเสมอ",
+        en:"Accepting an expensive gift right before a contract decision can look like bribery, even if unintended. Always decline politely and report it transparently.",
+        zh:"在合同决策前收下贵重礼物，即使无意，也可能被视为行贿。应始终礼貌拒绝并保持透明地上报。"
+      }
+    },
+    {
+      icon: "👨‍👩‍👦",
+      cat: { th:"ผลประโยชน์ทับซ้อน", en:"Conflict of Interest", zh:"利益冲突" },
+      scenario: {
+        th:"คุณมีส่วนร่วมในการคัดเลือกซัพพลายเออร์ และหนึ่งในผู้เข้าประมูลเป็นบริษัทของญาติสนิทคุณ",
+        en:"You're involved in selecting a supplier, and one of the bidders is owned by a close relative of yours.",
+        zh:"你参与供应商甄选，其中一位投标方由你的近亲属所有。"
+      },
+      options: [
+        { correct:false, th:"เข้าร่วมตัดสินใจตามปกติ เพราะมั่นใจว่าตัวเองเป็นกลาง", en:"Take part in the decision as usual — you're confident you'll stay neutral.", zh:"照常参与决策 — 你确信自己能保持中立。" },
+        { correct:true, th:"เปิดเผยความสัมพันธ์นี้ให้ทีมทราบ แล้วถอนตัวจากการตัดสินใจ", en:"Disclose the relationship to the team and step back from the decision.", zh:"向团队披露这层关系，并退出该决策。" },
+        { correct:false, th:"ไม่พูดอะไร แต่ลงคะแนนให้บริษัทอื่นเพื่อความปลอดภัยของตัวเอง", en:"Say nothing, but vote for another company just to be safe.", zh:"不说明情况，但为求安全投票给其他公司。" },
+        { correct:false, th:"ขอให้ญาติถอนตัวจากการประมูลเป็นการส่วนตัว โดยไม่แจ้งใคร", en:"Privately ask your relative to withdraw, without telling anyone.", zh:"私下要求亲属退出投标，但不告诉任何人。" }
+      ],
+      explain: {
+        th:"จุดสำคัญคือ ต้องเปิดเผยความสัมพันธ์นี้เสมอ แม้จะคิดว่าตัวเองสามารถตัดสินใจอย่างเป็นกลางได้ก็ตาม",
+        en:"The key point is to always disclose the relationship — even if you believe you can stay neutral.",
+        zh:"关键在于无论你是否认为自己能保持中立，都必须主动披露这层关系。"
+      }
+    },
+    {
+      icon: "💸",
+      cat: { th:"การทุจริต", en:"Fraud", zh:"欺诈" },
+      scenario: {
+        th:"คุณสังเกตเห็นว่าเพื่อนร่วมงานแก้ไขข้อมูลในใบเบิกค่าใช้จ่าย เพื่อเรียกเงินคืนมากกว่าที่จ่ายจริง",
+        en:"You notice a colleague altered figures on an expense report to claim more than they actually spent.",
+        zh:"你发现一位同事修改了报销单上的数据，以领取比实际支出更多的费用。"
+      },
+      options: [
+        { correct:false, th:"เพิกเฉย เพราะเป็นจำนวนเงินไม่มาก", en:"Ignore it — it's a small amount.", zh:"不予理会 — 金额不大。" },
+        { correct:true, th:"รายงานผ่านช่องทางที่เหมาะสม เช่น หัวหน้างาน หรือช่องทางแจ้งเบาะแส", en:"Report it through the proper channel, such as your manager or the whistleblowing line.", zh:"通过适当渠道上报，例如主管或举报专线。" },
+        { correct:false, th:"เตือนเพื่อนเป็นการส่วนตัวเท่านั้น แล้วปล่อยผ่านไป", en:"Warn your colleague privately and let it go.", zh:"私下提醒同事，然后不再追究。" },
+        { correct:false, th:"แก้ไขตัวเลขให้ถูกต้องเองเงียบ ๆ โดยไม่บอกใคร", en:"Quietly correct the numbers yourself without telling anyone.", zh:"自己悄悄把数字改回正确，不告诉任何人。" }
+      ],
+      explain: {
+        th:"การทุจริตไม่ได้หมายถึงเรื่องใหญ่เท่านั้น การปลอมแปลงตัวเลขแม้เพียงเล็กน้อยก็ถือเป็นการทุจริต ควรรายงานผ่านช่องทางที่ถูกต้องเสมอ",
+        en:"Fraud isn't only about large sums. Falsifying even small figures is still fraud — always report it through the proper channel.",
+        zh:"欺诈不仅限于大额事件。即使是小数字的造假，也属于欺诈行为，应始终通过正当渠道上报。"
+      }
+    },
+    {
+      icon: "🏦",
+      cat: { th:"การฟอกเงิน", en:"Money Laundering", zh:"洗钱" },
+      scenario: {
+        th:"ลูกค้ารายใหม่ขอชำระเงินผ่านอีกบริษัทหนึ่งที่ไม่เกี่ยวข้องกับธุรกรรมนี้ โดยไม่สามารถอธิบายเหตุผลได้ชัดเจน",
+        en:"A new customer asks to pay through a different, unrelated company, and can't clearly explain why.",
+        zh:"一位新客户要求通过一家与交易无关的公司付款，且无法清楚说明原因。"
+      },
+      options: [
+        { correct:false, th:"ดำเนินการตามที่ลูกค้าขอ เพราะเป็นเรื่องความสะดวกของลูกค้า", en:"Proceed as requested — it's just a convenience for the customer.", zh:"按客户要求处理 — 这只是为了方便客户。" },
+        { correct:true, th:"ชะลอไว้ก่อน สอบถามเหตุผลเพิ่มเติม และปรึกษาฝ่ายกำกับดูแล", en:"Pause, ask more questions, and consult the Compliance team.", zh:"先暂停处理，进一步询问原因，并咨询合规团队。" },
+        { correct:false, th:"รับเงินไว้ก่อน แล้วค่อยตรวจสอบย้อนหลังทีหลัง", en:"Accept the payment first and verify it later.", zh:"先收款，之后再进行核实。" },
+        { correct:false, th:"ปฏิเสธลูกค้าทันที โดยไม่สอบถามหรือแจ้งใครก่อน", en:"Refuse the customer immediately, without asking anything first.", zh:"在未询问任何情况下立即拒绝客户。" }
+      ],
+      explain: {
+        th:"หากธุรกรรมดูผิดปกติหรือไม่ชัดเจน อย่าเพิกเฉย ให้สอบถามและปฏิบัติตามขั้นตอนตรวจสอบที่กำหนดไว้เสมอ",
+        en:"If a transaction looks unusual or unclear, don't ignore it. Ask questions and follow the required checks.",
+        zh:"如果交易看起来异常或不清楚，切勿忽视。应主动询问并遵循必要的核查流程。"
+      }
+    },
+    {
+      icon: "🤝",
+      cat: { th:"การแข่งขันที่เป็นธรรม", en:"Fair Competition", zh:"公平竞争" },
+      scenario: {
+        th:"ตัวแทนขายจากบริษัทคู่แข่งชวนคุณแลกเปลี่ยนข้อมูลราคาสินค้าและแผนธุรกิจในอนาคตของแต่ละบริษัท",
+        en:"A sales rep from a competitor suggests exchanging pricing and future business plan information.",
+        zh:"一位竞争对手的销售代表提议交换双方的定价和未来业务计划信息。"
+      },
+      options: [
+        { correct:false, th:"แลกเปลี่ยนข้อมูลกัน เพราะเป็นเรื่องปกติที่ทำกันในวงการ", en:"Exchange the information — it's common practice in the industry.", zh:"互相交换信息 — 这是业内常见做法。" },
+        { correct:true, th:"ปฏิเสธทันที และยุติบทสนทนาในประเด็นนี้", en:"Decline immediately and end the conversation on this topic.", zh:"立即拒绝，并终止这方面的对话。" },
+        { correct:false, th:"ฟังข้อมูลจากเขาไว้ก่อน แต่ไม่ให้ข้อมูลของเรากลับไป", en:"Listen to what they share, but don't give any information back.", zh:"先听取对方的信息，但不透露己方信息。" },
+        { correct:false, th:"รับข้อมูลไว้เผื่อเป็นประโยชน์ต่อการวางแผนธุรกิจในอนาคต", en:"Accept the information — it could be useful for future planning.", zh:"接受这些信息，因为可能对未来规划有用。" }
+      ],
+      explain: {
+        th:"การแลกเปลี่ยนข้อมูลราคาหรือแผนธุรกิจกับคู่แข่ง แม้เพียงฝ่ายเดียวรับฟัง ก็ถือเป็นความเสี่ยงต่อการแข่งขันที่เป็นธรรม ควรปฏิเสธและยุติทันที",
+        en:"Exchanging pricing or business plan information with a competitor — even just listening — puts fair competition at risk. Always decline and end the conversation immediately.",
+        zh:"与竞争对手交换定价或业务计划信息，哪怕只是单方面聆听，也会危及公平竞争，应立即拒绝并终止对话。"
+      }
+    },
+    {
+      icon: "🔒",
+      cat: { th:"การจัดการข้อมูล", en:"Information Management", zh:"信息管理" },
+      scenario: {
+        th:"คุณได้รับข้อมูลลับของลูกค้าจากเพื่อนร่วมงาน และเพื่อนอีกคนที่ทำงานบริษัทคู่แข่งขอให้คุณแชร์ข้อมูลนั้นให้",
+        en:"You received confidential customer information from a colleague, and a friend at a competing company asks you to share it.",
+        zh:"你从同事那里获得了客户的机密信息，一位在竞争公司工作的朋友要求你分享给他。"
+      },
+      options: [
+        { correct:false, th:"แชร์ให้ เพราะเป็นเพื่อนสนิทที่ไว้ใจได้", en:"Share it — they're a close friend you trust.", zh:"分享给他 — 他是值得信赖的好朋友。" },
+        { correct:true, th:"ปฏิเสธ และอธิบายว่าข้อมูลนี้เปิดเผยได้เฉพาะผู้มีสิทธิ์เท่านั้น", en:"Decline, and explain that this information can only be shared with authorized people.", zh:"拒绝，并说明该信息只能与获得授权的人员分享。" },
+        { correct:false, th:"แชร์ข้อมูลบางส่วนที่คิดว่าไม่สำคัญ", en:"Share the parts you think aren't important.", zh:"分享你认为不重要的部分。" },
+        { correct:false, th:"แชร์ให้ แต่ขอร้องไม่ให้บอกต่อ", en:"Share it, but ask them to keep it private.", zh:"分享，但要求对方保密。" }
+      ],
+      explain: {
+        th:"ข้อมูลลับทางธุรกิจควรถูกแชร์เฉพาะกับผู้ที่ได้รับอนุญาตเท่านั้น ไม่ว่าความสัมพันธ์ส่วนตัวจะสนิทกันแค่ไหนก็ตาม",
+        en:"Confidential business information should only be shared with authorized people — no matter how close the personal relationship is.",
+        zh:"机密商业信息只能与获得授权的人员分享 — 无论私人关系有多亲密都不例外。"
+      }
+    },
+    {
+      type: "multi",
+      icon: "🧩",
+      cat: { th:"หลายหลักการที่เกี่ยวข้อง", en:"Multiple Principles", zh:"多项原则" },
+      scenario: {
+        th: [
+          "คุณรับผิดชอบในการคัดเลือกซัพพลายเออร์รายใหม่ให้บริษัท ซัพพลายเออร์รายหนึ่งเชิญคุณไปทานอาหารค่ำหรูและมอบของขวัญราคาแพงให้ก่อนการตัดสินใจคัดเลือกรอบสุดท้าย คุณรับของขวัญไว้เพราะเชื่อว่าจะไม่กระทบต่อการตัดสินใจของคุณ",
+          "ระหว่างกระบวนการคัดเลือก คุณพบว่าซัพพลายเออร์รายนี้เป็นของญาติสนิทของคุณ แต่คุณเลือกที่จะไม่เปิดเผยความสัมพันธ์นี้ เพราะเชื่อว่าตัวเองยังสามารถตัดสินใจอย่างเป็นกลางได้",
+          "ต่อมาซัพพลายเออร์รายนี้ขอให้คุณแชร์ราคาที่ซัพพลายเออร์รายอื่นเสนอมา เพื่อให้เขาสามารถยื่นข้อเสนอที่ดีกว่าได้ คุณส่งข้อมูลให้เพราะต้องการให้ซัพพลายเออร์ที่คุณอยากเลือกชนะสัญญา",
+          "หลังจากได้รับสัญญาแล้ว ซัพพลายเออร์รายนี้ขอให้คุณจัดการชำระเงินไปยังอีกบริษัทหนึ่งแทน โดยให้เหตุผลว่าจะทำให้กระบวนการชำระเงินสะดวกขึ้น คุณอนุมัติการชำระเงินโดยไม่สอบถามเหตุผลเพิ่มเติม"
+        ],
+        en: [
+          "You are responsible for selecting a new supplier for your company. One supplier invites you to an expensive dinner and offers you an expensive gift before the final supplier selection. You accept the gift because you believe it will not affect your decision.",
+          "During the selection process, you discover that the supplier is owned by your close relative, but you decide not to disclose this relationship because you believe you can remain objective.",
+          "Later, the supplier asks you to share the prices offered by other suppliers so they can submit a better offer. You send them the information because you want to make sure your preferred supplier wins the contract.",
+          "After the contract is awarded, the supplier asks you to arrange payment to a different company because it will make the payment process easier. You do not ask for an explanation and approve the payment."
+        ],
+        zh: [
+          "你负责为公司挑选新的供应商。在最终确定供应商之前，一家供应商邀请你参加一场昂贵的晚宴，并送给你一份贵重的礼物。你收下了礼物，因为你相信这不会影响你的决定。",
+          "在甄选过程中，你发现该供应商是由你的近亲属所有，但你决定不披露这层关系，因为你认为自己仍能保持客观。",
+          "后来，该供应商要求你透露其他供应商的报价，以便他们能提出更有竞争力的价格。你把信息发给了他们，因为你希望自己中意的供应商能赢得合同。",
+          "合同签订后，该供应商要求你将付款安排给另一家公司，理由是这样能让付款流程更方便。你没有询问原因，就批准了这笔付款。"
+        ]
+      },
+      options: [
+        { key:"anticorruption", groupId:"g1", th:"การต่อต้านคอร์รัปชัน", en:"Anti-Corruption", zh:"反腐败" },
+        { key:"conflict", groupId:"g2", th:"ผลประโยชน์ทับซ้อน", en:"Conflict of Interest", zh:"利益冲突" },
+        { key:"fraud", groupId:null, th:"การทุจริต", en:"Fraud", zh:"欺诈" },
+        { key:"moneylaundering", groupId:"g4", th:"การฟอกเงิน", en:"Money Laundering", zh:"洗钱" },
+        { key:"faircompetition", groupId:"g3", th:"การแข่งขันที่เป็นธรรม", en:"Fair Competition", zh:"公平竞争" },
+        { key:"infomanagement", groupId:"g3", th:"การจัดการข้อมูล", en:"Information Management", zh:"信息管理" }
+      ],
+      groupExplain: {
+        g1: {
+          th:"การรับของขวัญมูลค่าสูงจากซัพพลายเออร์ก่อนการตัดสินใจเลือก อาจสร้างอิทธิพลหรือผลประโยชน์ที่ไม่เหมาะสมต่อการตัดสินใจ",
+          en:"Accepting an expensive gift from a supplier before the selection decision may create improper influence or benefit over the outcome. (Anti-Corruption)",
+          zh:"在选定供应商之前收下高价礼物，可能对决策产生不当影响或利益输送。"
+        },
+        g2: {
+          th:"ซัพพลายเออร์รายนี้เป็นของญาติใกล้ชิด แต่ไม่ได้เปิดเผยความสัมพันธ์ดังกล่าวให้ทีมทราบ",
+          en:"The supplier is owned by a close relative, and the relationship was never disclosed to the team. (Conflict of Interest)",
+          zh:"该供应商由你的近亲属所有，却从未向团队披露这层关系。"
+        },
+        g3: {
+          th:"การเปิดเผยราคาของซัพพลายเออร์รายอื่นให้กับซัพพลายเออร์ที่ตนต้องการเลือก เป็นการเปิดเผยข้อมูลทางธุรกิจที่ไม่เหมาะสม และอาจทำลายการแข่งขันที่เป็นธรรม",
+          en:"Sharing a competing supplier's pricing with your preferred supplier is an improper disclosure of business information, and can undermine fair competition. (Information Management / Fair Competition)",
+          zh:"把其他供应商的报价透露给你属意的供应商，属于不当披露商业信息的行为，也可能破坏公平竞争。"
+        },
+        g4: {
+          th:"การอนุมัติให้ชำระเงินไปยังบริษัทอื่นที่ไม่เกี่ยวข้องกับธุรกรรม โดยไม่มีการตรวจสอบหรือคำอธิบายที่ชัดเจน ถือเป็นสัญญาณเตือนที่ควรตรวจสอบเพิ่มเติม",
+          en:"Approving payment to an unrelated company without any verification or clear explanation is a red flag that requires further checking. (Money Laundering)",
+          zh:"在没有核实或明确说明的情况下批准向无关公司付款，是需要进一步核查的危险信号。"
+        }
+      }
+    },
+    {
+      type: "photo",
+      icon: "📸",
+      cat: { th:"ภารกิจโบนัส", en:"Bonus Challenge", zh:"奖励挑战" }
+    }
+  ];
+
+  const POINTS_PER_CORRECT = 10;
+  const POINTS_PER_GROUP = 10;
+
+  // Google Apps Script webhook (same backend already used by Scope Detective / ESG Pillars Quest).
+  // Data routes to its own "Ethics_Responses" sheet tab via the quest field below.
+  const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec';
+  const QUEST_ID = 'Business_Ethics';
+
+  const app = document.getElementById('app');
+  const state = {
+    lang: 'th',
+    screen: 'intro',
+    name: '',
+    email: '',
+    deptCountry: '',
+    submittedName: null,
+    submittedScore: null,
+    index: 0,
+    score: 0,
+    selected: null,
+    revealed: false,
+    currentOptions: [],
+    multiSelected: [],
+    photos: [],
+    history: [],
+    previousScreen: 'intro',
+    leaderboard: [],
+    lbLoading: false,
+    submitted: false,
+    pollTimer: null
+  };
+
+  function t(key){
+    const v = TRANSLATIONS[state.lang][key];
+    return v;
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function esc(s){
+    const d = document.createElement('div');
+    d.textContent = s == null ? '' : s;
+    return d.innerHTML;
+  }
+
+  function setLang(lang){
+    state.lang = lang;
+    render();
+  }
+
+  function loadQuestion(i){
+    state.index = i;
+    state.selected = null;
+    state.revealed = false;
+    state.multiSelected = [];
+    state.photos = [];
+    const c = CASES[i];
+    state.currentOptions = c.type === 'photo' ? [] : shuffle(c.options);
+    render();
+  }
+
+  function toggleMultiOption(key){
+    if(state.revealed) return;
+    const idx = state.multiSelected.indexOf(key);
+    if(idx >= 0) state.multiSelected.splice(idx, 1);
+    else state.multiSelected.push(key);
+    render();
+  }
+
+  function confirmMultiAnswer(){
+    if(state.revealed) return;
+    state.revealed = true;
+    const c = CASES[state.index];
+    const correctGroups = new Set();
+    state.multiSelected.forEach(key => {
+      const opt = c.options.find(o => o.key === key);
+      if(opt && opt.groupId) correctGroups.add(opt.groupId);
+    });
+    const pts = correctGroups.size * POINTS_PER_GROUP;
+    state.score += pts;
+    state.history.push({ cat: c.cat, icon: c.icon, correct: pts > 0, pts, multi: true });
+    render();
+  }
+
+  const MAX_PHOTOS = 5;
+  const PHOTO_MAX_WIDTH = 1200;
+  const PHOTO_JPEG_QUALITY = 0.7;
+
+  function handlePhotoFiles(fileList){
+    const remaining = MAX_PHOTOS - state.photos.length;
+    if(remaining <= 0) return;
+    const files = Array.from(fileList).filter(f => f.type.startsWith('image/')).slice(0, remaining);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, PHOTO_MAX_WIDTH / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY);
+          if(state.photos.length < MAX_PHOTOS){
+            state.photos.push(dataUrl);
+            render();
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function removePhoto(idx){
+    state.photos.splice(idx, 1);
+    render();
+  }
+
+  function confirmPhotoSection(){
+    const c = CASES[state.index];
+    state.history.push({ cat: c.cat, icon: c.icon, correct: null, pts: 0, pending: true });
+    nextQuestion();
+  }
+
+  function selectOption(optIdx){
+    if(state.revealed) return;
+    state.selected = optIdx;
+    state.revealed = true;
+    const opt = state.currentOptions[optIdx];
+    const pts = opt.correct ? POINTS_PER_CORRECT : 0;
+    state.score += pts;
+    state.history.push({ cat: CASES[state.index].cat, icon: CASES[state.index].icon, correct: opt.correct, pts });
+    render();
+  }
+
+  function nextQuestion(){
+    if(state.index < CASES.length - 1){
+      loadQuestion(state.index + 1);
+    } else {
+      state.screen = 'end';
+      submitScore();
+    }
+  }
+
+  function submitScore(){
+    if(state.submitted) return;
+    state.submitted = true;
+    state.submittedName = state.name.trim();
+    state.submittedScore = state.score;
+    render();
+
+    if(GOOGLE_SHEETS_WEBHOOK_URL){
+      const h = state.history;
+      const payload = {
+        quest: QUEST_ID,
+        name: state.name,
+        email: state.email,
+        dept: state.deptCountry,
+        c1Pts: h[0] ? h[0].pts : 0,
+        c2Pts: h[1] ? h[1].pts : 0,
+        c3Pts: h[2] ? h[2].pts : 0,
+        c4Pts: h[3] ? h[3].pts : 0,
+        c5Pts: h[4] ? h[4].pts : 0,
+        c6Pts: h[5] ? h[5].pts : 0,
+        c7Pts: h[6] ? h[6].pts : 0,
+        totalScore: state.score,
+        photos: state.photos,
+        photoCount: state.photos.length,
+        finishedAt: new Date().toISOString(),
+        lang: state.lang
+      };
+      // Apps Script web apps don't reliably send CORS headers back for a normal fetch,
+      // so this is fire-and-forget (mode: 'no-cors') — we don't read the response,
+      // we just trust the POST landed and move straight to the leaderboard.
+      fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+    }
+
+    openLeaderboard();
+  }
+
+  function normalizeLeaderboardEntries(raw){
+    if(!Array.isArray(raw)) return [];
+    return raw
+      .filter(p => p && p.name)
+      .map(p => ({ name: p.name, deptCountry: p.dept || '', score: parseInt(p.score, 10) || 0 }))
+      .sort((a,b) => b.score - a.score);
+  }
+
+  function fetchLeaderboard(){
+    if(!GOOGLE_SHEETS_WEBHOOK_URL){
+      state.lbLoading = false;
+      return;
+    }
+    state.lbLoading = true;
+    const url = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID);
+    fetch(url)
+      .then(r => { if(!r.ok) throw new Error('bad status'); return r.json(); })
+      .then(players => {
+        state.leaderboard = normalizeLeaderboardEntries(players);
+        state.lbLoading = false;
+        if(state.screen === 'leaderboard') renderLeaderboardPanelOnly();
+      })
+      .catch(() => fetchLeaderboardViaJsonp());
+  }
+
+  // Fallback for when a direct fetch() to Apps Script is blocked by CORS/ORB —
+  // loading the same endpoint as a <script> tag with a callback param sidesteps that.
+  function fetchLeaderboardViaJsonp(){
+    const callbackName = 'ethicsLbCb_' + Date.now();
+    const scriptEl = document.createElement('script');
+    const cleanup = () => {
+      delete window[callbackName];
+      if(scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+    };
+    window[callbackName] = function(players){
+      state.leaderboard = normalizeLeaderboardEntries(players);
+      state.lbLoading = false;
+      if(state.screen === 'leaderboard') renderLeaderboardPanelOnly();
+      cleanup();
+    };
+    scriptEl.onerror = () => {
+      state.lbLoading = false;
+      if(state.screen === 'leaderboard') renderLeaderboardPanelOnly();
+      cleanup();
+    };
+    scriptEl.src = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID) + '&callback=' + callbackName;
+    document.body.appendChild(scriptEl);
+  }
+
+  function openLeaderboard(){
+    if(state.screen !== 'leaderboard') state.previousScreen = state.screen;
+    state.screen = 'leaderboard';
+    render();
+    fetchLeaderboard();
+    if(state.pollTimer) clearInterval(state.pollTimer);
+    state.pollTimer = setInterval(fetchLeaderboard, 5000);
+  }
+
+  function closeLeaderboard(){
+    state.screen = state.previousScreen || 'intro';
+    if(state.pollTimer){ clearInterval(state.pollTimer); state.pollTimer = null; }
+    render();
+  }
+
+  function progressDotsHTML(){
+    let html = '<div class="progress-row">';
+    for(let i=0;i<CASES.length;i++){
+      let cls = 'progress-dot';
+      if(state.screen === 'question'){
+        if(i < state.index) cls += ' done';
+        else if(i === state.index) cls += ' current';
+      } else if(state.screen === 'end'){
+        cls += ' done';
+      }
+      html += `<div class="${cls}"></div>`;
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function topbarHTML(){
+    const langs = [['th','TH'],['en','EN'],['zh','中文']];
+    const langBtns = langs.map(([code,label]) =>
+      `<button class="lang-btn ${state.lang===code?'active':''}" data-lang="${code}">${label}</button>`
+    ).join('');
+    return `
+      <div class="topbar">
+        <div class="topbar-row">
+          <div class="brand">
+            <div class="kicker">${t('kicker')}</div>
+            <div class="title">${t('title')}</div>
+          </div>
+          <div class="topbar-actions">
+            <div class="lang-switch">${langBtns}</div>
+          </div>
+        </div>
+        <div class="topbar-row" style="margin-top:10px;">
+          <button class="lb-btn" id="lbToggle"><span class="lb-dot"></span>${t('lbBtn')}</button>
+          <div></div>
+        </div>
+        ${(state.screen !== 'intro' && state.screen !== 'leaderboard') ? progressDotsHTML() : ''}
+      </div>
+    `;
+  }
+
+  function introHTML(){
+    const chips = CASES.map(c => `<span class="case-chip">${c.icon} ${esc(c.cat[state.lang])}</span>`).join('');
+    return `
+      <div class="intro-card">
+        <div class="folder-tab">NEW CASE</div>
+        <h1>${t('introTitle')}</h1>
+        <p>${t('introBody')}</p>
+        <div class="case-list">${chips}</div>
+
+        <div class="field-group">
+          <input type="text" class="text-input" id="nameInput" placeholder="${t('namePlaceholder')}" maxlength="40" value="${esc(state.name)}">
+        </div>
+        <div class="field-group">
+          <input type="email" class="text-input" id="emailInput" placeholder="${t('emailPlaceholder')}" maxlength="60" value="${esc(state.email)}">
+        </div>
+        <div class="field-group">
+          <input type="text" class="text-input" id="deptInput" placeholder="${t('deptPlaceholder')}" maxlength="60" value="${esc(state.deptCountry)}">
+        </div>
+        <div class="privacy-note">${t('privacyNote')}</div>
+        <button class="btn-primary" id="startBtn">${t('startBtn')}</button>
+      </div>
+    `;
+  }
+
+  function questionHTML(){
+    const c = CASES[state.index];
+    if(c.type === 'multi') return multiQuestionHTML(c);
+    if(c.type === 'photo') return photoQuestionHTML(c);
+    return singleQuestionHTML(c);
+  }
+
+  function singleQuestionHTML(c){
+    let optionsHTML = '';
+    state.currentOptions.forEach((opt, i) => {
+      let cls = 'option';
+      if(state.revealed){
+        cls += ' disabled';
+        if(opt.correct) cls += ' correct';
+        else if(i === state.selected) cls += ' wrong-selected';
+        else cls += ' dim';
+      }
+      const letter = String.fromCharCode(65+i);
+      optionsHTML += `
+        <div class="${cls}" data-idx="${i}">
+          <div class="opt-letter">${letter}</div>
+          <div>${esc(opt[state.lang])}</div>
+        </div>
+      `;
+    });
+
+    let stampHTML = '';
+    let revealHTML = '';
+    if(state.revealed){
+      const opt = state.currentOptions[state.selected];
+      const pts = state.history[state.history.length-1].pts;
+      stampHTML = `
+        <div class="stamp-wrap">
+          <div class="stamp ${opt.correct ? 'clear':'flag'}">${opt.correct ? t('stampClear') : t('stampFlag')}</div>
+        </div>
+      `;
+      revealHTML = `
+        <div class="reveal-panel">
+          <div class="principle-tag">${t('principleLabel')}: ${esc(c.cat[state.lang])}</div>
+          <div class="explain-text">${esc(c.explain[state.lang])}</div>
+          <div class="points-earned">+${pts} ${t('pointsSuffix')}</div>
+          <button class="btn-next" id="nextBtn">${state.index === CASES.length-1 ? t('lastNextBtn') : t('nextBtn')}</button>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="case-card">
+        <div class="case-meta">
+          <div class="case-icon">${c.icon}</div>
+          <div class="case-meta-text">
+            <div class="case-no">${t('caseLabel')} 0${state.index+1} / 0${CASES.length}</div>
+            <div class="case-cat">${esc(c.cat[state.lang])}</div>
+          </div>
+        </div>
+        <div class="scenario-text">${esc(c.scenario[state.lang])}</div>
+        <div class="prompt-label">${t('whatWouldYouDo')}</div>
+        <div class="options">${optionsHTML}</div>
+        ${stampHTML}
+        ${revealHTML}
+      </div>
+    `;
+  }
+
+  function multiQuestionHTML(c){
+    let optionsHTML = '';
+    state.currentOptions.forEach((opt) => {
+      const isChecked = state.multiSelected.indexOf(opt.key) >= 0;
+      let cls = 'option ms-option';
+      let mark = '';
+      if(state.revealed){
+        cls += ' disabled';
+        if(isChecked && opt.groupId) { cls += ' correct'; mark = '✅'; }
+        else if(isChecked && !opt.groupId) { cls += ' wrong-selected'; mark = '❌'; }
+        else if(!isChecked && opt.groupId) { cls += ' missed'; mark = '⚠️'; }
+        else { cls += ' dim'; mark = ''; }
+      } else if(isChecked){
+        cls += ' ms-checked';
+      }
+      optionsHTML += `
+        <div class="${cls}" data-key="${opt.key}">
+          <div class="opt-checkbox">${state.revealed ? mark : (isChecked ? '✓' : '')}</div>
+          <div>${esc(opt[state.lang])}</div>
+        </div>
+      `;
+    });
+
+    let revealHTML = '';
+    if(state.revealed){
+      const h = state.history[state.history.length-1];
+      const groupOrder = ['g1','g2','g3','g4'];
+      const explainItems = groupOrder.map(g => `
+        <div class="ms-explain-item">${esc(c.groupExplain[g][state.lang])}</div>
+      `).join('');
+      revealHTML = `
+        <div class="reveal-panel">
+          <div class="principle-tag">${t('principleLabel')}</div>
+          <div class="ms-explain-list">${explainItems}</div>
+          <div class="points-earned">+${h.pts} ${t('pointsSuffix')}</div>
+          <button class="btn-next" id="nextBtn">${state.index === CASES.length-1 ? t('lastNextBtn') : t('nextBtn')}</button>
+        </div>
+      `;
+    }
+
+    const confirmDisabled = state.revealed ? 'disabled' : '';
+
+    return `
+      <div class="case-card">
+        <div class="case-meta">
+          <div class="case-icon">${c.icon}</div>
+          <div class="case-meta-text">
+            <div class="case-no">${t('caseLabel')} 0${state.index+1} / 0${CASES.length}</div>
+            <div class="case-cat">${esc(c.cat[state.lang])}</div>
+          </div>
+        </div>
+        <div class="scenario-text">${c.scenario[state.lang].map(p => `<p>${esc(p)}</p>`).join('')}</div>
+        <div class="prompt-label">${t('multiPrompt')}</div>
+        <div class="options">${optionsHTML}</div>
+        ${!state.revealed ? `<button class="btn-next" id="confirmMultiBtn" ${confirmDisabled}>${t('confirmBtn')}</button>` : ''}
+        ${revealHTML}
+      </div>
+    `;
+  }
+
+  function photoQuestionHTML(c){
+    const thumbs = state.photos.map((src, i) => `
+      <div class="photo-thumb">
+        <img src="${src}" alt="photo ${i+1}">
+        <button type="button" class="photo-remove" data-idx="${i}">✕</button>
+      </div>
+    `).join('');
+
+    const addTile = state.photos.length < MAX_PHOTOS ? `
+      <label class="photo-add-tile">
+        <input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
+        <span>${t('addPhotoBtn')}</span>
+      </label>
+    ` : '';
+
+    return `
+      <div class="case-card">
+        <div class="case-meta">
+          <div class="case-icon">${c.icon}</div>
+          <div class="case-meta-text">
+            <div class="case-no">${t('caseLabel')} 0${state.index+1} / 0${CASES.length}</div>
+            <div class="case-cat">${esc(c.cat[state.lang])}</div>
+          </div>
+        </div>
+        <div class="prompt-label">${t('photoPrompt')}</div>
+        <div class="photo-hint">${t('photoHint')}</div>
+        <div class="photo-grid">
+          ${thumbs}
+          ${addTile}
+        </div>
+        <button class="btn-next" id="photoContinueBtn">${t('lastNextBtn')}</button>
+      </div>
+    `;
+  }
+
+  function endHTML(){
+    const items = state.history.map(h => `
+      <div class="breakdown-item">
+        <span class="bi-cat">${h.icon} ${esc(h.cat[state.lang])}</span>
+        <span class="bi-pts">${h.pending ? t('pendingReview') : '+' + h.pts}</span>
+      </div>
+    `).join('');
+
+    let rankHTML = '';
+    if(state.submitted){
+      const idx = findMyLeaderboardIndex();
+      if(idx >= 0){
+        rankHTML = `<div class="rank-callout">${t('myRankLabel')}: #${idx+1} ${t('of')} ${state.leaderboard.length} ${t('people')} · ${state.score} ${t('pointsSuffix')}</div>`;
+      }
+    }
+
+    return `
+      <div class="end-card">
+        <div class="end-kicker">${t('endKicker')}</div>
+        <div class="end-score">${state.score}</div>
+        <div class="end-score-label">${t('endScoreLabel')(esc(state.name))}</div>
+        <div class="breakdown">${items}</div>
+        ${state.submitted
+          ? `<div class="submitted-note">${t('submittedNote')}</div>${rankHTML}`
+          : `<button class="btn-submit" id="submitBtn">${t('submitBtn')}</button>`
+        }
+        <button class="btn-replay" id="replayBtn">${t('replayBtn')}</button>
+      </div>
+    `;
+  }
+
+  function findMyLeaderboardIndex(){
+    if(!state.submittedName) return -1;
+    return state.leaderboard.findIndex(p =>
+      p.name.trim().toLowerCase() === state.submittedName.toLowerCase() && p.score === state.submittedScore
+    );
+  }
+
+  function lbRowsHTML(){
+    if(state.lbLoading && state.leaderboard.length === 0){
+      return `<div class="lb-empty">${t('lbLoading')}</div>`;
+    }
+    if(state.leaderboard.length === 0){
+      return `<div class="lb-empty">${t('lbEmpty')}</div>`;
+    }
+    const myIdx = findMyLeaderboardIndex();
+    let rows = '';
+    state.leaderboard.slice(0, 50).forEach((p, i) => {
+      const isMe = i === myIdx;
+      rows += `
+        <div class="lb-row ${isMe ? 'me' : ''}">
+          <div class="lb-rank ${i===0?'top1':''}">${i+1}</div>
+          <div class="lb-name-wrap">
+            <div class="lb-name">${esc(p.name)}${isMe ? ' ' + t('you') : ''}</div>
+            ${p.deptCountry ? `<div class="lb-sub-name">${esc(p.deptCountry)}</div>` : ''}
+          </div>
+          <div class="lb-score">${p.score}</div>
+        </div>
+      `;
+    });
+    return rows;
+  }
+
+  function myRankCardHTML(){
+    const idx = findMyLeaderboardIndex();
+    if(idx < 0) return '';
+    return `
+      <div class="my-rank-card">
+        <div>
+          <div class="mrc-label">${t('myRankLabel')}</div>
+          <div class="mrc-score">${t('of')} ${state.leaderboard.length} ${t('people')}</div>
+        </div>
+        <div class="mrc-rank">#${idx+1}</div>
+      </div>
+    `;
+  }
+
+  function leaderboardPageHTML(){
+    return `
+      <div class="lb-page">
+        <div class="lb-page-head">
+          <h2>${t('lbTitle')}</h2>
+          <button class="lb-back" id="lbClose">← ${t('backBtn')}</button>
+        </div>
+        <div class="lb-sub">${t('lbSub')}</div>
+        <div id="myRankCard">${myRankCardHTML()}</div>
+        <div id="lbRows">${lbRowsHTML()}</div>
+      </div>
+    `;
+  }
+
+  function renderLeaderboardPanelOnly(){
+    const rowsEl = document.getElementById('lbRows');
+    const myRankEl = document.getElementById('myRankCard');
+    if(rowsEl) rowsEl.innerHTML = lbRowsHTML();
+    if(myRankEl) myRankEl.innerHTML = myRankCardHTML();
+  }
+
+  function render(){
+    let bodyHTML = '';
+    if(state.screen === 'intro') bodyHTML = introHTML();
+    else if(state.screen === 'question') bodyHTML = questionHTML();
+    else if(state.screen === 'end') bodyHTML = endHTML();
+    else if(state.screen === 'leaderboard') bodyHTML = leaderboardPageHTML();
+
+    app.innerHTML = `
+      ${topbarHTML()}
+      <div class="main">${bodyHTML}</div>
+    `;
+    attachHandlers();
+  }
+
+  function attachHandlers(){
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.onclick = () => setLang(btn.getAttribute('data-lang'));
+    });
+
+    const lbToggle = document.getElementById('lbToggle');
+    if(lbToggle) lbToggle.onclick = openLeaderboard;
+
+    const lbClose = document.getElementById('lbClose');
+    if(lbClose) lbClose.onclick = closeLeaderboard;
+
+    const startBtn = document.getElementById('startBtn');
+    if(startBtn) startBtn.onclick = () => {
+      const nameInput = document.getElementById('nameInput');
+      const emailInput = document.getElementById('emailInput');
+      const deptInput = document.getElementById('deptInput');
+      const name = nameInput.value.trim();
+      if(!name){ nameInput.focus(); nameInput.style.borderColor = 'var(--red)'; return; }
+      state.name = name;
+      state.email = emailInput.value.trim();
+      state.deptCountry = deptInput.value.trim();
+      state.screen = 'question';
+      loadQuestion(0);
+    };
+
+    ['nameInput','emailInput','deptInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') document.getElementById('startBtn').click();
+      });
+    });
+
+    document.querySelectorAll('.option').forEach(el => {
+      if(el.classList.contains('ms-option')){
+        el.onclick = () => {
+          if(state.revealed) return;
+          toggleMultiOption(el.getAttribute('data-key'));
+        };
+      } else {
+        el.onclick = () => {
+          if(state.revealed) return;
+          selectOption(parseInt(el.getAttribute('data-idx'), 10));
+        };
+      }
+    });
+
+    const confirmMultiBtn = document.getElementById('confirmMultiBtn');
+    if(confirmMultiBtn) confirmMultiBtn.onclick = confirmMultiAnswer;
+
+    const photoInput = document.getElementById('photoInput');
+    if(photoInput) photoInput.onchange = (e) => {
+      handlePhotoFiles(e.target.files);
+      e.target.value = '';
+    };
+
+    document.querySelectorAll('.photo-remove').forEach(btn => {
+      btn.onclick = () => removePhoto(parseInt(btn.getAttribute('data-idx'), 10));
+    });
+
+    const photoContinueBtn = document.getElementById('photoContinueBtn');
+    if(photoContinueBtn) photoContinueBtn.onclick = confirmPhotoSection;
+
+    const nextBtn = document.getElementById('nextBtn');
+    if(nextBtn) nextBtn.onclick = nextQuestion;
+
+    const submitBtn = document.getElementById('submitBtn');
+    if(submitBtn) submitBtn.onclick = submitScore;
+
+    const replayBtn = document.getElementById('replayBtn');
+    if(replayBtn) replayBtn.onclick = resetGame;
+  }
+
+  function resetGame(){
+    state.screen = 'intro';
+    state.index = 0;
+    state.score = 0;
+    state.selected = null;
+    state.revealed = false;
+    state.currentOptions = [];
+    state.multiSelected = [];
+    state.photos = [];
+    state.history = [];
+    state.submitted = false;
+    state.submittedName = null;
+    state.submittedScore = null;
+    render();
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
