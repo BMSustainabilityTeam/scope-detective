@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find the Right Principle — Case Files</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#AEE1EC;
+    --paper-dark:#F1FAFC;
+    --ink:#173A56;
+    --ink-soft:#4E7085;
+    --manila:#F5B301;
+    --case-red:#D9614F;
+    --case-red-dark:#A8402F;
+    --stamp-green:#2E8B6F;
+    --muted:#6E8FA1;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255,255,255,0.5), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(23,58,86,0.08), transparent 45%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Ccircle cx='24' cy='24' r='7' fill='%23FFFFFF' fill-opacity='0.45'/%3E%3Ccircle cx='88' cy='54' r='4' fill='%23F5B301' fill-opacity='0.4'/%3E%3Ccircle cx='134' cy='112' r='9' fill='%23FFFFFF' fill-opacity='0.4'/%3E%3Ccircle cx='46' cy='122' r='5' fill='%232E8B6F' fill-opacity='0.3'/%3E%3Ccircle cx='150' cy='28' r='3' fill='%23F5B301' fill-opacity='0.45'/%3E%3Ccircle cx='10' cy='92' r='3' fill='%23D9614F' fill-opacity='0.25'/%3E%3Ccircle cx='108' cy='10' r='2.5' fill='%232E8B6F' fill-opacity='0.3'/%3E%3C/svg%3E");
+    background-repeat:no-repeat, no-repeat, repeat;
+    background-size:auto, auto, 160px 160px;
+    background-color:var(--paper);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
+  .board{
+    width:100%;
+    max-width:840px;
+  }
+  .masthead{
+    text-align:center;
+    margin-bottom:20px;
+  }
+  .masthead .eyebrow{
+    font-family:'Inter',sans-serif;
+    letter-spacing:0.25em;
+    font-size:clamp(15px,3vw,19px);
+    color:var(--case-red-dark);
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .masthead h1{
+    font-family:'Poppins',sans-serif;
+    font-size:clamp(26px,6vw,42px);
+    margin:8px 0 4px;
+    letter-spacing:0.5px;
+    line-height:1.15;
+  }
+  .masthead p{
+    margin:0;
+    font-size:clamp(15px,3.2vw,21px);
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+
+  .progress-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:20px 0 16px;
+    font-family:'Inter',sans-serif;
+  }
+  .progress-track{
+    flex:1 1 140px;
+    height:10px;
+    background:rgba(23,58,86,0.15);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--case-red);
+    width:0%;
+    transition:width .4s ease;
+  }
+  .case-count{
+    font-size:clamp(15px,3vw,19px);
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .score-tag{
+    font-size:clamp(15px,3vw,19px);
+    font-weight:700;
+    color:var(--stamp-green);
+    white-space:nowrap;
+  }
+
+  .file-card{
+    position:relative;
+    background:var(--white);
+    border:1px solid rgba(23,58,86,0.18);
+    border-radius:6px;
+    padding:24px 20px 22px;
+    box-shadow:0 10px 24px rgba(23,58,86,0.14), 0 1px 0 rgba(255,255,255,0.6) inset;
+  }
+  @media (min-width:600px){
+    .file-card{ padding:32px 32px 26px; }
+  }
+  .file-card::before{
+    content:"";
+    position:absolute;
+    top:-10px; left:24px;
+    width:90px; height:20px;
+    background:var(--manila);
+    border-radius:3px 3px 0 0;
+    box-shadow:0 -1px 0 rgba(23,58,86,0.15);
+  }
+  .file-label{
+    font-family:'Inter',sans-serif;
+    font-size:clamp(12px,2.6vw,15px);
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .evidence-text{
+    font-family:'Inter',sans-serif;
+    font-size:clamp(15px,3.6vw,22px);
+    font-weight:500;
+    line-height:1.5;
+    color:var(--ink);
+    border-left:4px solid var(--case-red);
+    padding-left:16px;
+    min-height:60px;
+  }
+
+  .instructions{
+    font-size:clamp(13px,3vw,17px);
+    color:var(--ink-soft);
+    margin:18px 2px 12px;
+    line-height:1.5;
+  }
+  .instructions b{color:var(--case-red-dark);}
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width:640px){
+    .options{grid-template-columns:1fr;}
+  }
+  .option{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--paper-dark);
+    border:2px solid rgba(23,58,86,0.22);
+    border-radius:8px;
+    padding:14px 52px 14px 16px;
+    cursor:pointer;
+    text-align:left;
+    transition:transform .12s ease, box-shadow .12s ease, background .2s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .option:hover:not(.eliminated):not(.locked){
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(23,58,86,0.18);
+    background:var(--paper);
+  }
+  .option .letter{
+    font-family:'Inter',sans-serif;
+    font-weight:800;
+    font-size:19px;
+    width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--ink);
+    color:var(--white);
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .option .label{
+    font-size:clamp(15px,3.6vw,19px);
+    font-weight:600;
+    line-height:1.35;
+  }
+  .strike-btn{
+    position:absolute;
+    top:8px; right:8px;
+    width:34px; height:34px;
+    border-radius:50%;
+    border:2px solid var(--case-red);
+    background:transparent;
+    color:var(--case-red);
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .strike-btn:hover{background:var(--case-red);color:var(--white);}
+
+  .option.eliminated{
+    opacity:0.45;
+  }
+  .option.eliminated .label{
+    text-decoration:line-through;
+    text-decoration-color:var(--case-red);
+    text-decoration-thickness:2px;
+  }
+  .option.correct{
+    background:#A8E6C9;
+    border-color:var(--stamp-green);
+  }
+  .option.wrong{
+    background:#F6BFB0;
+    border-color:var(--case-red);
+  }
+  .option.locked{cursor:default;}
+
+  .stamp{
+    position:absolute;
+    top:14px; right:14px;
+    font-family:'Poppins',sans-serif;
+    font-size:clamp(23px,5vw,33px);
+    padding:8px 16px;
+    border:4px solid;
+    border-radius:6px;
+    transform:rotate(-8deg);
+    letter-spacing:2px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease;
+  }
+  .stamp.show{opacity:0.92; transform:rotate(-8deg) scale(1);}
+  .stamp.correct-stamp{color:var(--stamp-green); border-color:var(--stamp-green);}
+  .stamp.wrong-stamp{color:var(--case-red); border-color:var(--case-red);}
+
+  .footer-row{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    margin-top:20px;
+    min-height:52px;
+    gap:10px;
+  }
+  .next-btn{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:clamp(15px,3.4vw,18px);
+    background:var(--ink);
+    color:var(--white);
+    border:none;
+    padding:14px 26px;
+    border-radius:8px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .2s ease, transform .2s ease, background .2s ease;
+  }
+  .next-btn.show{opacity:1; transform:translateY(0);}
+  .next-btn:hover{background:var(--case-red-dark);}
+
+  .end-screen{
+    text-align:center;
+    padding:10px 6px 4px;
+  }
+  .end-screen .rank{
+    font-family:'Poppins',sans-serif;
+    font-size:clamp(19px,4.2vw,26px);
+    color:var(--case-red-dark);
+    margin:10px 0 6px;
+    line-height:1.25;
+  }
+  .end-screen .score-big{
+    font-family:'Inter',sans-serif;
+    font-size:clamp(51px,13vw,83px);
+    font-weight:800;
+    margin:12px 0;
+    line-height:1;
+  }
+  .end-screen p{
+    color:var(--ink-soft);
+    font-size:clamp(15px,3.4vw,18px);
+    line-height:1.6;
+    max-width:460px;
+    margin:0 auto 20px;
+  }
+  .choice-note{
+    background:var(--paper-dark);
+    border-left:4px solid var(--manila);
+    border-radius:6px;
+    color:var(--ink-soft);
+    font-size:clamp(13px,2.8vw,16px);
+    line-height:1.55;
+    max-width:480px;
+    margin:0 auto 18px;
+    padding:12px 14px;
+    text-align:left;
+  }
+  .explain-note{
+    border-left-color:var(--case-red);
+    max-width:none;
+    margin:16px 0;
+  }
+  .restart-btn{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:clamp(15px,3.4vw,18px);
+    background:var(--case-red);
+    color:var(--white);
+    border:none;
+    padding:15px 30px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .restart-btn:hover{background:var(--case-red-dark);}
+
+  .review-list{
+    text-align:left;
+    margin-top:22px;
+    border-top:2px dashed rgba(23,58,86,0.3);
+    padding-top:16px;
+  }
+  .review-item{
+    font-family:'Inter',sans-serif;
+    font-size:clamp(13px,3vw,16px);
+    padding:8px 0;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    line-height:1.5;
+  }
+  .review-item .mark{
+    flex-shrink:0;
+    font-weight:700;
+  }
+  .review-item.ok .mark{color:var(--stamp-green);}
+  .review-item.bad .mark{color:var(--case-red);}
+  .review-explain{
+    display:block;
+    color:var(--ink-soft);
+    font-size:0.92em;
+    font-style:italic;
+    margin-top:3px;
+    line-height:1.5;
+  }
+
+  .reg-label{
+    display:block;
+    font-size:clamp(14px,3vw,17px);
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    font-weight:700;
+  }
+  .reg-input{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:clamp(15px,3.4vw,18px);
+    padding:14px 16px;
+    border-radius:8px;
+    border:2px solid rgba(23,58,86,0.22);
+    background:var(--paper-dark);
+  }
+
+  .lb-banner{
+    font-family:'Inter',sans-serif;
+    font-size:clamp(12px,2.8vw,15px);
+    color:var(--muted);
+    background:var(--paper-dark);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:16px;
+    text-align:left;
+    line-height:1.5;
+  }
+  .lb-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 14px;
+    border-radius:8px;
+    font-size:clamp(14px,3.2vw,17px);
+    margin-bottom:8px;
+    background:var(--paper-dark);
+    text-align:left;
+  }
+  .lb-row.me{
+    background:#A8E6C9;
+    border:2px solid var(--stamp-green);
+  }
+  .lb-rank{
+    font-family:'Inter',sans-serif;
+    font-weight:800;
+    width:36px;
+    flex-shrink:0;
+    text-align:center;
+  }
+  .lb-name{
+    flex:1;
+    min-width:0;
+    font-weight:600;
+  }
+  .lb-name .lb-sub{
+    display:block;
+    font-size:clamp(12px,2.6vw,14px);
+    color:var(--ink-soft);
+    font-weight:400;
+    margin-top:2px;
+  }
+  .lb-score{
+    font-family:'Inter',sans-serif;
+    font-weight:800;
+    flex-shrink:0;
+  }
+
+  @media (max-width:480px){
+    .footer-row{ justify-content:center; }
+    .footer-row .next-btn,
+    .footer-row .restart-btn{ flex:1 1 auto; text-align:center; }
+    .end-screen .footer-row{ justify-content:center; }
+  }
+
+  .lang-switch{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .lang-btn{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:20px;
+    border:2px solid rgba(23,58,86,0.22);
+    background:var(--paper-dark);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .lang-btn:hover{background:var(--paper);}
+  .lang-btn.active{
+    background:var(--ink);
+    color:var(--white);
+    border-color:var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="masthead">
+    <div class="lang-switch" id="langSwitch">
+      <button class="lang-btn" data-lang="th">TH</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="zh">中文</button>
+      <button class="lang-btn" data-lang="de">DE</button>
+    </div>
+    <div class="eyebrow" id="mastheadEyebrow"></div>
+    <h1 id="mastheadTitle"></h1>
+    <p id="mastheadSubtitle"></p>
+  </div>
+
+  <div id="game"></div>
+</div>
+
+<script>
+const ALL_LETTERS = ["A","B","C","D","E","F","G","H","I","J"];
+const QUESTION_ANSWERS = ["A","B","C","D","E","F","G","H","I","J","A","C","D","F","I"];
+const TOTAL_QUESTIONS = QUESTION_ANSWERS.length;
+const BONUS1_ANSWER = "D";
+const BONUS1_POINTS = 20;
+const BONUS2_POINTS = 20;
+
+const I18N = {
+  en: {
+    ui: {
+      eyebrow: "Behn Meyer Integrity Bureau",
+      title: "Find the Right Principle",
+      subtitle: "Read the case, then match it to the right principle.",
+      caseLabel: "Case",
+      scoreLabel: "Score",
+      fieldReportLabel: "Field report — read carefully",
+      instructions: "Click an option to <b>answer</b>, or tap <b>✕</b> in the corner to eliminate it first.",
+      nextBtn: "Next case →",
+      strikeTitle: "Eliminate this option",
+      stampCorrect: "CORRECT",
+      stampWrong: "INCORRECT",
+      mainEndFileLabel: "Case closed — main file",
+      rankMaster: "🕵️ Master Investigator",
+      rankSenior: "🔍 Senior Detective",
+      rankField: "📋 Field Officer",
+      rankRookie: "🧾 Rookie Trainee",
+      mainScoreSummary: "You got {score} out of {total} cases right — {points} points.",
+      restartBtn: "Finish",
+      finishBonusNote: "Finishing now means no bonus points. Continue to the bonus round for up to 40 extra points.",
+      bonusBtn: "Go to Bonus Point →",
+      finishNowBtn: "Finish game",
+      reviewCorrect: "Case {n}: {principle}",
+      reviewWrong: "Case {n}: answered {chosen} — correct is {answer}",
+      bonusPromptFileLabel: "Bonus file — optional",
+      bonusPromptTitle: "Bonus Point",
+      bonusPromptText: "There are 2 more bonus questions worth 40 extra points. Do you want to play?",
+      yesBtn: "Play bonus",
+      noBtn: "Skip",
+      bonus1FileLabel: "Bonus case 1 of 2 — worth {n} points",
+      bonus1NextBtn: "Next bonus question →",
+      bonus2FileLabel: "Bonus case 2 of 2 — worth {n} points, reviewed by admin",
+      bonusTextPlaceholder: "Type your short answer here",
+      attachLabel: "Attach a screenshot (optional)",
+      bonusErrorText: "Please type an answer or attach a screenshot before submitting.",
+      fileTooLargeError: "That image is too large (max 4 MB). Please choose a smaller screenshot.",
+      submittingBtn: "Submitting...",
+      submitBtn: "Submit",
+      finalReportFileLabel: "Final report",
+      finalSummaryTitle: "Total score",
+      mainScoreLine: "Main score: {points}/100",
+      bonus1Line: "Bonus question 1: {points}/{max}",
+      bonus2PendingLine: "Bonus question 2 ({points} points) submitted — pending admin review.",
+      lbBtn: "View leaderboard →",
+      lbFileLabel: "Leaderboard",
+      lbTitle: "Leaderboard",
+      lbLoading: "Loading...",
+      lbEmpty: "No players yet.",
+      lbDemoBanner: "Demo mode — not yet connected to Google Sheets. Scores reset on refresh.",
+      lbPendingSuffix: "(+{n} pending review)",
+      regFileLabel: "Player intake — before you start",
+      regIntro: "Fill in your details before starting the case.",
+      regNameLabel: "Full name",
+      regNamePlaceholder: "e.g. Jack Sparrow",
+      regEmailLabel: "Email",
+      regEmailPlaceholder: "name@behnmeyer.com",
+      regDeptCountryLabel: "Department / Country",
+      regDeptCountryPlaceholder: "e.g. Sustainability, Thailand",
+      regError: "Please fill in all fields with a valid email address.",
+      regSubmit: "Start playing →",
+    },
+    questions: [
+      "A qualified female employee was not selected for a training opportunity because her manager assumed she would soon leave work to take care of her family.",
+      "Employees are required to work overtime during a busy period, and the company pays overtime in accordance with labour laws.",
+      "An employee enters the warehouse without wearing safety shoes because they think, \"I'll only be there for a minute.\"",
+      "You notice possible misconduct but are not comfortable reporting it to your manager, so you use the company's Integrity Line.",
+      "After an employee makes a mistake, the manager discusses it privately and focuses on finding a solution instead of criticizing the employee in front of others.",
+      "An employee shares colleagues' contact details with an external company without their permission.",
+      "A manager plans work in advance so team members can take their annual leave without disrupting operations.",
+      "A colleague repeatedly makes fun of another employee's appearance and uses a nickname they have asked others to stop using.",
+      "The company provides height-adjustable desks and wheelchair-accessible facilities so employees with disabilities can work comfortably.",
+      "An employer keeps foreign workers' passports and says they will be returned only after the employment contract ends.",
+      "The company opens a team leader position to all qualified employees regardless of gender, age, or nationality.",
+      "After discovering a chemical spill, employees immediately secure the area, notify the appropriate personnel, and follow safety procedures.",
+      "The company provides an anonymous online channel where employees can submit concerns or suggestions.",
+      "Before posting photos from a company event on the corporate website, HR asks employees for their consent.",
+      "A project team includes employees from different nationalities, age groups, and departments, and everyone is encouraged to contribute their ideas equally.",
+    ],
+    principles: {
+      A: "Non-Discrimination & Equal Opportunity",
+      B: "Fair Working Conditions",
+      C: "Health & Safety",
+      D: "Freedom of Expression",
+      E: "Respect & Dignity",
+      F: "Privacy & Personal Data",
+      G: "Work-Life Balance",
+      H: "No Harassment & Bullying",
+      I: "Diversity & Inclusion",
+      J: "No Forced Labour",
+    },
+    explanations: [
+      "This is discrimination because the decision was based on an assumption about her gender and future family role — not her actual skills or performance. Equal opportunity means decisions must rest on qualifications alone.",
+      "Overtime itself isn't the issue — what makes this fair is that the extra hours are compensated in line with labour law, which is the core requirement of fair working conditions.",
+      "Safety footwear exists to prevent physical injury on-site. Skipping it 'just for a minute' still exposes the employee to that risk — which is exactly what health and safety rules are meant to prevent, regardless of how short the exposure is.",
+      "Raising a concern through an indirect channel instead of the manager directly is still exercising the right to speak up without fear. That is the core of freedom of expression at work.",
+      "What makes this about dignity is the manner of the correction: addressing the mistake privately, rather than in front of others, protects the employee from public humiliation.",
+      "Contact details are personal data. Sharing them with an outside party without the owner's consent is a privacy breach, regardless of the sharer's intent.",
+      "This is about balance because the manager is proactively protecting the employee's time off (annual leave) by planning ahead — not about safety, pay, or discrimination.",
+      "Two things make this harassment: it's repeated, not a one-off comment, and it continues after the person explicitly asked it to stop — that persistence despite a clear objection is what separates harassment from an isolated remark.",
+      "Physical accessibility — adjustable desks, wheelchair access — removes barriers so employees with disabilities can participate equally. That's inclusion in practice, not just a policy statement.",
+      "Holding an employee's passport removes their ability to leave freely. Even if unintentional, restricting someone's freedom of movement is a recognised indicator of forced labour under international standards.",
+      "The key detail is 'regardless of gender, age, or nationality' — opening the role to everyone qualified, without those filters, is the definition of equal opportunity.",
+      "Securing the area and following the response procedure is the correct safety protocol after an incident — this is about protecting people from immediate physical harm, the core of health and safety.",
+      "An anonymous channel exists specifically so employees can voice concerns without fear of retaliation — enabling that voice is what freedom of expression protects.",
+      "A photo is personal data too. Asking for consent before publishing it, rather than assuming it's fine, is what data privacy requires.",
+      "It's not just having a diverse team that matters here — it's that everyone is actively encouraged to contribute equally, which is what makes diversity meaningful rather than just symbolic.",
+    ],
+    bonus1: {
+      text: "As a supervisor, what would you do first to protect human rights in your team?",
+      options: [
+        { id: "A", text: "Listen to employees before making decisions." },
+        { id: "B", text: "Treat everyone fairly and without discrimination." },
+        { id: "C", text: "Create a safe and respectful workplace." },
+        { id: "D", text: "All of the above." },
+      ],
+    },
+    bonus2: {
+      text: "Where can you find the Grievance Mechanism Policy & Procedure document?",
+      hint: "Please take a screenshot to show that you know where to find this policy.",
+    },
+  },
+
+  th: {
+    ui: {
+      eyebrow: "Behn Meyer หน่วยงานจริยธรรม",
+      title: "ค้นหาหลักการที่ใช่",
+      subtitle: "อ่านสำนวนคดี แล้วจับคู่กับหลักการที่ถูกต้อง",
+      caseLabel: "คดีที่",
+      scoreLabel: "คะแนน",
+      fieldReportLabel: "รายงานภาคสนาม — อ่านให้ละเอียด",
+      instructions: "คลิกตัวเลือกเพื่อ<b>ตอบ</b> หรือกด <b>✕</b> มุมขวาบนเพื่อตัดตัวเลือกที่ไม่ใช่ออกก่อน",
+      nextBtn: "ไปคดีถัดไป →",
+      strikeTitle: "ตัดตัวเลือกนี้ออก",
+      stampCorrect: "ถูกต้อง",
+      stampWrong: "ผิด",
+      mainEndFileLabel: "ปิดคดี — แฟ้มหลัก",
+      rankMaster: "🕵️ นักสืบระดับปรมาจารย์",
+      rankSenior: "🔍 นักสืบอาวุโส",
+      rankField: "📋 เจ้าหน้าที่ภาคสนาม",
+      rankRookie: "🧾 ผู้ฝึกงานมือใหม่",
+      mainScoreSummary: "ตอบถูก {score} จาก {total} คดี คิดเป็น {points} คะแนน",
+      restartBtn: "สิ้นสุด",
+      finishBonusNote: "หากกด \"จบเกม\" จะไม่ได้รับคะแนนโบนัส แต่ถ้าไปต่อรอบโบนัส มีโอกาสได้คะแนนเพิ่มอีกสูงสุด 40 คะแนน",
+      bonusBtn: "ไปรอบคะแนนโบนัส →",
+      finishNowBtn: "จบเกม",
+      reviewCorrect: "คดีที่ {n}: {principle}",
+      reviewWrong: "คดีที่ {n}: ตอบ {chosen} — ที่ถูกคือ {answer}",
+      bonusPromptFileLabel: "แฟ้มโบนัส — ไม่บังคับ",
+      bonusPromptTitle: "คะแนนโบนัส",
+      bonusPromptText: "มีคำถามโบนัสอีก 2 ข้อ รวม 40 คะแนนพิเศษ คุณต้องการเล่นหรือไม่?",
+      yesBtn: "เล่นโบนัส",
+      noBtn: "ไม่เล่น",
+      bonus1FileLabel: "คดีโบนัสข้อ 1 จาก 2 — {n} คะแนน",
+      bonus1NextBtn: "ไปคำถามโบนัสข้อถัดไป →",
+      bonus2FileLabel: "คดีโบนัสข้อ 2 จาก 2 — {n} คะแนน ตรวจให้คะแนนโดยผู้ดูแลระบบ",
+      bonusTextPlaceholder: "พิมพ์คำตอบสั้น ๆ ที่นี่",
+      attachLabel: "แนบภาพหน้าจอ (ถ้ามี)",
+      bonusErrorText: "กรุณาพิมพ์คำตอบ หรือแนบภาพหน้าจออย่างน้อยหนึ่งอย่างก่อนส่ง",
+      fileTooLargeError: "ไฟล์ภาพใหญ่เกินไป (สูงสุด 4 MB) กรุณาเลือกภาพที่มีขนาดเล็กลง",
+      submittingBtn: "กำลังส่ง...",
+      submitBtn: "ส่งคำตอบ",
+      finalReportFileLabel: "รายงานสรุป",
+      finalSummaryTitle: "สรุปคะแนนรวม",
+      mainScoreLine: "คะแนนหลัก {points}/100",
+      bonus1Line: "โบนัสข้อ 1: {points}/{max}",
+      bonus2PendingLine: "โบนัสข้อ 2 ({points} คะแนน) ส่งคำตอบแล้ว — รอผู้ดูแลระบบตรวจให้คะแนน",
+      lbBtn: "ดูตารางคะแนน →",
+      lbFileLabel: "ตารางคะแนน",
+      lbTitle: "ตารางคะแนน",
+      lbLoading: "กำลังโหลด...",
+      lbEmpty: "ยังไม่มีผู้เล่น",
+      lbDemoBanner: "โหมดทดลอง — ยังไม่เชื่อมต่อ Google Sheet คะแนนจะหายเมื่อรีเฟรชหน้า",
+      lbPendingSuffix: "(+{n} รอตรวจ)",
+      regFileLabel: "ลงทะเบียนผู้เล่น — ก่อนเริ่มเล่น",
+      regIntro: "กรอกข้อมูลผู้เล่นก่อนเริ่มคดี",
+      regNameLabel: "ชื่อ-นามสกุล",
+      regNamePlaceholder: "เช่น Jack Sparrow",
+      regEmailLabel: "อีเมล",
+      regEmailPlaceholder: "name@behnmeyer.com",
+      regDeptCountryLabel: "แผนก / ประเทศ",
+      regDeptCountryPlaceholder: "เช่น ฝ่ายความยั่งยืน, ประเทศไทย",
+      regError: "กรุณากรอกข้อมูลให้ครบทุกช่อง และใส่อีเมลให้ถูกต้อง",
+      regSubmit: "เริ่มเล่น →",
+    },
+    questions: [
+      "พนักงานหญิงที่มีคุณสมบัติเหมาะสมไม่ได้รับเลือกให้เข้าร่วมการอบรม เพราะหัวหน้างานคาดเดาเองว่าเธอจะลาออกไปดูแลครอบครัวในไม่ช้า",
+      "พนักงานต้องทำงานล่วงเวลาในช่วงที่งานยุ่ง และบริษัทจ่ายค่าล่วงเวลาตามที่กฎหมายแรงงานกำหนด",
+      "พนักงานเดินเข้าไปในคลังสินค้าโดยไม่สวมรองเท้านิรภัย เพราะคิดว่า \"แค่แป๊บเดียวเอง\"",
+      "คุณสังเกตเห็นความผิดปกติที่อาจเป็นการทุจริต แต่ไม่สบายใจที่จะรายงานหัวหน้างานโดยตรง จึงใช้สายด่วนจริยธรรมของบริษัท",
+      "หลังจากพนักงานทำผิดพลาด หัวหน้างานพูดคุยเป็นการส่วนตัวและมุ่งเน้นหาทางแก้ไข แทนที่จะตำหนิต่อหน้าคนอื่น",
+      "พนักงานส่งข้อมูลติดต่อของเพื่อนร่วมงานให้บริษัทภายนอกโดยไม่ได้รับอนุญาต",
+      "หัวหน้างานวางแผนงานล่วงหน้า เพื่อให้ทีมสามารถลาพักร้อนได้โดยไม่กระทบต่อการทำงาน",
+      "เพื่อนร่วมงานล้อเลียนรูปลักษณ์ของพนักงานอีกคนซ้ำ ๆ และยังคงเรียกชื่อเล่นที่เจ้าตัวขอให้เลิกเรียก",
+      "บริษัทจัดหาโต๊ะปรับระดับได้และสิ่งอำนวยความสะดวกสำหรับรถเข็น เพื่อให้พนักงานที่มีความพิการทำงานได้อย่างสะดวก",
+      "นายจ้างเก็บพาสปอร์ตของแรงงานต่างชาติไว้ โดยบอกว่าจะคืนให้ก็ต่อเมื่อสัญญาจ้างสิ้นสุดลง",
+      "บริษัทเปิดรับตำแหน่งหัวหน้าทีมให้พนักงานที่มีคุณสมบัติทุกคน โดยไม่จำกัดเพศ อายุ หรือสัญชาติ",
+      "หลังพบสารเคมีรั่วไหล พนักงานรีบปิดกั้นพื้นที่ แจ้งผู้เกี่ยวข้องทันที และปฏิบัติตามขั้นตอนความปลอดภัย",
+      "บริษัทเปิดช่องทางออนไลน์แบบไม่เปิดเผยตัวตน ให้พนักงานส่งข้อกังวลหรือข้อเสนอแนะได้",
+      "ก่อนโพสต์ภาพจากงานกิจกรรมบริษัทลงเว็บไซต์องค์กร ฝ่ายบุคคลขออนุญาตพนักงานก่อนทุกครั้ง",
+      "ทีมโครงการประกอบด้วยพนักงานหลากหลายสัญชาติ ช่วงอายุ และแผนก โดยทุกคนได้รับการสนับสนุนให้แสดงความคิดเห็นอย่างเท่าเทียมกัน",
+    ],
+    principles: {
+      A: "การไม่เลือกปฏิบัติและโอกาสที่เท่าเทียม",
+      B: "สภาพการทำงานที่เป็นธรรม",
+      C: "อาชีวอนามัยและความปลอดภัย",
+      D: "เสรีภาพในการแสดงความคิดเห็น",
+      E: "การเคารพและศักดิ์ศรีความเป็นมนุษย์",
+      F: "ความเป็นส่วนตัวและข้อมูลส่วนบุคคล",
+      G: "สมดุลชีวิตและการทำงาน",
+      H: "การไม่คุกคามและกลั่นแกล้ง",
+      I: "ความหลากหลายและการยอมรับความแตกต่าง",
+      J: "การไม่ใช้แรงงานบังคับ",
+    },
+    explanations: [
+      "เหตุผลที่นี่คือการเลือกปฏิบัติ เพราะการตัดสินใจมาจากการคาดเดาเรื่องเพศและบทบาทครอบครัวในอนาคตของเธอ ไม่ได้มาจากทักษะหรือผลงานจริง หลักโอกาสที่เท่าเทียมกำหนดให้การตัดสินใจต้องอิงจากคุณสมบัติเท่านั้น",
+      "การทำงานล่วงเวลาไม่ใช่ประเด็น สิ่งที่ทำให้เป็นธรรมคือชั่วโมงที่เพิ่มขึ้นได้รับค่าตอบแทนตามกฎหมายแรงงาน ซึ่งเป็นหัวใจของสภาพการทำงานที่เป็นธรรม",
+      "รองเท้านิรภัยมีไว้ป้องกันการบาดเจ็บทางกาย การไม่สวมแม้ \"แค่แป๊บเดียว\" ก็ยังทำให้พนักงานเสี่ยงอันตรายอยู่ดี ซึ่งตรงกับสิ่งที่กฎอาชีวอนามัยและความปลอดภัยพยายามป้องกัน ไม่ว่าจะเสี่ยงนานแค่ไหน",
+      "การพูดถึงความกังวล แม้ผ่านช่องทางอ้อมแทนที่จะพูดกับหัวหน้าตรงๆ ก็ยังถือเป็นการใช้สิทธิ์แสดงความคิดเห็นโดยไม่ต้องกลัว นี่คือแก่นของเสรีภาพในการแสดงความคิดเห็นในที่ทำงาน",
+      "สิ่งที่ทำให้เรื่องนี้เกี่ยวกับศักดิ์ศรีคือวิธีการตักเตือน การพูดคุยเป็นการส่วนตัวแทนที่จะต่อหน้าคนอื่น ช่วยปกป้องพนักงานจากความอับอายต่อหน้าสาธารณะ",
+      "ข้อมูลติดต่อคือข้อมูลส่วนบุคคล การส่งให้บุคคลภายนอกโดยเจ้าของข้อมูลไม่ยินยอม ถือเป็นการละเมิดความเป็นส่วนตัว ไม่ว่าผู้ส่งจะตั้งใจร้ายหรือไม่ก็ตาม",
+      "เรื่องนี้เกี่ยวกับสมดุลชีวิตเพราะหัวหน้างานวางแผนล่วงหน้าเพื่อปกป้องเวลาพักผ่อน (วันลาพักร้อน) ของพนักงาน ไม่ใช่เรื่องความปลอดภัย ค่าจ้าง หรือการเลือกปฏิบัติ",
+      "สิ่งที่ทำให้เป็นการกลั่นแกล้งมี 2 อย่าง คือทำซ้ำๆ ไม่ใช่ครั้งเดียว และยังทำต่อหลังจากเจ้าตัวขอให้หยุดชัดเจนแล้ว ความดื้อรั้นแม้ถูกคัดค้านนี่แหละที่แยกการกลั่นแกล้งออกจากคำพูดเผลอครั้งเดียว",
+      "สิ่งอำนวยความสะดวกทางกายภาพ (โต๊ะปรับระดับ ทางเข้าสำหรับรถเข็น) ช่วยขจัดอุปสรรคให้พนักงานที่มีความพิการมีส่วนร่วมได้เท่าเทียม นี่คือการยอมรับความแตกต่างที่ลงมือทำจริง ไม่ใช่แค่คำพูดในนโยบาย",
+      "การเก็บพาสปอร์ตของพนักงานไว้ ทำให้เขาไม่สามารถเดินทางออกไปได้อย่างอิสระ แม้ไม่ได้ตั้งใจ แต่การจำกัดอิสรภาพในการเคลื่อนไหวของคนคือสัญญาณที่มาตรฐานสากลยอมรับว่าเป็นแรงงานบังคับ",
+      "จุดสำคัญคือวลี \"ไม่จำกัดเพศ อายุ หรือสัญชาติ\" การเปิดตำแหน่งให้ทุกคนที่มีคุณสมบัติโดยไม่มีเงื่อนไขเหล่านี้ คือนิยามของโอกาสที่เท่าเทียม",
+      "การปิดกั้นพื้นที่และปฏิบัติตามขั้นตอนรับมือ คือมาตรการความปลอดภัยที่ถูกต้องหลังเกิดเหตุ นี่คือการปกป้องคนจากอันตรายทางกายภาพเฉพาะหน้า ซึ่งเป็นแก่นของอาชีวอนามัยและความปลอดภัย",
+      "ช่องทางไม่เปิดเผยตัวตนมีไว้เพื่อให้พนักงานกล้าพูดข้อกังวลโดยไม่กลัวถูกแก้แค้น การเปิดโอกาสให้มีเสียงแบบนี้แหละคือสิ่งที่เสรีภาพในการแสดงความคิดเห็นปกป้อง",
+      "รูปภาพก็ถือเป็นข้อมูลส่วนบุคคลเช่นกัน การขออนุญาตก่อนเผยแพร่ แทนที่จะสันนิษฐานเอาเองว่าโอเค คือสิ่งที่หลักความเป็นส่วนตัวของข้อมูลกำหนดไว้",
+      "ไม่ใช่แค่การมีทีมที่หลากหลายเท่านั้นที่สำคัญ แต่ทุกคนได้รับการสนับสนุนให้มีส่วนร่วมอย่างเท่าเทียมต่างหาก ที่ทำให้ความหลากหลายมีความหมายจริง ไม่ใช่แค่สัญลักษณ์",
+    ],
+    bonus1: {
+      text: "ในฐานะหัวหน้างาน คุณจะทำอะไรเป็นอันดับแรกเพื่อปกป้องสิทธิมนุษยชนในทีมของคุณ",
+      options: [
+        { id: "A", text: "รับฟังพนักงานก่อนตัดสินใจ" },
+        { id: "B", text: "ปฏิบัติต่อทุกคนอย่างเป็นธรรมและไม่เลือกปฏิบัติ" },
+        { id: "C", text: "สร้างสภาพแวดล้อมการทำงานที่ปลอดภัยและให้เกียรติกัน" },
+        { id: "D", text: "ถูกทุกข้อ" },
+      ],
+    },
+    bonus2: {
+      text: "คุณสามารถหาเอกสารนโยบายและขั้นตอนกลไกการร้องเรียน (Grievance Mechanism Policy & Procedure) ได้จากที่ไหน",
+      hint: "กรุณาถ่ายภาพหน้าจอเพื่อแสดงว่าคุณรู้ว่าจะหาเอกสารนี้ได้จากที่ใด",
+    },
+  },
+
+  zh: {
+    ui: {
+      eyebrow: "Behn Meyer 诚信事务局",
+      title: "寻找正确原则",
+      subtitle: "阅读案例,然后匹配正确的原则。",
+      caseLabel: "案例",
+      scoreLabel: "得分",
+      fieldReportLabel: "现场报告 — 请仔细阅读",
+      instructions: "点击选项即可<b>作答</b>,或先点击角落的 <b>✕</b> 排除该选项。",
+      nextBtn: "下一案例 →",
+      strikeTitle: "排除此选项",
+      stampCorrect: "正确",
+      stampWrong: "错误",
+      mainEndFileLabel: "结案 — 主案卷",
+      rankMaster: "🕵️ 首席侦探",
+      rankSenior: "🔍 高级侦探",
+      rankField: "📋 外勤警官",
+      rankRookie: "🧾 新手学员",
+      mainScoreSummary: "你答对了 {total} 个案例中的 {score} 个,得分 {points} 分。",
+      restartBtn: "结束",
+      finishBonusNote: "选择「结束游戏」将不会获得加分;继续挑战加分环节最多可再得 40 分。",
+      bonusBtn: "前往加分环节 →",
+      finishNowBtn: "结束游戏",
+      reviewCorrect: "案例 {n}：{principle}",
+      reviewWrong: "案例 {n}：回答了 {chosen} — 正确答案是 {answer}",
+      bonusPromptFileLabel: "加分案卷 — 可选",
+      bonusPromptTitle: "加分环节",
+      bonusPromptText: "还有 2 道加分题,共 40 分。你想挑战吗?",
+      yesBtn: "开始挑战",
+      noBtn: "跳过",
+      bonus1FileLabel: "加分案例 1/2 — {n} 分",
+      bonus1NextBtn: "下一道加分题 →",
+      bonus2FileLabel: "加分案例 2/2 — {n} 分,由管理员审核评分",
+      bonusTextPlaceholder: "在此输入简短答案",
+      attachLabel: "上传截图(可选)",
+      bonusErrorText: "请先输入答案或上传截图,再提交。",
+      fileTooLargeError: "图片过大(上限 4 MB),请选择更小的截图。",
+      submittingBtn: "提交中...",
+      submitBtn: "提交",
+      finalReportFileLabel: "最终报告",
+      finalSummaryTitle: "总分汇总",
+      mainScoreLine: "主线得分 {points}/100",
+      bonus1Line: "加分题 1：{points}/{max}",
+      bonus2PendingLine: "加分题 2({points} 分)已提交 — 等待管理员审核。",
+      lbBtn: "查看排行榜 →",
+      lbFileLabel: "排行榜",
+      lbTitle: "排行榜",
+      lbLoading: "加载中...",
+      lbEmpty: "暂无玩家。",
+      lbDemoBanner: "演示模式 — 尚未连接 Google 表格。刷新页面后分数将丢失。",
+      lbPendingSuffix: "(+{n} 待审核)",
+      regFileLabel: "玩家登记 — 开始前填写",
+      regIntro: "开始案例前,请填写你的信息。",
+      regNameLabel: "姓名",
+      regNamePlaceholder: "例如：Jack Sparrow",
+      regEmailLabel: "电子邮箱",
+      regEmailPlaceholder: "name@behnmeyer.com",
+      regDeptCountryLabel: "部门 / 国家",
+      regDeptCountryPlaceholder: "例如：可持续发展部，泰国",
+      regError: "请填写所有字段并输入有效的电子邮箱。",
+      regSubmit: "开始游戏 →",
+    },
+    questions: [
+      "一名符合资格的女性员工没有被选中参加培训机会,因为她的主管认为她很快就会离职照顾家庭。",
+      "在繁忙时期,员工被要求加班,公司按照劳动法支付加班费。",
+      "一名员工没有穿安全鞋就进入仓库,因为他觉得\"我只是待一下下\"。",
+      "你发现了可能存在的不当行为,但不方便向主管报告,于是使用了公司的诚信举报专线。",
+      "员工犯错后,主管私下与其沟通,专注于寻找解决方案,而不是当众批评。",
+      "一名员工未经同意就将同事的联系方式提供给外部公司。",
+      "主管提前规划工作,让团队成员可以休年假而不影响运营。",
+      "一名同事反复嘲笑另一名员工的外貌,并继续使用对方要求停止使用的绰号。",
+      "公司提供可调节高度的办公桌和无障碍设施,方便残障员工舒适地工作。",
+      "雇主扣留外籍员工的护照,称只有劳动合同结束后才会归还。",
+      "公司向所有符合资格的员工开放团队负责人职位,不限性别、年龄或国籍。",
+      "发现化学品泄漏后,员工立即封锁现场、通知相关人员,并遵循安全程序。",
+      "公司提供匿名在线渠道,让员工可以提交意见或建议。",
+      "在公司官网发布活动照片前,人力资源部会先征得员工同意。",
+      "一个项目团队由来自不同国籍、年龄段和部门的员工组成,大家都被鼓励平等地表达意见。",
+    ],
+    principles: {
+      A: "不歧视与机会平等",
+      B: "公平的工作条件",
+      C: "健康与安全",
+      D: "言论自由",
+      E: "尊重与尊严",
+      F: "隐私与个人数据",
+      G: "工作与生活平衡",
+      H: "反骚扰与欺凌",
+      I: "多元与包容",
+      J: "反强迫劳动",
+    },
+    explanations: [
+      "这属于歧视,因为决定是基于对她性别和未来家庭角色的假设,而非她真实的能力或表现。机会平等意味着决定必须只依据资格。",
+      "加班本身不是问题所在,让它公平的是额外工时按劳动法获得了补偿,这正是公平工作条件的核心。",
+      "安全鞋的作用是防止身体受伤。即使只是「待一下下」不穿,员工仍然暴露在风险中,这正是健康与安全规定要防范的,无论暴露时间长短。",
+      "即使是通过间接渠道而非直接找主管反映担忧,仍然是在行使无惧表达问题的权利,这正是职场言论自由的核心。",
+      "让这件事关乎尊严的是纠正的方式:私下讨论错误而非当众指出,保护了员工免受公开羞辱。",
+      "联系方式属于个人数据。未经本人同意就分享给外部人员,无论分享者出于何种意图,都构成隐私侵犯。",
+      "这属于平衡问题,因为主管主动提前规划,以保护员工的休假时间,而不是安全、薪酬或歧视问题。",
+      "使这成为骚扰的有两点:一是反复发生而非一次性,二是在对方明确要求停止后仍然继续——这种无视明确反对的持续行为,正是骚扰区别于一次失言的关键。",
+      "实体设施(可调节办公桌、无障碍通道)消除了障碍,让残障员工能平等参与,这才是包容的实际行动,而不只是政策上的口号。",
+      "扣留员工的护照使其无法自由离开,即使并非故意,限制一个人的行动自由也是国际标准公认的强迫劳动信号。",
+      "关键在于「不限性别、年龄或国籍」这句话——向所有合格者开放职位,不设这些限制条件,正是机会平等的定义。",
+      "封锁现场并遵循应对流程,是事故发生后正确的安全措施。这关乎保护人员免受眼前的身体伤害,正是健康与安全的核心。",
+      "匿名渠道的存在,就是为了让员工敢于反映担忧而不怕遭到报复。保障这种发声的权利,正是言论自由所保护的内容。",
+      "照片同样属于个人数据。发布前先征求同意,而不是自行假设没问题,正是数据隐私原则的要求。",
+      "重要的不仅是团队成员背景多元,更在于每个人都被鼓励平等参与发言——这才让多元真正有意义,而不只是表面形式。",
+    ],
+    bonus1: {
+      text: "作为主管,为了保护团队的人权,你首先会做什么?",
+      options: [
+        { id: "A", text: "在做决定之前先倾听员工的意见。" },
+        { id: "B", text: "公平对待每个人,不加以歧视。" },
+        { id: "C", text: "营造安全且相互尊重的工作环境。" },
+        { id: "D", text: "以上都是。" },
+      ],
+    },
+    bonus2: {
+      text: "你可以在哪里找到《申诉机制政策与流程》(Grievance Mechanism Policy & Procedure)文件?",
+      hint: "请截图证明你知道在哪里可以找到这份政策。",
+    },
+  },
+
+  de: {
+    ui: {
+      eyebrow: "Behn Meyer Ethikbüro",
+      title: "Das richtige Prinzip finden",
+      subtitle: "Lesen Sie den Fall und ordnen Sie ihn dem richtigen Prinzip zu.",
+      caseLabel: "Fall",
+      scoreLabel: "Punkte",
+      fieldReportLabel: "Feldbericht — bitte sorgfältig lesen",
+      instructions: "Klicken Sie auf eine Option, um zu <b>antworten</b>, oder tippen Sie zuerst auf <b>✕</b> in der Ecke, um sie auszuschließen.",
+      nextBtn: "Nächster Fall →",
+      strikeTitle: "Diese Option ausschließen",
+      stampCorrect: "RICHTIG",
+      stampWrong: "FALSCH",
+      mainEndFileLabel: "Fall abgeschlossen — Hauptakte",
+      rankMaster: "🕵️ Meisterermittler",
+      rankSenior: "🔍 Senior-Detektiv",
+      rankField: "📋 Außendienstmitarbeiter",
+      rankRookie: "🧾 Neuling",
+      mainScoreSummary: "Sie haben {score} von {total} Fällen richtig gelöst — {points} Punkte.",
+      restartBtn: "Beenden",
+      finishBonusNote: "Wenn Sie jetzt aufhören, erhalten Sie keine Bonuspunkte. In der Bonusrunde können Sie bis zu 40 zusätzliche Punkte sammeln.",
+      bonusBtn: "Zu den Bonuspunkten →",
+      finishNowBtn: "Spiel beenden",
+      reviewCorrect: "Fall {n}: {principle}",
+      reviewWrong: "Fall {n}: geantwortet {chosen} — richtig ist {answer}",
+      bonusPromptFileLabel: "Bonusakte — optional",
+      bonusPromptTitle: "Bonuspunkte",
+      bonusPromptText: "Es gibt noch 2 Bonusfragen im Wert von 40 zusätzlichen Punkten. Möchten Sie mitmachen?",
+      yesBtn: "Bonus spielen",
+      noBtn: "Überspringen",
+      bonus1FileLabel: "Bonusfall 1 von 2 — {n} Punkte",
+      bonus1NextBtn: "Nächste Bonusfrage →",
+      bonus2FileLabel: "Bonusfall 2 von 2 — {n} Punkte, wird vom Administrator geprüft",
+      bonusTextPlaceholder: "Geben Sie hier Ihre kurze Antwort ein",
+      attachLabel: "Bildschirmfoto anhängen (optional)",
+      bonusErrorText: "Bitte geben Sie eine Antwort ein oder fügen Sie ein Bildschirmfoto hinzu, bevor Sie absenden.",
+      fileTooLargeError: "Das Bild ist zu groß (max. 4 MB). Bitte wählen Sie ein kleineres Bildschirmfoto.",
+      submittingBtn: "Wird gesendet...",
+      submitBtn: "Absenden",
+      finalReportFileLabel: "Abschlussbericht",
+      finalSummaryTitle: "Gesamtpunktzahl",
+      mainScoreLine: "Hauptpunktzahl: {points}/100",
+      bonus1Line: "Bonusfrage 1: {points}/{max}",
+      bonus2PendingLine: "Bonusfrage 2 ({points} Punkte) eingereicht — wartet auf Prüfung durch den Administrator.",
+      lbBtn: "Rangliste ansehen →",
+      lbFileLabel: "Rangliste",
+      lbTitle: "Rangliste",
+      lbLoading: "Wird geladen...",
+      lbEmpty: "Noch keine Spieler.",
+      lbDemoBanner: "Demomodus — noch nicht mit Google Sheets verbunden. Punkte gehen beim Neuladen verloren.",
+      lbPendingSuffix: "(+{n} in Prüfung)",
+      regFileLabel: "Spieleranmeldung — vor dem Start",
+      regIntro: "Bitte füllen Sie Ihre Daten aus, bevor Sie beginnen.",
+      regNameLabel: "Vor- und Nachname",
+      regNamePlaceholder: "z. B. Jack Sparrow",
+      regEmailLabel: "E-Mail",
+      regEmailPlaceholder: "name@behnmeyer.com",
+      regDeptCountryLabel: "Abteilung / Land",
+      regDeptCountryPlaceholder: "z. B. Nachhaltigkeit, Thailand",
+      regError: "Bitte füllen Sie alle Felder aus und geben Sie eine gültige E-Mail-Adresse ein.",
+      regSubmit: "Spiel starten →",
+    },
+    questions: [
+      "Eine qualifizierte Mitarbeiterin wurde nicht für eine Schulungsmöglichkeit ausgewählt, weil ihr Vorgesetzter annahm, sie werde bald aufhören, um sich um ihre Familie zu kümmern.",
+      "Mitarbeitende müssen in einer arbeitsreichen Zeit Überstunden leisten, und das Unternehmen zahlt Überstunden gemäß den Arbeitsgesetzen.",
+      "Ein Mitarbeiter betritt das Lager ohne Sicherheitsschuhe, weil er denkt: „Ich bin nur eine Minute dort.\u201c",
+      "Sie bemerken mögliches Fehlverhalten, fühlen sich aber nicht wohl dabei, es Ihrem Vorgesetzten zu melden, und nutzen deshalb die Ethik-Hotline des Unternehmens.",
+      "Nachdem ein Mitarbeiter einen Fehler gemacht hat, spricht die Führungskraft privat mit ihm und konzentriert sich auf eine Lösung, statt ihn vor anderen zu kritisieren.",
+      "Ein Mitarbeiter gibt Kontaktdaten von Kollegen ohne deren Erlaubnis an ein externes Unternehmen weiter.",
+      "Eine Führungskraft plant die Arbeit im Voraus, damit Teammitglieder ihren Jahresurlaub nehmen können, ohne den Betrieb zu stören.",
+      "Ein Kollege macht sich wiederholt über das Aussehen eines anderen Mitarbeiters lustig und verwendet weiterhin einen Spitznamen, den dieser abgelehnt hat.",
+      "Das Unternehmen stellt höhenverstellbare Schreibtische und rollstuhlgerechte Einrichtungen bereit, damit Mitarbeitende mit Behinderung bequem arbeiten können.",
+      "Ein Arbeitgeber behält die Pässe ausländischer Arbeitnehmer ein und sagt, sie würden erst nach Vertragsende zurückgegeben.",
+      "Das Unternehmen öffnet die Position der Teamleitung für alle qualifizierten Mitarbeitenden, unabhängig von Geschlecht, Alter oder Nationalität.",
+      "Nach der Entdeckung eines Chemikalienlecks sichern die Mitarbeitenden sofort den Bereich, informieren die zuständigen Stellen und befolgen die Sicherheitsverfahren.",
+      "Das Unternehmen bietet einen anonymen Online-Kanal, über den Mitarbeitende Anliegen oder Vorschläge einreichen können.",
+      "Bevor Fotos von einer Firmenveranstaltung auf der Unternehmenswebsite veröffentlicht werden, holt die Personalabteilung die Zustimmung der Mitarbeitenden ein.",
+      "Ein Projektteam besteht aus Mitarbeitenden verschiedener Nationalitäten, Altersgruppen und Abteilungen, und alle werden ermutigt, gleichberechtigt Ideen einzubringen.",
+    ],
+    principles: {
+      A: "Nichtdiskriminierung & Chancengleichheit",
+      B: "Faire Arbeitsbedingungen",
+      C: "Gesundheit & Sicherheit",
+      D: "Meinungsfreiheit",
+      E: "Respekt & Würde",
+      F: "Privatsphäre & personenbezogene Daten",
+      G: "Vereinbarkeit von Beruf & Privatleben",
+      H: "Keine Belästigung & kein Mobbing",
+      I: "Vielfalt & Inklusion",
+      J: "Keine Zwangsarbeit",
+    },
+    explanations: [
+      "Das ist Diskriminierung, weil die Entscheidung auf einer Annahme über ihr Geschlecht und ihre künftige Familienrolle beruhte — nicht auf ihren tatsächlichen Fähigkeiten oder Leistungen. Chancengleichheit bedeutet, dass Entscheidungen allein auf Qualifikation beruhen müssen.",
+      "Überstunden selbst sind nicht das Problem — fair wird es dadurch, dass die zusätzlichen Stunden gemäß Arbeitsgesetz vergütet werden. Das ist der Kern fairer Arbeitsbedingungen.",
+      "Sicherheitsschuhe sollen körperliche Verletzungen verhindern. Sie 'nur für eine Minute' wegzulassen, setzt den Mitarbeiter trotzdem diesem Risiko aus — genau das sollen Gesundheits- und Sicherheitsregeln verhindern, unabhängig von der Dauer.",
+      "Ein Anliegen zu äußern — selbst über einen indirekten Kanal statt direkt beim Vorgesetzten — ist weiterhin die Ausübung des Rechts, ein Problem ohne Angst anzusprechen. Das ist der Kern der Meinungsfreiheit am Arbeitsplatz.",
+      "Was dies zu einer Frage der Würde macht, ist die Art der Zurechtweisung: das Gespräch privat statt vor anderen zu führen, schützt den Mitarbeiter vor öffentlicher Bloßstellung.",
+      "Kontaktdaten sind personenbezogene Daten. Sie ohne Zustimmung des Eigentümers an Dritte weiterzugeben, ist ein Verstoß gegen die Privatsphäre — unabhängig von der Absicht.",
+      "Hier geht es um Balance, weil die Führungskraft aktiv vorausplant, um die freie Zeit des Mitarbeiters (Jahresurlaub) zu schützen — nicht um Sicherheit, Bezahlung oder Diskriminierung.",
+      "Zwei Dinge machen dies zu Belästigung: Es wiederholt sich, ist also kein Einzelfall, und es geht weiter, nachdem die Person ausdrücklich gebeten hat, damit aufzuhören — dieses Fortsetzen trotz klarer Ablehnung unterscheidet Belästigung von einer einmaligen Bemerkung.",
+      "Physische Barrierefreiheit — höhenverstellbare Schreibtische, Rollstuhlzugang — beseitigt Hindernisse, damit Mitarbeitende mit Behinderung gleichberechtigt teilnehmen können. Das ist gelebte Inklusion, nicht nur eine Grundsatzerklärung.",
+      "Den Pass eines Mitarbeiters einzubehalten, nimmt ihm die Möglichkeit, frei zu gehen. Selbst wenn unbeabsichtigt, gilt die Einschränkung der Bewegungsfreiheit als anerkanntes Anzeichen für Zwangsarbeit nach internationalen Standards.",
+      "Der entscheidende Punkt ist 'unabhängig von Geschlecht, Alter oder Nationalität' — die Position für alle Qualifizierten zu öffnen, ohne diese Einschränkungen, ist die Definition von Chancengleichheit.",
+      "Den Bereich zu sichern und dem Reaktionsverfahren zu folgen, ist das richtige Sicherheitsprotokoll nach einem Vorfall — es geht darum, Menschen vor unmittelbarem körperlichem Schaden zu schützen, dem Kern von Gesundheit und Sicherheit.",
+      "Ein anonymer Kanal existiert genau deshalb, damit Mitarbeitende Bedenken äußern können, ohne Vergeltung zu fürchten — diese Stimme zu ermöglichen, ist das, was Meinungsfreiheit schützt.",
+      "Auch ein Foto ist personenbezogene Daten. Vor der Veröffentlichung um Zustimmung zu bitten, statt sie vorauszusetzen, ist genau das, was der Datenschutz verlangt.",
+      "Es zählt nicht nur, ein vielfältiges Team zu haben — entscheidend ist, dass alle aktiv ermutigt werden, gleichberechtigt beizutragen. Das macht Vielfalt bedeutungsvoll statt nur symbolisch.",
+    ],
+    bonus1: {
+      text: "Was würden Sie als Vorgesetzter zuerst tun, um die Menschenrechte in Ihrem Team zu schützen?",
+      options: [
+        { id: "A", text: "Den Mitarbeitenden zuhören, bevor Entscheidungen getroffen werden." },
+        { id: "B", text: "Alle fair und ohne Diskriminierung behandeln." },
+        { id: "C", text: "Einen sicheren und respektvollen Arbeitsplatz schaffen." },
+        { id: "D", text: "Alles davon." },
+      ],
+    },
+    bonus2: {
+      text: "Wo finden Sie die Richtlinie und das Verfahren zum Beschwerdemechanismus (Grievance Mechanism Policy & Procedure)?",
+      hint: "Bitte machen Sie ein Bildschirmfoto, um zu zeigen, dass Sie wissen, wo Sie diese Richtlinie finden.",
+    },
+  },
+};
+
+let LANG = "th";
+
+function t(key){
+  const pack = I18N[LANG].ui[key];
+  return pack !== undefined ? pack : I18N.en.ui[key];
+}
+
+function tf(key, vars){
+  let str = t(key);
+  Object.keys(vars || {}).forEach(k=>{
+    str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), vars[k]);
+  });
+  return str;
+}
+
+const CONFIG = {
+  // TODO: paste the Google Apps Script Web App /exec URL here once it's deployed
+  // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
+  WEBHOOK_URL: "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec",
+};
+
+function hasBackend(){
+  return CONFIG.WEBHOOK_URL.trim().length > 0;
+}
+
+let player = { name: "", email: "", deptCountry: "" };
+let localLeaderboard = []; // in-memory fallback until CONFIG.WEBHOOK_URL is wired up
+let myEntryId = null;
+
+let current = 0;
+let score = 0;
+let history = [];
+let answeredChoices = {};   // question index -> chosen letter
+let eliminatedCache = {};   // question index -> Set of eliminated letters
+let questionOptionsCache = {}; // question index -> shuffled letter array
+
+let bonusChoice1;           // chosen id for bonus question 1, or undefined
+let bonusFileName = null;
+let bonusFileData = null;
+let bonusFileMime = null;
+let bonusText = "";
+let bonusSubmitted2 = false;
+
+let screen = "registration"; // tracks which screen is showing, for language-switch re-renders
+
+const gameEl = document.getElementById('game');
+
+const OPTIONS_PER_QUESTION = 4;
+const DISPLAY_LABELS = ["A", "B", "C", "D"];
+
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function pickOptionsFor(correctLetter){
+  const distractors = shuffleArray(ALL_LETTERS.filter(l => l !== correctLetter))
+    .slice(0, OPTIONS_PER_QUESTION - 1);
+  return shuffleArray([correctLetter, ...distractors]);
+}
+
+function resetAll(){
+  current = 0; score = 0; history = [];
+  answeredChoices = {}; eliminatedCache = {}; questionOptionsCache = {};
+  bonusChoice1 = undefined;
+  bonusFileName = null; bonusText = ""; bonusSubmitted2 = false;
+}
+
+function renderMasthead(){
+  document.getElementById('mastheadEyebrow').textContent = t('eyebrow');
+  document.getElementById('mastheadTitle').textContent = t('title');
+  document.getElementById('mastheadSubtitle').textContent = t('subtitle');
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.lang === LANG);
+  });
+}
+
+function rerenderCurrent(){
+  switch(screen){
+    case 'registration': renderRegistration(); break;
+    case 'quiz': render(); break;
+    case 'mainEnd': renderMainEnd(); break;
+    case 'bonusPrompt': renderBonusPrompt(); break;
+    case 'bonus1': renderBonus1(); break;
+    case 'bonus2': renderBonus2(); break;
+    case 'leaderboard': renderLeaderboard(); break;
+    default: renderRegistration();
+  }
+}
+
+function setLang(lang){
+  if(!I18N[lang]) return;
+  LANG = lang;
+  renderMasthead();
+  rerenderCurrent();
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> setLang(btn.dataset.lang));
+});
+
+function renderRegistration(){
+  screen = 'registration';
+  gameEl.innerHTML = `
+    <div class="file-card">
+      <div class="file-label">${t('regFileLabel')}</div>
+      <div class="evidence-text" style="border-left:none; padding-left:0; font-family:'Inter',sans-serif; font-size:clamp(17px,4vw,23px); font-weight:600; min-height:auto;">${t('regIntro')}</div>
+
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label class="reg-label">${t('regNameLabel')}</label>
+          <input type="text" id="regName" class="reg-input" placeholder="${t('regNamePlaceholder')}" value="${player.name}">
+        </div>
+        <div>
+          <label class="reg-label">${t('regEmailLabel')}</label>
+          <input type="email" id="regEmail" class="reg-input" placeholder="${t('regEmailPlaceholder')}" value="${player.email}">
+        </div>
+        <div>
+          <label class="reg-label">${t('regDeptCountryLabel')}</label>
+          <input type="text" id="regDeptCountry" class="reg-input" placeholder="${t('regDeptCountryPlaceholder')}" value="${player.deptCountry}">
+        </div>
+      </div>
+
+      <div id="regError" style="color:var(--case-red); font-size:clamp(13px,3vw,16px); display:none; margin-top:10px;">${t('regError')}</div>
+
+      <div class="footer-row"><button class="next-btn show" id="regSubmit" style="position:static;">${t('regSubmit')}</button></div>
+    </div>
+  `;
+
+  document.getElementById('regSubmit').addEventListener('click', ()=>{
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const deptCountry = document.getElementById('regDeptCountry').value.trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if(!name || !emailOk || !deptCountry){
+      document.getElementById('regError').style.display = 'block';
+      return;
+    }
+
+    player = { name, email, deptCountry };
+    resetAll();
+    render();
+  });
+}
+
+function render(){
+  screen = 'quiz';
+  if(current >= TOTAL_QUESTIONS){
+    renderMainEnd();
+    return;
+  }
+
+  const correctLetter = QUESTION_ANSWERS[current];
+  const letters = questionOptionsCache[current] || (questionOptionsCache[current] = pickOptionsFor(correctLetter));
+  const eliminated = eliminatedCache[current] || (eliminatedCache[current] = new Set());
+  const chosenLetter = answeredChoices[current];
+  const isAnswered = chosenLetter !== undefined;
+  const questionText = I18N[LANG].questions[current];
+  const principles = I18N[LANG].principles;
+
+  gameEl.innerHTML = `
+    <div class="progress-row">
+      <div class="case-count">${t('caseLabel')} ${current+1} / ${TOTAL_QUESTIONS}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${(current/TOTAL_QUESTIONS)*100}%"></div></div>
+      <div class="score-tag">${t('scoreLabel')} ${score}</div>
+    </div>
+
+    <div class="file-card">
+      <div class="stamp ${isAnswered ? 'show ' + (chosenLetter === correctLetter ? 'correct-stamp' : 'wrong-stamp') : ''}" id="stamp">${isAnswered ? (chosenLetter === correctLetter ? t('stampCorrect') : t('stampWrong')) : ''}</div>
+      <div class="file-label">${t('fieldReportLabel')}</div>
+      <div class="evidence-text">${questionText}</div>
+
+      ${!isAnswered ? `<div class="instructions">${t('instructions')}</div>` : ''}
+
+      <div class="options" id="options">
+        ${letters.map((key, idx) => {
+          const displayLabel = DISPLAY_LABELS[idx];
+          let cls = 'option';
+          if(eliminated.has(key)) cls += ' eliminated';
+          if(isAnswered){
+            cls += ' locked';
+            if(key === correctLetter) cls += ' correct';
+            else if(key === chosenLetter) cls += ' wrong';
+          }
+          return `
+            <div class="${cls}" data-key="${key}">
+              <span class="letter">${displayLabel}</span>
+              <span class="label">${principles[key]}</span>
+              <button class="strike-btn" data-key="${key}" title="${t('strikeTitle')}" style="${isAnswered ? 'display:none;' : ''}">✕</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      ${isAnswered && chosenLetter !== correctLetter ? `<div class="choice-note explain-note">${I18N[LANG].explanations[current]}</div>` : ''}
+
+      <div class="footer-row">
+        <button class="next-btn ${isAnswered ? 'show' : ''}" id="nextBtn">${t('nextBtn')}</button>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.strike-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(answeredChoices[current] !== undefined) return;
+      const key = btn.dataset.key;
+      const optEl = document.querySelector(`.option[data-key="${key}"]`);
+      if(eliminated.has(key)){
+        eliminated.delete(key);
+        optEl.classList.remove('eliminated');
+      } else {
+        eliminated.add(key);
+        optEl.classList.add('eliminated');
+      }
+    });
+  });
+
+  document.querySelectorAll('.option').forEach(optEl=>{
+    optEl.addEventListener('click', ()=>{
+      if(answeredChoices[current] !== undefined) return;
+      const key = optEl.dataset.key;
+      if(eliminated.has(key)) return;
+      submitAnswer(key);
+    });
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', ()=>{
+    current++;
+    render();
+  });
+}
+
+function submitAnswer(letter){
+  if(answeredChoices[current] !== undefined) return;
+  const correctLetter = QUESTION_ANSWERS[current];
+  const correct = letter === correctLetter;
+  answeredChoices[current] = letter;
+  if(correct) score++;
+  history.push({ idx: current, chosen: letter, answer: correctLetter, correct });
+  render();
+}
+
+function renderMainEnd(){
+  screen = 'mainEnd';
+  // 15 cases = 100 points total, so each case is worth 100/15 points.
+  // Computing (score / total) * 100 directly avoids rounding drift,
+  // so 15/15 correct always lands exactly on 100.
+  const mainPoints = Math.round((score / TOTAL_QUESTIONS) * 100);
+  let rank;
+  if(mainPoints === 100) rank = t('rankMaster');
+  else if(mainPoints >= 80) rank = t('rankSenior');
+  else if(mainPoints >= 60) rank = t('rankField');
+  else rank = t('rankRookie');
+
+  const principles = I18N[LANG].principles;
+
+  gameEl.innerHTML = `
+    <div class="file-card end-screen">
+      <div class="file-label">${t('mainEndFileLabel')}</div>
+      <div class="rank">${rank}</div>
+      <div class="score-big">${mainPoints}<span style="font-size:clamp(17px,4vw,23px);font-weight:400;color:var(--ink-soft);"> / 100</span></div>
+      <p>${tf('mainScoreSummary', { score, total: TOTAL_QUESTIONS, points: mainPoints })}</p>
+
+      <div class="choice-note">${t('finishBonusNote')}</div>
+
+      <div class="footer-row" style="justify-content:center; gap:10px;">
+        <button class="next-btn show" id="finishBtn" style="position:static; background:var(--muted);">${t('finishNowBtn')}</button>
+        <button class="next-btn show" id="bonusBtn" style="position:static;">${t('bonusBtn')}</button>
+      </div>
+
+      <div class="review-list">
+        ${history.map((h,i)=>`
+          <div class="review-item ${h.correct?'ok':'bad'}">
+            <span class="mark">${h.correct?'✓':'✗'}</span>
+            <span>
+              ${h.correct
+                ? tf('reviewCorrect', { n: i+1, principle: principles[h.answer] })
+                : tf('reviewWrong', { n: i+1, chosen: principles[h.chosen], answer: principles[h.answer] })}
+              ${!h.correct ? `<span class="review-explain">${I18N[LANG].explanations[h.idx]}</span>` : ''}
+            </span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('finishBtn').addEventListener('click', finishGame);
+  document.getElementById('bonusBtn').addEventListener('click', renderBonusPrompt);
+}
+
+function renderBonusPrompt(){
+  screen = 'bonusPrompt';
+  gameEl.innerHTML = `
+    <div class="file-card end-screen">
+      <div class="file-label">${t('bonusPromptFileLabel')}</div>
+      <div class="rank" style="font-size:clamp(18px,4vw,25px);">${t('bonusPromptTitle')}</div>
+      <p>${t('bonusPromptText')}</p>
+      <div class="footer-row" style="justify-content:center; gap:10px;">
+        <button class="restart-btn" id="yesBtn">${t('yesBtn')}</button>
+        <button class="next-btn show" id="noBtn" style="position:static; background:var(--muted);">${t('noBtn')}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('yesBtn').addEventListener('click', renderBonus1);
+  document.getElementById('noBtn').addEventListener('click', finishGame);
+}
+
+function renderBonus1(){
+  screen = 'bonus1';
+  const bonus1 = I18N[LANG].bonus1;
+  const isAnswered = bonusChoice1 !== undefined;
+
+  gameEl.innerHTML = `
+    <div class="file-card">
+      <div class="stamp ${isAnswered ? 'show ' + (bonusChoice1 === BONUS1_ANSWER ? 'correct-stamp' : 'wrong-stamp') : ''}" id="stamp">${isAnswered ? (bonusChoice1 === BONUS1_ANSWER ? t('stampCorrect') : t('stampWrong')) : ''}</div>
+      <div class="file-label">${tf('bonus1FileLabel', { n: BONUS1_POINTS })}</div>
+      <div class="evidence-text">${bonus1.text}</div>
+      <div class="options" id="options" style="margin-top:16px;">
+        ${bonus1.options.map(o => {
+          let cls = 'option';
+          if(isAnswered){
+            cls += ' locked';
+            if(o.id === BONUS1_ANSWER) cls += ' correct';
+            else if(o.id === bonusChoice1) cls += ' wrong';
+          }
+          return `
+            <div class="${cls}" data-id="${o.id}">
+              <span class="letter">${o.id}</span>
+              <span class="label">${o.text}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="footer-row"><button class="next-btn ${isAnswered ? 'show' : ''}" id="nextBtn">${t('bonus1NextBtn')}</button></div>
+    </div>
+  `;
+
+  document.querySelectorAll('#options .option').forEach(optEl=>{
+    optEl.addEventListener('click', ()=>{
+      if(bonusChoice1 !== undefined) return;
+      bonusChoice1 = optEl.dataset.id;
+      renderBonus1();
+    });
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', renderBonus2);
+}
+
+function renderBonus2(){
+  screen = 'bonus2';
+  const bonus2 = I18N[LANG].bonus2;
+
+  gameEl.innerHTML = `
+    <div class="file-card">
+      <div class="file-label">${tf('bonus2FileLabel', { n: BONUS2_POINTS })}</div>
+      <div class="evidence-text">${bonus2.text}</div>
+      <p class="instructions" style="margin-top:10px;">${bonus2.hint}</p>
+      <textarea id="bonusTextInput" placeholder="${t('bonusTextPlaceholder')}" style="width:100%; min-height:90px; font-family:'Inter',sans-serif; font-size:clamp(15px,3.4vw,18px); padding:14px; border-radius:8px; border:2px solid rgba(23,58,86,0.22); background:var(--paper-dark); margin-bottom:12px; resize:vertical;">${bonusText}</textarea>
+      <label style="font-size:clamp(14px,3vw,17px); color:var(--ink-soft); display:block; margin-bottom:6px; font-weight:700;">${t('attachLabel')}</label>
+      <input type="file" id="bonusFileInput" accept="image/*" style="font-size:clamp(13px,3vw,16px); margin-bottom:8px;">
+      <div id="bonusError" style="color:var(--case-red); font-size:clamp(13px,3vw,16px); display:none; margin:8px 0;">${t('bonusErrorText')}</div>
+      <div class="footer-row"><button class="next-btn show" id="submitBonus2" style="position:static;">${t('submitBtn')}</button></div>
+    </div>
+  `;
+
+  document.getElementById('bonusTextInput').addEventListener('input', (e)=>{
+    bonusText = e.target.value;
+  });
+
+  document.getElementById('submitBonus2').addEventListener('click', ()=>{
+    const text = document.getElementById('bonusTextInput').value.trim();
+    const fileInput = document.getElementById('bonusFileInput');
+    const file = fileInput.files[0];
+    const errorEl = document.getElementById('bonusError');
+    errorEl.style.display = 'none';
+
+    if(!text && !file){
+      errorEl.textContent = t('bonusErrorText');
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const MAX_BYTES = 4 * 1024 * 1024;
+    if(file && file.size > MAX_BYTES){
+      errorEl.textContent = t('fileTooLargeError');
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    bonusText = text;
+    bonusSubmitted2 = true;
+
+    const proceed = () => { bonusSubmitted2 = true; finishGame(); };
+
+    if(!file){
+      bonusFileName = null;
+      bonusFileData = null;
+      bonusFileMime = null;
+      proceed();
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBonus2');
+    submitBtn.disabled = true;
+    submitBtn.textContent = t('submittingBtn');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      // result looks like "data:image/png;base64,AAAA..." — keep only the base64 payload
+      const base64 = String(reader.result).split(',')[1] || '';
+      bonusFileName = file.name;
+      bonusFileMime = file.type || 'image/png';
+      bonusFileData = base64;
+      proceed();
+    };
+    reader.onerror = () => {
+      // If reading fails, still submit the text answer rather than blocking the player
+      bonusFileName = file.name;
+      bonusFileData = null;
+      bonusFileMime = null;
+      proceed();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function buildScoreEntry(){
+  const mainPoints = Math.round((score / TOTAL_QUESTIONS) * 100);
+  const bonus1Points = (bonusChoice1 !== undefined && bonusChoice1 === BONUS1_ANSWER) ? BONUS1_POINTS : 0;
+  const pendingPoints = bonusSubmitted2 ? BONUS2_POINTS : 0;
+  return {
+    id: player.email || (player.name + '-' + Date.now()),
+    name: player.name,
+    deptCountry: player.deptCountry,
+    mainPoints,
+    bonus1Points,
+    pendingPoints,
+    bonusPlayed: bonusChoice1 !== undefined || bonusSubmitted2,
+    total: mainPoints + bonus1Points,
+    timestamp: Date.now(),
+    // Screenshot fields are only used for the backend submission (see submitScoreEntry),
+    // never kept in localLeaderboard, so the in-memory leaderboard stays lightweight.
+    bonusText: bonusText || '',
+    screenshotName: bonusFileName || '',
+    screenshotData: bonusFileData || '',
+    screenshotMime: bonusFileMime || '',
+  };
+}
+
+function submitScoreEntry(entry){
+  myEntryId = entry.id;
+
+  // Lean copy for the in-memory leaderboard (never includes the base64 screenshot).
+  const lightEntry = { ...entry };
+  delete lightEntry.screenshotData;
+  delete lightEntry.screenshotMime;
+
+  // Keep a local copy so the leaderboard has something to show immediately,
+  // and as a fallback until CONFIG.WEBHOOK_URL is wired up to Google Sheets.
+  const existingIndex = localLeaderboard.findIndex(e => e.id === lightEntry.id);
+  if(existingIndex >= 0) localLeaderboard[existingIndex] = lightEntry;
+  else localLeaderboard.push(lightEntry);
+
+  if(hasBackend()){
+    fetch(CONFIG.WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'submitScore', ...entry }),
+    }).catch(()=>{ /* fails silently; the local copy above still shows on this device */ });
+  }
+}
+
+function fetchLeaderboard(callback){
+  if(!hasBackend()){
+    callback(localLeaderboard);
+    return;
+  }
+  fetch(`${CONFIG.WEBHOOK_URL}?action=getLeaderboard`)
+    .then(r => r.json())
+    .then(data => callback(Array.isArray(data) ? data : localLeaderboard))
+    .catch(()=>{
+      // JSONP fallback for hosts that block the fetch() response (CORS/ORB)
+      const cbName = 'lbCallback_' + Date.now();
+      const script = document.createElement('script');
+      window[cbName] = (data)=>{
+        callback(Array.isArray(data) ? data : localLeaderboard);
+        delete window[cbName];
+        script.remove();
+      };
+      script.src = `${CONFIG.WEBHOOK_URL}?action=getLeaderboard&callback=${cbName}`;
+      script.onerror = () => callback(localLeaderboard);
+      document.body.appendChild(script);
+    });
+}
+
+function finishGame(){
+  const entry = buildScoreEntry();
+  submitScoreEntry(entry);
+  renderLeaderboard();
+}
+
+function renderLeaderboard(){
+  screen = 'leaderboard';
+  const myEntry = localLeaderboard.find(e => e.id === myEntryId);
+
+  let myNote = '';
+  if(myEntry){
+    myNote = `
+      <div class="lb-banner" style="text-align:left;">
+        ${tf('mainScoreLine', { points: myEntry.mainPoints })}
+        ${myEntry.bonusPlayed ? `<br>${tf('bonus1Line', { points: myEntry.bonus1Points, max: BONUS1_POINTS })}` : ''}
+        ${myEntry.pendingPoints ? `<br>${tf('bonus2PendingLine', { points: myEntry.pendingPoints })}` : ''}
+      </div>
+    `;
+  }
+
+  gameEl.innerHTML = `
+    <div class="file-card end-screen">
+      <div class="file-label">${t('lbFileLabel')}</div>
+      <div class="rank" style="font-size:clamp(18px,4vw,25px);">${t('lbTitle')}</div>
+      ${myNote}
+      <div id="lbBody"><p style="color:var(--ink-soft); font-size:clamp(14px,3.2vw,17px);">${t('lbLoading')}</p></div>
+      <button class="restart-btn" id="lbBack">${t('restartBtn')}</button>
+    </div>
+  `;
+
+  document.getElementById('lbBack').addEventListener('click', ()=>{
+    resetAll();
+    player = { name: "", email: "", deptCountry: "" };
+    myEntryId = null;
+    renderRegistration();
+  });
+
+  fetchLeaderboard((entries)=>{
+    const sorted = [...entries].sort((a,b) => b.total - a.total);
+    const rowsHtml = sorted.map((e,i)=>`
+      <div class="lb-row ${e.id === myEntryId ? 'me' : ''}">
+        <span class="lb-rank">${i+1}</span>
+        <span class="lb-name">${e.name}<span class="lb-sub">${e.deptCountry || '-'}</span></span>
+        <span class="lb-score">${e.total}${e.pendingPoints ? ` <span style="font-weight:400;color:var(--ink-soft);">${tf('lbPendingSuffix', { n: e.pendingPoints })}</span>` : ''}</span>
+      </div>
+    `).join('');
+
+    const banner = hasBackend() ? '' : `<div class="lb-banner">${t('lbDemoBanner')}</div>`;
+    document.getElementById('lbBody').innerHTML = banner + (rowsHtml || `<p style="color:var(--ink-soft); font-size:clamp(14px,3.2vw,17px);">${t('lbEmpty')}</p>`);
+  });
+}
+
+renderMasthead();
+renderRegistration();
+</script>
+</body>
+</html>
