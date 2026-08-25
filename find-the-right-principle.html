@@ -421,6 +421,31 @@
     font-weight:800;
     flex-shrink:0;
   }
+  .lb-toggle-btn{
+    display:block;
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:clamp(13px,2.8vw,16px);
+    background:transparent;
+    color:var(--ink-soft);
+    border:2px dashed rgba(23,58,86,0.25);
+    border-radius:8px;
+    padding:10px 14px;
+    margin-top:6px;
+    cursor:pointer;
+  }
+  .lb-toggle-btn:hover{
+    background:var(--paper-dark);
+    color:var(--ink);
+  }
+  .lb-divider{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    letter-spacing:3px;
+    padding:2px 0;
+  }
 
   @media (max-width:480px){
     .footer-row{ justify-content:center; }
@@ -533,6 +558,10 @@ const I18N = {
       lbEmpty: "No players yet.",
       lbDemoBanner: "Demo mode — not yet connected to Google Sheets. Scores reset on refresh.",
       lbPendingSuffix: "(+{n} pending review)",
+      lbAttemptLabel: "Attempt {n}",
+      lbShowAllBtn: "View all players ({total}) →",
+      lbShowLessBtn: "Show less ↑",
+      myAttemptLine: "This was attempt #{n}.",
       regFileLabel: "Player intake — before you start",
       regIntro: "Fill in your details before starting the case.",
       regNameLabel: "Full name",
@@ -656,6 +685,10 @@ const I18N = {
       lbEmpty: "ยังไม่มีผู้เล่น",
       lbDemoBanner: "โหมดทดลอง — ยังไม่เชื่อมต่อ Google Sheet คะแนนจะหายเมื่อรีเฟรชหน้า",
       lbPendingSuffix: "(+{n} รอตรวจ)",
+      lbAttemptLabel: "ครั้งที่ {n}",
+      lbShowAllBtn: "ดูผู้เล่นทั้งหมด ({total} คน) →",
+      lbShowLessBtn: "ย่อรายการ ↑",
+      myAttemptLine: "การเล่นครั้งนี้เป็นครั้งที่ {n}",
       regFileLabel: "ลงทะเบียนผู้เล่น — ก่อนเริ่มเล่น",
       regIntro: "กรอกข้อมูลผู้เล่นก่อนเริ่มคดี",
       regNameLabel: "ชื่อ-นามสกุล",
@@ -779,6 +812,10 @@ const I18N = {
       lbEmpty: "暂无玩家。",
       lbDemoBanner: "演示模式 — 尚未连接 Google 表格。刷新页面后分数将丢失。",
       lbPendingSuffix: "(+{n} 待审核)",
+      lbAttemptLabel: "第 {n} 次",
+      lbShowAllBtn: "查看所有玩家（{total} 人）→",
+      lbShowLessBtn: "收起列表 ↑",
+      myAttemptLine: "这是你的第 {n} 次游玩。",
       regFileLabel: "玩家登记 — 开始前填写",
       regIntro: "开始案例前,请填写你的信息。",
       regNameLabel: "姓名",
@@ -902,6 +939,10 @@ const I18N = {
       lbEmpty: "Noch keine Spieler.",
       lbDemoBanner: "Demomodus — noch nicht mit Google Sheets verbunden. Punkte gehen beim Neuladen verloren.",
       lbPendingSuffix: "(+{n} in Prüfung)",
+      lbAttemptLabel: "Versuch {n}",
+      lbShowAllBtn: "Alle Spieler ansehen ({total}) →",
+      lbShowLessBtn: "Liste einklappen ↑",
+      myAttemptLine: "Dies war Versuch Nr. {n}.",
       regFileLabel: "Spieleranmeldung — vor dem Start",
       regIntro: "Bitte füllen Sie Ihre Daten aus, bevor Sie beginnen.",
       regNameLabel: "Vor- und Nachname",
@@ -1411,8 +1452,12 @@ function buildScoreEntry(){
   const mainPoints = Math.round((score / TOTAL_QUESTIONS) * 100);
   const bonus1Points = (bonusChoice1 !== undefined && bonusChoice1 === BONUS1_ANSWER) ? BONUS1_POINTS : 0;
   const pendingPoints = bonusSubmitted2 ? BONUS2_POINTS : 0;
+  const playerKey = player.email || player.name || 'player';
   return {
-    id: player.email || (player.name + '-' + Date.now()),
+    // Unique per attempt (not per player) so replaying never overwrites a
+    // previous play — every submission becomes its own row/entry.
+    id: playerKey + '__' + Date.now(),
+    playerKey,
     name: player.name,
     deptCountry: player.deptCountry,
     mainPoints,
@@ -1444,14 +1489,19 @@ function submitScoreEntry(entry){
   if(existingIndex >= 0) localLeaderboard[existingIndex] = lightEntry;
   else localLeaderboard.push(lightEntry);
 
-  if(hasBackend()){
-    fetch(CONFIG.WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'submitScore', ...entry }),
-    }).catch(()=>{ /* fails silently; the local copy above still shows on this device */ });
+  if(!hasBackend()){
+    return Promise.resolve();
   }
+
+  // Return the promise so callers can wait for the save to actually land
+  // before reading the leaderboard back — otherwise the read can race ahead
+  // of the write and show stale data.
+  return fetch(CONFIG.WEBHOOK_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'submitScore', ...entry }),
+  }).catch(()=>{ /* fails silently; the local copy above still shows on this device */ });
 }
 
 function fetchLeaderboard(callback){
@@ -1479,21 +1529,36 @@ function fetchLeaderboard(callback){
 
 function finishGame(){
   const entry = buildScoreEntry();
-  submitScoreEntry(entry);
-  renderLeaderboard();
+  submitScoreEntry(entry).then(()=>{
+    renderLeaderboard();
+  });
 }
+
+const LEADERBOARD_TOP_N = 10;
 
 function renderLeaderboard(){
   screen = 'leaderboard';
-  const myEntry = localLeaderboard.find(e => e.id === myEntryId);
+  const localMyEntry = localLeaderboard.find(e => e.id === myEntryId);
+  let showAll = false;
 
-  let myNote = '';
-  if(myEntry){
-    myNote = `
+  function noteHtml(entry){
+    if(!entry) return '';
+    return `
       <div class="lb-banner" style="text-align:left;">
-        ${tf('mainScoreLine', { points: myEntry.mainPoints })}
-        ${myEntry.bonusPlayed ? `<br>${tf('bonus1Line', { points: myEntry.bonus1Points, max: BONUS1_POINTS })}` : ''}
-        ${myEntry.pendingPoints ? `<br>${tf('bonus2PendingLine', { points: myEntry.pendingPoints })}` : ''}
+        ${tf('mainScoreLine', { points: entry.mainPoints })}
+        ${entry.bonusPlayed ? `<br>${tf('bonus1Line', { points: entry.bonus1Points, max: BONUS1_POINTS })}` : ''}
+        ${entry.pendingPoints ? `<br>${tf('bonus2PendingLine', { points: entry.pendingPoints })}` : ''}
+        ${entry.attemptNumber ? `<br>${tf('myAttemptLine', { n: entry.attemptNumber })}` : ''}
+      </div>
+    `;
+  }
+
+  function rowHtml(e, rank){
+    return `
+      <div class="lb-row ${e.id === myEntryId ? 'me' : ''}">
+        <span class="lb-rank">${rank}</span>
+        <span class="lb-name">${e.name}${e.attemptNumber ? `<span class="lb-sub">${tf('lbAttemptLabel', { n: e.attemptNumber })}</span>` : ''}</span>
+        <span class="lb-score">${e.total}${e.pendingPoints ? ` <span style="font-weight:400;color:var(--ink-soft);">${tf('lbPendingSuffix', { n: e.pendingPoints })}</span>` : ''}</span>
       </div>
     `;
   }
@@ -1502,7 +1567,7 @@ function renderLeaderboard(){
     <div class="file-card end-screen">
       <div class="file-label">${t('lbFileLabel')}</div>
       <div class="rank" style="font-size:clamp(18px,4vw,25px);">${t('lbTitle')}</div>
-      ${myNote}
+      <div id="lbNote">${noteHtml(localMyEntry)}</div>
       <div id="lbBody"><p style="color:var(--ink-soft); font-size:clamp(14px,3.2vw,17px);">${t('lbLoading')}</p></div>
       <button class="restart-btn" id="lbBack">${t('restartBtn')}</button>
     </div>
@@ -1517,16 +1582,41 @@ function renderLeaderboard(){
 
   fetchLeaderboard((entries)=>{
     const sorted = [...entries].sort((a,b) => b.total - a.total);
-    const rowsHtml = sorted.map((e,i)=>`
-      <div class="lb-row ${e.id === myEntryId ? 'me' : ''}">
-        <span class="lb-rank">${i+1}</span>
-        <span class="lb-name">${e.name}<span class="lb-sub">${e.deptCountry || '-'}</span></span>
-        <span class="lb-score">${e.total}${e.pendingPoints ? ` <span style="font-weight:400;color:var(--ink-soft);">${tf('lbPendingSuffix', { n: e.pendingPoints })}</span>` : ''}</span>
-      </div>
-    `).join('');
 
-    const banner = hasBackend() ? '' : `<div class="lb-banner">${t('lbDemoBanner')}</div>`;
-    document.getElementById('lbBody').innerHTML = banner + (rowsHtml || `<p style="color:var(--ink-soft); font-size:clamp(14px,3.2vw,17px);">${t('lbEmpty')}</p>`);
+    // Prefer the server's copy of "my" entry (it knows the real attempt
+    // number once written); fall back to the local one if not found yet.
+    const serverMyEntry = entries.find(e => e.id === myEntryId);
+    document.getElementById('lbNote').innerHTML = noteHtml(serverMyEntry || localMyEntry);
+
+    function renderBody(){
+      const visible = showAll ? sorted : sorted.slice(0, LEADERBOARD_TOP_N);
+      let rowsHtml = visible.map((e,i)=> rowHtml(e, i+1)).join('');
+
+      // If collapsed and my own row falls outside the visible top slice,
+      // surface it separately so I can always see where I stand.
+      const myRank = sorted.findIndex(e => e.id === myEntryId);
+      if(!showAll && myRank >= LEADERBOARD_TOP_N){
+        rowsHtml += `<div class="lb-divider">⋯</div>` + rowHtml(sorted[myRank], myRank + 1);
+      }
+
+      const banner = hasBackend() ? '' : `<div class="lb-banner">${t('lbDemoBanner')}</div>`;
+      const hasMore = sorted.length > LEADERBOARD_TOP_N;
+      const toggleHtml = hasMore
+        ? `<button class="lb-toggle-btn" id="lbToggleBtn">${showAll ? t('lbShowLessBtn') : tf('lbShowAllBtn', { total: sorted.length })}</button>`
+        : '';
+
+      document.getElementById('lbBody').innerHTML = banner + (rowsHtml || `<p style="color:var(--ink-soft); font-size:clamp(14px,3.2vw,17px);">${t('lbEmpty')}</p>`) + toggleHtml;
+
+      const toggleBtn = document.getElementById('lbToggleBtn');
+      if(toggleBtn){
+        toggleBtn.addEventListener('click', ()=>{
+          showAll = !showAll;
+          renderBody();
+        });
+      }
+    }
+
+    renderBody();
   });
 }
 
