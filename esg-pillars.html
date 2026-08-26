@@ -21,12 +21,20 @@
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Sarabun","Noto Sans Thai",sans-serif;
-    background:linear-gradient(160deg,var(--bg) 0%,#eaf3ee 100%);
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(circle at 8% 10%, rgba(27,122,77,0.06), transparent 38%),
+      radial-gradient(circle at 92% 18%, rgba(232,163,61,0.05), transparent 35%),
+      radial-gradient(circle at 50% 105%, rgba(27,122,77,0.05), transparent 45%),
+      url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWI3YTRkIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW9wYWNpdHk9IjAuMTAiPgogICAgPCEtLSBsZWFmIC0tPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTQsMTYpIHJvdGF0ZSgtMTIpIHNjYWxlKDAuNjIpIj4KICAgICAgPHBhdGggZD0iTTAgNDAgQy00IDIwIDYgMiAzMCAwIEMzOCAwIDQwIDQgNDAgOCBDNDAgMzAgMjAgNDAgMCA0MCBaIi8+CiAgICAgIDxwYXRoIGQ9Ik00IDM2IEMxNCAyNCAyNCAxNCAzNiA2Ii8+CiAgICA8L2c+CiAgICA8IS0tIGRyb3BsZXQgLS0+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjAsMTApIHJvdGF0ZSg4KSBzY2FsZSgwLjU1KSI+CiAgICAgIDxwYXRoIGQ9Ik0xOCAwIEMyOCAxNCAzNiAyNCAzNiAzNCBDMzYgNDYgMjggNTQgMTggNTQgQzggNTQgMCA0NiAwIDM0IEMwIDI0IDggMTQgMTggMCBaIi8+CiAgICA8L2c+CiAgICA8IS0tIHN1biAtLT4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE1MCw5MCkgc2NhbGUoMC42KSI+CiAgICAgIDxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjEzIi8+CiAgICAgIDxwYXRoIGQ9Ik0yMCAtNSBMMjAgMiBNMjAgMzggTDIwIDQ1IE0tNSAyMCBMMiAyMCBNMzggMjAgTDQ1IDIwIE0yIDIgTDcgNyBNMzMgMzMgTDM4IDM4IE0yIDM4IEw3IDMzIE0zMyA3IEwzOCAyIi8+CiAgICA8L2c+CiAgICA8IS0tIGJ1aWxkaW5nIC0tPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYsMTIwKSByb3RhdGUoLTQpIHNjYWxlKDAuNikiPgogICAgICA8cmVjdCB4PSIwIiB5PSIyMCIgd2lkdGg9IjM0IiBoZWlnaHQ9IjM0IiByeD0iMyIvPgogICAgICA8cmVjdCB4PSI2IiB5PSIyNiIgd2lkdGg9IjYiIGhlaWdodD0iNiIvPgogICAgICA8cmVjdCB4PSIyMCIgeT0iMjYiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiLz4KICAgICAgPHJlY3QgeD0iNiIgeT0iMzgiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiLz4KICAgICAgPHJlY3QgeD0iMjAiIHk9IjM4IiB3aWR0aD0iNiIgaGVpZ2h0PSI2Ii8+CiAgICA8L2c+CiAgICA8IS0tIHJlY3ljbGUgYXJyb3cgLS0+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMTUsMTUwKSByb3RhdGUoMTUpIHNjYWxlKDAuNTUpIj4KICAgICAgPHBhdGggZD0iTTIwIDMgQTE3IDE3IDAgMSAxIDQgMTUiLz4KICAgICAgPHBhdGggZD0iTTIwIDMgTDI4IDMgTDI4IDExIi8+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4K"),
+      linear-gradient(160deg,var(--bg) 0%,#eaf3ee 100%);
+    background-size:auto,auto,auto,200px 200px,auto;
+    background-attachment:fixed,fixed,fixed,fixed,fixed;
     color:var(--text);
     min-height:100vh;
     padding:20px 12px 60px;
   }
-  .wrap{max-width:640px;margin:0 auto;}
+  .wrap{max-width:640px;margin:0 auto;padding-top:60px;}
   .card{
     background:var(--card);
     border-radius:var(--radius);
@@ -45,13 +53,14 @@
   }
   .lang-btn.active{border-color:var(--primary);color:var(--primary-dark);background:#eafaf1;}
   .lang-float{
-    position:fixed;top:12px;right:12px;z-index:50;display:flex;gap:4px;
+    position:fixed;top:12px;right:12px;z-index:50;display:flex;gap:2px;flex-wrap:wrap;max-width:170px;
+    justify-content:flex-end;
     background:#fff;border-radius:20px;padding:4px;box-shadow:0 4px 14px rgba(15,92,56,0.14);
     border:1px solid var(--border);
   }
   .lang-float button{
-    border:none;background:transparent;padding:6px 10px;border-radius:16px;font-size:0.78rem;
-    font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;
+    border:none;background:transparent;padding:6px 9px;border-radius:16px;font-size:0.76rem;
+    font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;
   }
   .lang-float button.active{background:var(--primary);color:#fff;}
   .btn-row{display:flex;gap:10px;margin-top:18px;}
@@ -140,6 +149,7 @@
   <button data-lang="th">ไทย</button>
   <button data-lang="en">EN</button>
   <button data-lang="zh">中文</button>
+  <button data-lang="de">DE</button>
 </div>
 
 <div class="wrap">
@@ -344,6 +354,37 @@ const I18N = {
     reviewLabel3: "你的答案（第3题）：", reviewLabel4: "你的答案（第4题）：",
     terms: ["碳排放", "人权", "行为准则", "供应商尽职调查"],
     pillars: ["治理 (Governance)", "环境 (Environment)", "社会 (Social)", "可持续采购 (供应链)"]
+  },
+  de: {
+    appTitle: "ESG-Säulen-Aufgabe",
+    chooseLang: "Wählen Sie Ihre Sprache",
+    registerSub: "Registrieren Sie sich, um zu starten",
+    labelName: "Vollständiger Name", labelEmail: "E-Mail", labelDept: "Abteilung",
+    btnStart: "Start", btnNext: "Weiter", btnSubmit: "Absenden", btnBack: "Zurück", pts: "Punkte",
+    q1ReviewTitle: "Frage 1", q2ReviewTitle: "Frage 2 – Zuordnung",
+    yourAnswer: "Ihre Antwort:", correctAnswer: "Richtige Antwort:",
+    q1_title: "Kann ein Unternehmen überleben, wenn es nur eine dieser vier Säulen verliert (Environment, Social, Governance, Supply Chain)?",
+    q1_a: "Ja, wenn die anderen drei stark genug sind",
+    q1_b: "Nein, weil alle vier Bereiche zusammenarbeiten müssen",
+    q1_c: "Ja, aber es würde Zeit brauchen, sich anzupassen",
+    q2_title: "Ordnen Sie jeden Begriff der richtigen Säule zu",
+    q2_hint: "Tippen Sie zuerst auf einen Begriff, dann auf die passende Säule.",
+    q3_title: "Denken Sie an Ihre Rolle. Welche Nachhaltigkeitsthemen unterstützt Ihre Arbeit?",
+    q3_hint: "Hinweis: Schauen Sie noch einmal auf die Sustainability focus areas, die Sie zuvor gelernt haben.",
+    q4_title: "Welche kleine Handlung werden Sie heute für eine nachhaltigere Zukunft beginnen?",
+    autoScoreNote: "Automatisch bewertete Punktzahl (Frage 1 + Frage 2)",
+    pendingNote: "Frage 3 und Frage 4 sind offene Reflexionsfragen und werden später vom Team bewertet. Ihre Endpunktzahl wird diese Punkte enthalten.",
+    leaderboardTitle: "Bestenliste", thName: "Name", thDept: "Abteilung", thAuto: "Automatisch", thRank: "Platz",
+    viewLeaderboardBtn: "Bestenliste ansehen", backToResultsBtn: "Zurück zu meinem Ergebnis",
+    leaderboardHint: "Rangliste nach automatisch bewerteter Punktzahl (Frage 1 + Frage 2, von 40). Die Endrangliste enthält später auch Frage 3 und Frage 4.",
+    leaderboardLoading: "Wird geladen \u2026", leaderboardEmpty: "Noch keine Ergebnisse.",
+    errRegister: "Bitte füllen Sie alle Felder aus und geben Sie eine gültige E-Mail-Adresse ein.",
+    errSelect: "Bitte wählen Sie eine Antwort aus.",
+    errMatch: "Bitte ordnen Sie alle 4 Begriffe zu, bevor Sie fortfahren.",
+    errText: "Bitte schreiben Sie Ihre Antwort, bevor Sie fortfahren.",
+    reviewLabel3: "Ihre Antwort (Frage 3):", reviewLabel4: "Ihre Antwort (Frage 4):",
+    terms: ["Treibhausgasemissionen", "Menschenrechte", "Verhaltenskodex (Code of Conduct)", "Sorgfältige Lieferantenprüfung (Supplier Due Diligence)"],
+    pillars: ["Unternehmensführung (Governance)", "Umwelt (Environment)", "Soziales (Social)", "Nachhaltige Beschaffung (Supply Chain)"]
   }
 };
 
@@ -357,7 +398,7 @@ const CORRECT_MATCH = { 0: 1, 1: 2, 2: 0, 3: 3 };
 const Q1_CORRECT_INDEX = 1; // "No, because all four must work together"
 
 /* ================= STATE ================= */
-let lang = 'th';
+let lang = 'en';
 let player = { name: '', email: '', dept: '' };
 let q1Selected = null;
 let q2Links = {}; // termIndex -> pillarIndex
