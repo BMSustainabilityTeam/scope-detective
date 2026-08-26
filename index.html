@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,11 +23,12 @@
     --good-bg:#DFF5E1;
     --bad:#E03131;
     --bad-bg:#FBE1E1;
-    --line-idle:#B9C4B4;
+    --line-idle:#7A9E85;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
+    position:relative;
     font-family:'Noto Sans Thai','Noto Sans SC','Poppins',sans-serif;
     background:
       radial-gradient(circle at 8% 12%, rgba(27,67,50,0.05), transparent 40%),
@@ -39,6 +40,27 @@
     flex-direction:column;
     align-items:center;
     padding:64px 14px 60px;
+  }
+
+  /* faint eco-themed backdrop — sun, leaf, wind turbine, droplet, recycle loop,
+     tiled at low opacity so it reads as texture, not decoration competing
+     with the content on top */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:.07;
+    background-repeat:repeat;
+    background-size:460px 460px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='460' viewBox='0 0 460 460'%3E%3Cg fill='none' stroke='%231B4332' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='70' cy='70' r='20'/%3E%3Cline x1='70' y1='34' x2='70' y2='20'/%3E%3Cline x1='70' y1='106' x2='70' y2='120'/%3E%3Cline x1='34' y1='70' x2='20' y2='70'/%3E%3Cline x1='106' y1='70' x2='120' y2='70'/%3E%3Cline x1='45' y1='45' x2='35' y2='35'/%3E%3Cline x1='95' y1='45' x2='105' y2='35'/%3E%3Cline x1='45' y1='95' x2='35' y2='105'/%3E%3Cline x1='95' y1='95' x2='105' y2='105'/%3E%3Cpath d='M368 30 C322 45 312 100 368 145 C424 100 414 45 368 30 Z'/%3E%3Cline x1='368' y1='38' x2='368' y2='137'/%3E%3Cline x1='368' y1='65' x2='340' y2='55'/%3E%3Cline x1='368' y1='65' x2='396' y2='55'/%3E%3Cline x1='368' y1='95' x2='334' y2='88'/%3E%3Cline x1='368' y1='95' x2='402' y2='88'/%3E%3Cline x1='368' y1='120' x2='345' y2='118'/%3E%3Cline x1='368' y1='120' x2='391' y2='118'/%3E%3Cline x1='368' y1='145' x2='362' y2='158'/%3E%3Cline x1='90' y1='400' x2='90' y2='300'/%3E%3Ccircle cx='90' cy='298' r='4' fill='%231B4332'/%3E%3Cline x1='90' y1='298' x2='128' y2='276'/%3E%3Cline x1='90' y1='298' x2='58' y2='260'/%3E%3Cline x1='90' y1='298' x2='76' y2='340'/%3E%3Cpath d='M245 210 C245 235 220 248 220 268 C220 288 240 298 256 288 C272 278 273 252 245 210 Z'/%3E%3Cg%3E%3Cpath d='M390 313 Q415 322 421 358'/%3E%3Cpolygon points='421,358 406,354 413,368' fill='%231B4332'/%3E%3Cpath d='M416 368 Q390 386 363 368'/%3E%3Cpolygon points='363,368 377,365 371,379' fill='%231B4332'/%3E%3Cpath d='M360 359 Q367 320 388 311'/%3E%3Cpolygon points='388,311 373,312 380,299' fill='%231B4332'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* keep every actual UI element above the backdrop layer */
+  .lang-switch, .eyebrow, h1, .sub, .part-stepper, .card, #resultCard, .modal-overlay{
+    position:relative;
+    z-index:1;
   }
 
   /* language switcher */
@@ -61,6 +83,11 @@
     transition:background .12s ease, color .12s ease;
   }
   .lang-btn.active{ background:var(--forest); color:#fff; }
+
+  @media (max-width:420px){
+    .lang-switch{ top:10px; right:10px; gap:2px; padding:3px; }
+    .lang-btn{ font-size:10.5px; padding:5px 8px; }
+  }
 
   .eyebrow{ font-family:'Poppins',sans-serif; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--forest-light); font-weight:600; margin-bottom:6px; text-align:center; }
   h1{ font-family:'Poppins',sans-serif; font-size:clamp(22px,4vw,30px); font-weight:800; margin:0 0 6px; color:var(--forest); text-align:center; }
@@ -92,7 +119,7 @@
   .track-fill{ height:100%; background:linear-gradient(90deg,var(--forest-light),var(--forest)); width:0%; transition:width .3s ease; border-radius:99px; }
   .progress-label{ font-family:'Poppins',sans-serif; font-weight:700; font-size:14.5px; color:var(--forest); white-space:nowrap; }
 
-  .cols{ position:relative; display:flex; gap:64px; align-items:stretch; }
+  .cols{ position:relative; display:flex; gap:88px; align-items:stretch; }
   svg#link-layer{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:0; }
   .col{ position:relative; z-index:1; display:flex; flex-direction:column; gap:10px; }
   .col-scope{ width:20%; min-width:130px; }
@@ -117,20 +144,29 @@
 
   /* connector dots — real elements (not ::before/::after) so JS can read their
      exact center with getBoundingClientRect and draw lines that touch them
-     precisely, instead of guessing an offset from the box edge */
+     precisely, instead of guessing an offset from the box edge.
+     Default = hollow outline (not yet matched). .filled = solid (matched). */
   .dot{
-    position:absolute; top:50%; width:11px; height:11px; border-radius:50%;
-    transform:translateY(-50%); border:2px solid #fff; box-shadow:0 0 0 1px var(--paper-2);
+    position:absolute; top:50%; width:13px; height:13px; border-radius:50%;
+    transform:translateY(-50%); background:#fff; border:2.5px solid #C9C2AE;
+    box-shadow:0 0 0 1px var(--paper-2);
     pointer-events:none;
+    transition:background .15s ease, border-color .15s ease, transform .15s ease;
   }
-  .dot-left{ left:-32px; }
-  .dot-right{ right:-32px; }
-  .node.scope .dot{ background:#8a988c; }
-  .node.scope.s1 .dot{ background:#E8A33D; }
-  .node.scope.s2 .dot{ background:#3E71A8; }
-  .node.category .dot{ background:#5B8C5A; }
-  .node.activity .dot{ background:#C9C2AE; }
-  .node.activity.selected .dot{ background:var(--forest); }
+  .dot-left{ left:-38px; }
+  .dot-right{ right:-38px; }
+  .node.scope .dot{ border-color:#8a988c; }
+  .node.scope.s1 .dot{ border-color:#E8A33D; }
+  .node.scope.s1 .dot.filled{ background:#E8A33D; }
+  .node.scope.s2 .dot{ border-color:#3E71A8; }
+  .node.scope.s2 .dot.filled{ background:#3E71A8; }
+  .node.category .dot{ border-color:#5B8C5A; }
+  .node.category .dot.filled{ background:#5B8C5A; }
+  .node.activity .dot{ border-color:#C9C2AE; }
+  .node.activity .dot.filled{ background:#C9C2AE; }
+  .node.activity.selected .dot{ border-color:var(--forest); }
+  .node.activity.selected .dot.filled{ background:var(--forest); }
+  .dot.filled{ transform:translateY(-50%) scale(1.05); }
 
   .chips{ display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; }
   .chip{ font-size:12.5px; font-family:'Poppins',sans-serif; font-weight:600; padding:4px 10px; border-radius:99px; background:var(--paper-2); color:#7a887c; line-height:1.5; }
@@ -138,7 +174,7 @@
   .chip.wrong{ background:var(--bad-bg); color:var(--bad); }
   .chip.correct{ background:var(--good-bg); color:var(--good); }
 
-  .path-idle{ stroke:var(--line-idle); stroke-width:2; fill:none; }
+  .path-idle{ stroke:var(--line-idle); stroke-width:2.5; fill:none; }
   .path-good{ stroke:var(--good); stroke-width:2.5; fill:none; }
   .path-bad{ stroke:var(--bad); stroke-width:2.5; fill:none; stroke-dasharray:4 4; }
 
@@ -268,6 +304,7 @@
     <button class="lang-btn" data-lang="th">ไทย</button>
     <button class="lang-btn" data-lang="en">EN</button>
     <button class="lang-btn" data-lang="zh">中文</button>
+    <button class="lang-btn" data-lang="de">DE</button>
   </div>
 
   <div class="eyebrow">Sustain Connect · Week 2 Quest</div>
@@ -495,10 +532,10 @@ const I18N = {
       q3:{ q:'ข้อใดต่อไปนี้ประกอบด้วยการปล่อยก๊าซทางอ้อมเท่านั้น?', options:[
         'การเผาไหม้เชื้อเพลิง',
         'ไฟฟ้าและปฏิกิริยาเคมี',
-        'ไฟฟ้าและกิจกรรมต้นน้ำ (upstream)',
-        'กิจกรรมต้นน้ำและสารทำความเย็นรั่วไหล'
+        'ไฟฟ้าและกิจกรรมต้นน้ำ (ก่อนถึงบริษัท)',
+        'กิจกรรมต้นน้ำ (ก่อนถึงบริษัท) และสารทำความเย็นรั่วไหล'
       ]},
-      q4:{ q:'รถบรรทุกของบริษัทเผาผลาญน้ำมันดีเซลเพื่อขนส่งสินค้าให้ลูกค้า การปล่อยก๊าซนี้จัดอยู่ใน Scope ใด และเพราะเหตุใด?', options:[
+      q4:{ q:'รถบรรทุกของบริษัทใช้เชื้อเพลิงดีเซลเพื่อขนส่งสินค้าให้ลูกค้า การปล่อยก๊าซนี้จัดอยู่ใน Scope ใด และเพราะเหตุใด?', options:[
         'Scope 1 เพราะรถบรรทุกเป็นยานพาหนะขนาดใหญ่',
         'Scope 1 เพราะเชื้อเพลิงถูกเผาไหม้โดยตรงจากยานพาหนะที่บริษัทเป็นเจ้าของ',
         'Scope 2 เพราะการจัดส่งเป็นบริการ ไม่ใช่สินค้า',
@@ -611,7 +648,7 @@ const I18N = {
       ]}
     },
     scope:{ s1:{label:'Scope 1', sub:'Direct emissions'}, s2:{label:'Scope 2', sub:'Indirect emissions from energy'} },
-    cat:{ fuel:'Fuel combustion', fug:'Fugitive', proc:'GHG emissions from production', elec:'Electricity consumption', heat:'Heat' },
+    cat:{ fuel:'Fuel combustion', fug:'Fugitive', proc:'GHG emissions from production', elec:'Electricity consumption', heat:'Heat / Steam' },
     activity:{
       a1:'Company vehicle burns diesel for delivery',
       a2:'Forklift in warehouse runs on LPG',
@@ -691,8 +728,8 @@ const I18N = {
       q3:{ q:'以下哪个选项仅包含间接排放？', options:[
         '燃料燃烧',
         '电力和化学反应',
-        '电力和上游活动',
-        '上游活动和制冷剂泄漏'
+        '电力和上游活动（到达公司之前）',
+        '上游活动（到达公司之前）和制冷剂泄漏'
       ]},
       q4:{ q:'公司卡车燃烧柴油为客户配送产品。这项排放属于哪个范围？为什么？', options:[
         '范围一，因为卡车是大型车辆',
@@ -709,7 +746,7 @@ const I18N = {
       ]}
     },
     scope:{ s1:{label:'Scope 1', sub:'直接排放'}, s2:{label:'Scope 2', sub:'能源间接排放'} },
-    cat:{ fuel:'燃料燃烧', fug:'逃逸排放', proc:'生产过程产生的温室气体排放', elec:'电力消耗', heat:'热力/蒸汽' },
+    cat:{ fuel:'燃料燃烧', fug:'泄漏排放（Fugitive）', proc:'生产过程产生的温室气体排放', elec:'电力消耗', heat:'热力/蒸汽' },
     activity:{
       a1:'公司车辆燃烧柴油进行送货',
       a2:'仓库叉车使用液化石油气（LPG）运行',
@@ -719,6 +756,105 @@ const I18N = {
       a6:'购买的电力用于办公室照明和空调',
       a7:'产品制造过程中的化学反应',
       a8:'储罐管道接头处气体泄漏'
+    }
+  }
+  ,
+  de:{
+    locale:'de-DE',
+    pageTitle:'Scope Detective',
+    pageSub:'Ordnen Sie jede Aktivität ihrem Scope und ihrer Emissionskategorie auf einer Seite zu — Ihre Antworten werden erst nach dem Absenden angezeigt.',
+    lblName:'Vollständiger Name',
+    namePh:'Geben Sie Ihren vollständigen Namen ein',
+    lblEmail:'E-Mail',
+    emailPh:'name@behnmeyer.com',
+    lblDept:'Abteilung / Unternehmen',
+    deptPh:'z. B. Sustainability, Behn Meyer Thailand',
+    errorRequired:'Bitte geben Sie vor dem Start Ihren vollständigen Namen, Ihre E-Mail und Ihre Abteilung/Ihr Unternehmen ein.',
+    errorEmail:'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+    startBtn:'Spiel starten',
+    gameTitle:'Alle 8 Aktivitäten zuordnen',
+    gameHint:'Klicken Sie in der Mitte auf eine Aktivität, um sie auszuwählen, dann links auf einen Scope und rechts auf eine Emissionskategorie. Richtig/falsch bleibt verborgen, bis Sie auf „Antworten einreichen" klicken.',
+    colScope:'Scope', colActivity:'Aktivität', colCategory:'Emissionskategorie',
+    progress:(d,t)=>`${d} / ${t} zugeordnet`,
+    submitBtn:'Antworten einreichen',
+    submitDone:'Aufgedeckt ✓',
+    msgPickActivity:'Bitte zuerst eine Aktivität auswählen',
+    msgAssign:'Wählen Sie für diese Aktivität links einen Scope und rechts eine Emissionskategorie',
+    msgScore:(s)=>`Ihre Punktzahl: ${s} / 16`,
+    chipScopeEmpty:'Scope: nicht ausgewählt',
+    chipCatEmpty:'Kategorie: nicht ausgewählt',
+    chipScopePrefix:'Scope: ',
+    chipCatPrefix:'Kategorie: ',
+    correctPrefix:'Richtige Antwort: ',
+    resultPerfectTitle:'Perfekt! 🎉', resultPerfectSub:'Sie haben alles richtig zugeordnet — ein echter ESG Champion!',
+    resultGreatTitle:'Gut gemacht!', resultGreatSub:'Fast geschafft — schauen Sie sich die verpassten Fragen noch einmal an.',
+    resultTryTitle:'Quest abgeschlossen', resultTrySub:'Danke für Ihre Teilnahme an diesem Quest!',
+    statScoreLabel:'Zuordnungspunkte', statQuizLabel:'Quiz-Punkte', statPart3Label:'Offene Frage',
+    part3Submitted:'Eingereicht, wird geprüft',
+    finishedAtLabel:(s)=>`Beendet um ${s}`,
+    lbTitle:'🏆 Bestenliste (Top 10)', lbEmpty:'Noch keine Bestenlisten-Daten',
+    playAgainBtn:'Erneut spielen',
+    viewAllBtn:'Alle Spieler ansehen',
+    modalTitle:'Übersicht aller Spieler',
+    modalCount:(n)=>`${n} Spieler insgesamt`,
+    thName:'Name', thDept:'Abteilung/Unternehmen', thQuiz:'Quiz', thMatch:'Zuordnung', thPart3:'Offene Frage', thFinished:'Beendet um',
+    modalClose:'Schließen',
+    defaultName:'Unbenannter Spieler',
+    part1Label:'Quiz', part2Label:'Zuordnung', part3Label:'Offene Frage',
+    quizTitle:'Teil 1: Wissensquiz (6 Fragen)',
+    quizHint:'Wählen Sie für jede Frage die beste Antwort. Richtig/falsch bleibt bis zur Endauswertung verborgen.',
+    quizNextBtn:'Weiter zu Teil 2: Zuordnung →',
+    quizMsgIncomplete:'Bitte beantworten Sie alle 6 Fragen, bevor Sie fortfahren',
+    reflectionTitle:'Teil 3: Denken Sie darüber nach',
+    reflectionHint:'Denken Sie an Ihre Abteilung. Was sind die Scope-1- und Scope-2-Treibhausgasemissionsquellen? (Diese Antwort wird später vom Team geprüft und bewertet.)',
+    lblPart3:'Ihre Antwort',
+    part3Ph:'z. B. Scope 1: Gabelstapler mit LPG-Betrieb im Lager / Scope 2: Strom für den Betrieb von Maschinen...',
+    part3ErrorRequired:'Bitte geben Sie vor dem Absenden eine Antwort ein',
+    finishBtn:'Absenden und Quest beenden',
+    quiz:{
+      q1:{ q:'Was ist ein CO2-Fußabdruck?', options:[
+        'Die Menge an Abfall, die ein Unternehmen produziert',
+        'Die Gesamtmenge an Treibhausgasen (THG), die durch menschliche Aktivitäten freigesetzt wird',
+        'Der Kraftstoffverbrauch der unternehmenseigenen Anlagen',
+        'Die Energiemenge, die ein Unternehmen jährlich verbraucht'
+      ]},
+      q2:{ q:'Wie viele Arten von Treibhausgasemissionen gibt es und welche sind das?', options:[
+        'Nur 1 Art: direkt',
+        'Nur 1 Art: indirekt',
+        '3 Arten: Scope 1, 2 und 3',
+        '2 Arten: direkt und indirekt'
+      ]},
+      q3:{ q:'Welche Option unten enthält ausschließlich indirekte Emissionen?', options:[
+        'Verbrennung von Kraftstoffen',
+        'Strom und chemische Reaktion',
+        'Strom und vorgelagerte Aktivität (vor Ankunft im Unternehmen)',
+        'Vorgelagerte Aktivität (vor Ankunft im Unternehmen) und Kältemittelleckage'
+      ]},
+      q4:{ q:'Ein firmeneigener Lkw verbrennt Diesel, um Produkte an Kunden zu liefern. Zu welchem Scope gehört diese Emission, und warum?', options:[
+        'Scope 1, weil Lkw große Fahrzeuge sind',
+        'Scope 1, weil der Kraftstoff direkt von einem firmeneigenen Fahrzeug verbrannt wird',
+        'Scope 2, weil Lieferung eine Dienstleistung ist, kein Produkt',
+        'Scope 3, weil Kunden die Lieferung erhalten'
+      ]},
+      q5:{ q:'Wie hoch ist laut Behn Meyers SBTi-Ziel die Reduktion der Treibhausgasemissionen (Scope 1 & 2) bis 2030?', options:['25%','42%','50%','100%'] },
+      q6:{ q:'Was ist Behn Meyers Energieziel für 2040?', options:[
+        'Den Stromverbrauch um 50 % senken',
+        'Alle Lieferfahrzeuge durch Elektrofahrzeuge ersetzen',
+        '100 % des Stroms aus erneuerbaren Energien beziehen',
+        'Die Nutzung fossiler Brennstoffe vollständig einstellen'
+      ]}
+    },
+    scope:{ s1:{label:'Scope 1', sub:'Direkte Emissionen'}, s2:{label:'Scope 2', sub:'Indirekte Emissionen aus Energie'} },
+    cat:{ fuel:'Verbrennung von Kraftstoffen', fug:'Leckagen (Fugitive Emissionen)', proc:'Treibhausgasemissionen aus der Produktion', elec:'Stromverbrauch', heat:'Wärme/Dampf' },
+    activity:{
+      a1:'Firmeneigener Lkw verbrennt Diesel für die Auslieferung von Produkten',
+      a2:'Gabelstapler im Lager läuft mit LPG',
+      a3:'Zugekaufter Strom zum Betrieb von Produktionsmaschinen',
+      a4:'Zugekaufter Dampf, der im Produktionsprozess verwendet wird',
+      a5:'Kältemittelleckage aus der Klimaanlage',
+      a6:'Zugekaufter Strom für Bürobeleuchtung und Klimaanlage',
+      a7:'Chemische Reaktion während der Produktherstellung',
+      a8:'Gaslecks an Rohrverbindungen in Lagertanks'
     }
   }
 };
@@ -734,7 +870,7 @@ function shuffle(arr){
 
 /* ---------- state ---------- */
 const state = {
-  lang:'th',
+  lang:'en',
   playerName:'',
   playerEmail:'',
   playerDept:'',
@@ -1068,9 +1204,37 @@ function onSideClick(kind, targetId){
   const a = state.assignments[state.selectedActivity];
   if(kind === 'scope') a.scope = targetId; else a.cat = targetId;
   refreshChips(state.selectedActivity);
+  updateAllDots();
   redrawAllLines();
   updateProgress();
   msg.textContent = '';
+}
+
+/* a dot is "filled" (solid) once its side of a connection exists — hollow
+   until then, so the player can see at a glance which points still need
+   a line drawn to them */
+function updateAllDots(){
+  activityIds.forEach(id=>{
+    const el = colActivity.querySelector(`.node.activity[data-id="${id}"]`);
+    if(!el) return;
+    const a = state.assignments[id];
+    const leftDot = el.querySelector('.dot-left');
+    const rightDot = el.querySelector('.dot-right');
+    if(leftDot) leftDot.classList.toggle('filled', !!a.scope);
+    if(rightDot) rightDot.classList.toggle('filled', !!a.cat);
+  });
+  const usedScopes = new Set(activityIds.map(id=>state.assignments[id].scope).filter(Boolean));
+  const usedCats = new Set(activityIds.map(id=>state.assignments[id].cat).filter(Boolean));
+  scopeIds.forEach(id=>{
+    const el = colScope.querySelector(`.node[data-id="${id}"]`);
+    const dot = el && el.querySelector('.dot');
+    if(dot) dot.classList.toggle('filled', usedScopes.has(id));
+  });
+  catIds.forEach(id=>{
+    const el = colCategory.querySelector(`.node[data-id="${id}"]`);
+    const dot = el && el.querySelector('.dot');
+    if(dot) dot.classList.toggle('filled', usedCats.has(id));
+  });
 }
 
 function refreshChips(activityId){
@@ -1445,7 +1609,7 @@ window.addEventListener('unhandledrejection', (e)=>{ console.error('Scope Detect
 
 /* ---------- init ---------- */
 try{
-  setLanguage('th');
+  setLanguage('en');
 }catch(e){
   console.error('Init error:', e);
   // even if language setup partially fails, make sure the start screen is visible
