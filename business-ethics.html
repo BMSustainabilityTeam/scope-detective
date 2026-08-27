@@ -140,8 +140,8 @@
   }
   .case-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;}
   .case-chip{
-    font-size:13px;background:var(--paper);border:1px solid var(--paper-line);
-    padding:6px 11px;border-radius:999px;color:var(--ink-soft);
+    font-size:13px;background:var(--ink);border:none;
+    padding:6px 12px;border-radius:999px;color:var(--brass-light);cursor:default;
   }
   .field-label{
     font-family:var(--font-mono);font-size:11.5px;letter-spacing:1px;
@@ -196,6 +196,13 @@
     text-transform:uppercase;font-weight:700;
   }
   .case-meta-text .case-cat{font-size:13px;color:var(--ink-soft);}
+  .bonus-card{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass), 0 8px 24px -14px rgba(27,36,48,.25);}
+  .bonus-icon{background:var(--brass);border-color:var(--brass);}
+  .bonus-badge{
+    display:inline-block;background:var(--brass);color:var(--ink);
+    font-family:var(--font-mono);font-size:9.5px;font-weight:700;letter-spacing:1px;
+    text-transform:uppercase;padding:2px 7px;border-radius:999px;vertical-align:middle;
+  }
   .scenario-text{
     font-size:16px;line-height:1.75;font-weight:500;margin:6px 0 20px;
   }
@@ -228,6 +235,15 @@
     background:var(--paper);
   }
   .photo-add-tile:hover{border-color:var(--brass);}
+  .photo-actions{display:flex;gap:10px;}
+  .photo-actions .btn-next{margin-top:0;flex:1.4;}
+  .btn-skip{
+    flex:1;
+    background:transparent;color:var(--ink-soft);
+    font-family:var(--font-th);font-weight:600;font-size:14.5px;
+    padding:13px;border:1.5px solid var(--paper-line);border-radius:4px;cursor:pointer;
+  }
+  .btn-skip:hover{border-color:var(--ink-soft);color:var(--ink);}
   .options{display:flex;flex-direction:column;gap:9px;}
   .option{
     display:flex;align-items:flex-start;gap:12px;
@@ -333,6 +349,8 @@
     padding:13px;border:none;border-radius:4px;cursor:pointer;
   }
   .btn-next:hover{background:var(--brass-light);}
+  .btn-next:disabled{opacity:.4;cursor:not-allowed;background:var(--brass);}
+  .btn-next:disabled:hover{background:var(--brass);}
 
   /* ---------- END SCREEN ---------- */
   .end-card{
@@ -412,6 +430,7 @@
 
   @media (max-width:360px){
     .end-score{font-size:44px;}
+    .lang-btn{padding:6px 7px;font-size:11.5px;}
   }
 </style>
 </head>
@@ -422,8 +441,52 @@
 (function(){
 
   const TRANSLATIONS = {
+    en: {
+      kicker: "Week 8 · Case File: Business Ethics",
+      title: "Corporate Ethics Investigation",
+      lbBtn: "Leaderboard",
+      introTitle: "You are the company's ethics investigator",
+      introBody: "Six scenarios are waiting for your judgment. Score 10 points for each correct answer, with an instant explanation. Then check your rank on the live leaderboard.",
+      namePlaceholder: "Enter your name or nickname",
+      emailPlaceholder: "Email",
+      deptPlaceholder: "Department, Country (e.g. Sales, Thailand)",
+      privacyNote: "Your name and score will appear on the leaderboard, visible to other players.",
+      startBtn: "Start Investigation",
+      caseLabel: "CASE",
+      whatWouldYouDo: "What would you do?",
+      multiPrompt: "Which Business Ethics principles may have been breached in this situation? (Select all that apply)",
+      confirmBtn: "Confirm Answers",
+      photoPrompt: "BONUS CHALLENGE: Where is the Whistleblowing Policy? (20 points)<br>Think you can find it? Take a screenshot once you do, and send it our way",
+      photoHint: "An admin will review your screenshot and award up to 20 bonus points later",
+      addPhotoBtn: "+ Add Screenshot",
+      skipBtn: "Skip",
+      submitPhotoBtn: "Submit",
+      skippedLabel: "Skipped",
+      bonusLabel: "Bonus",
+      pendingReview: "Pending Review",
+      principleLabel: "Principle",
+      nextBtn: "Next Case →",
+      lastNextBtn: "See Results",
+      stampClear: "Cleared",
+      stampFlag: "Flag Raised",
+      endKicker: "Investigation Complete",
+      endScoreLabel: (name) => `Total score for ${name}`,
+      submitBtn: "Submit score to leaderboard",
+      submittedNote: "Score submitted. Check your rank on the leaderboard.",
+      replayBtn: "Play again ↺",
+      lbTitle: "🏅 Leaderboard",
+      backBtn: "Back",
+      lbSub: "Auto-updates every 5 seconds",
+      lbLoading: "Loading rankings...",
+      lbEmpty: "No one has submitted yet. Be the first!",
+      you: "(You)",
+      myRankLabel: "Your rank",
+      of: "of",
+      people: "players",
+      pointsSuffix: "pts"
+    },
     th: {
-      kicker: "แฟ้มคดี · จริยธรรมทางธุรกิจ",
+      kicker: "สัปดาห์ที่ 8 · แฟ้มคดีจริยธรรมทางธุรกิจ",
       title: "สืบสวนจริยธรรมองค์กร",
       lbBtn: "กระดานเกียรติยศ",
       introTitle: "คุณคือนักสืบจริยธรรมประจำองค์กร",
@@ -440,6 +503,10 @@
       photoPrompt: "ภารกิจโบนัส: นโยบายการแจ้งเบาะแส (Whistleblowing Policy) เก็บไว้ที่ไหน? (20 คะแนน)<br>ใครจะหาเจอบ้าางนะ! หากหาเจอแล้วให้แคปหน้าจอ แล้วส่งภาพเข้ามาให้เราดูได้เลย",
       photoHint: "แอดมินจะตรวจภาพหน้าจอและให้คะแนนโบนัสสูงสุด 20 คะแนนภายหลัง",
       addPhotoBtn: "+ แนบภาพหน้าจอ",
+      skipBtn: "ข้าม",
+      submitPhotoBtn: "ส่งคำตอบ",
+      skippedLabel: "ข้ามภารกิจ",
+      bonusLabel: "โบนัส",
       pendingReview: "รอตรวจ",
       principleLabel: "หลักการ",
       nextBtn: "คดีถัดไป →",
@@ -449,61 +516,65 @@
       endKicker: "การสืบสวนเสร็จสิ้น",
       endScoreLabel: (name) => `คะแนนรวมของ ${name}`,
       submitBtn: "ส่งคะแนนขึ้นกระดานเกียรติยศ",
-      submittedNote: "ส่งคะแนนแล้ว — ดูอันดับของคุณได้ที่กระดานเกียรติยศ",
+      submittedNote: "ส่งคะแนนแล้ว ดูอันดับของคุณได้ที่กระดานเกียรติยศ",
       replayBtn: "เล่นอีกครั้ง ↺",
       lbTitle: "🏅 กระดานเกียรติยศ",
       backBtn: "กลับ",
       lbSub: "อัปเดตอัตโนมัติทุก 5 วินาที",
       lbLoading: "กำลังโหลดอันดับ...",
-      lbEmpty: "ยังไม่มีใครส่งคะแนน — เป็นคนแรกเลย!",
+      lbEmpty: "ยังไม่มีใครส่งคะแนน เป็นคนแรกเลย!",
       you: "(คุณ)",
       myRankLabel: "อันดับของคุณ",
       of: "จาก",
       people: "คน",
       pointsSuffix: "คะแนน"
     },
-    en: {
-      kicker: "Case File · Business Ethics",
-      title: "Corporate Ethics Investigation",
-      lbBtn: "Leaderboard",
-      introTitle: "You are the company's ethics investigator",
-      introBody: "Six scenarios are waiting for your judgment. Score 10 points for each correct answer, with an instant explanation — then check your rank on the live leaderboard.",
-      namePlaceholder: "Enter your name or nickname",
-      emailPlaceholder: "Email",
-      deptPlaceholder: "Department, Country (e.g. Sales, Thailand)",
-      privacyNote: "Your name and score will appear on the leaderboard, visible to other players.",
-      startBtn: "Start Investigation",
-      caseLabel: "CASE",
-      whatWouldYouDo: "What would you do?",
-      multiPrompt: "Which Business Ethics principles may have been breached in this situation? (Select all that apply)",
-      confirmBtn: "Confirm Answers",
-      photoPrompt: "BONUS CHALLENGE: Where is the Whistleblowing Policy? (20 points)<br>Think you can find it? Take a screenshot once you do, and send it our way",
-      photoHint: "An admin will review your screenshot and award up to 20 bonus points later",
-      addPhotoBtn: "+ Add Screenshot",
-      pendingReview: "Pending Review",
-      principleLabel: "Principle",
-      nextBtn: "Next Case →",
-      lastNextBtn: "See Results",
-      stampClear: "Cleared",
-      stampFlag: "Flag Raised",
-      endKicker: "Investigation Complete",
-      endScoreLabel: (name) => `Total score for ${name}`,
-      submitBtn: "Submit score to leaderboard",
-      submittedNote: "Score submitted — check your rank on the leaderboard.",
-      replayBtn: "Play again ↺",
-      lbTitle: "🏅 Leaderboard",
-      backBtn: "Back",
-      lbSub: "Auto-updates every 5 seconds",
-      lbLoading: "Loading rankings...",
-      lbEmpty: "No one has submitted yet — be the first!",
-      you: "(You)",
-      myRankLabel: "Your rank",
-      of: "of",
-      people: "players",
-      pointsSuffix: "pts"
+    de: {
+      kicker: "Woche 8 · Fallakte: Wirtschaftsethik",
+      title: "Untersuchung zur Unternehmensethik",
+      lbBtn: "Bestenliste",
+      introTitle: "Sie sind der Ethik-Ermittler des Unternehmens",
+      introBody: "Sechs Situationen warten auf Ihre Einschätzung. Für jede richtige Antwort gibt es 10 Punkte, mit sofortiger Erklärung. Danach sehen Sie Ihren Rang auf der Live-Bestenliste.",
+      namePlaceholder: "Geben Sie Ihren Namen oder Spitznamen ein",
+      emailPlaceholder: "E-Mail",
+      deptPlaceholder: "Abteilung, Land (z. B. Sales, Thailand)",
+      privacyNote: "Ihr Name und Ihre Punktzahl erscheinen auf der Bestenliste und sind für andere Spieler sichtbar.",
+      startBtn: "Untersuchung starten",
+      caseLabel: "FALL",
+      whatWouldYouDo: "Was würden Sie tun?",
+      multiPrompt: "Welche Grundsätze der Wirtschaftsethik wurden in dieser Situation möglicherweise verletzt? (Mehrfachauswahl möglich)",
+      confirmBtn: "Antworten bestätigen",
+      photoPrompt: "BONUSAUFGABE: Wo finden Sie die Whistleblowing-Richtlinie? (20 Punkte)<br>Denken Sie, Sie finden sie? Machen Sie einen Screenshot, sobald Sie sie gefunden haben, und schicken Sie ihn uns",
+      photoHint: "Ein Administrator prüft Ihren Screenshot später und vergibt bis zu 20 Bonuspunkte",
+      addPhotoBtn: "+ Screenshot hinzufügen",
+      skipBtn: "Überspringen",
+      submitPhotoBtn: "Absenden",
+      skippedLabel: "Übersprungen",
+      bonusLabel: "Bonus",
+      pendingReview: "Wird geprüft",
+      principleLabel: "Grundsatz",
+      nextBtn: "Nächster Fall →",
+      lastNextBtn: "Ergebnisse ansehen",
+      stampClear: "Bestanden",
+      stampFlag: "Risiko erkannt",
+      endKicker: "Untersuchung abgeschlossen",
+      endScoreLabel: (name) => `Gesamtpunktzahl für ${name}`,
+      submitBtn: "Punktzahl an die Bestenliste senden",
+      submittedNote: "Punktzahl gesendet. Sehen Sie Ihren Rang auf der Bestenliste.",
+      replayBtn: "Nochmal spielen ↺",
+      lbTitle: "🏅 Bestenliste",
+      backBtn: "Zurück",
+      lbSub: "Aktualisiert sich automatisch alle 5 Sekunden",
+      lbLoading: "Rangliste wird geladen...",
+      lbEmpty: "Noch niemand hat abgeschickt. Seien Sie die oder der Erste!",
+      you: "(Sie)",
+      myRankLabel: "Ihr Rang",
+      of: "von",
+      people: "Personen",
+      pointsSuffix: "Punkte"
     },
     zh: {
-      kicker: "案例档案 · 商业道德",
+      kicker: "第8周 · 案例档案：商业道德",
       title: "企业道德调查",
       lbBtn: "排行榜",
       introTitle: "您是企业道德调查员",
@@ -520,6 +591,10 @@
       photoPrompt: "奖励挑战：举报政策（Whistleblowing Policy）存放在哪里？（20分）<br>看看你能不能找到！找到后截图，发给我们看看吧",
       photoHint: "管理员稍后会审核你的截图，并给予最多20分的奖励",
       addPhotoBtn: "+ 添加截图",
+      skipBtn: "跳过",
+      submitPhotoBtn: "提交",
+      skippedLabel: "已跳过",
+      bonusLabel: "奖励",
       pendingReview: "待审核",
       principleLabel: "原则",
       nextBtn: "下一案例 →",
@@ -529,13 +604,13 @@
       endKicker: "调查完成",
       endScoreLabel: (name) => `${name} 的总分`,
       submitBtn: "提交分数到排行榜",
-      submittedNote: "分数已提交 — 前往排行榜查看您的名次。",
+      submittedNote: "分数已提交，前往排行榜查看您的名次。",
       replayBtn: "再玩一次 ↺",
       lbTitle: "🏅 排行榜",
       backBtn: "返回",
       lbSub: "每5秒自动更新",
       lbLoading: "正在加载排名...",
-      lbEmpty: "还没有人提交 — 成为第一人吧！",
+      lbEmpty: "还没有人提交，成为第一人吧！",
       you: "（您）",
       myRankLabel: "您的排名",
       of: "/",
@@ -547,140 +622,158 @@
   const CASES = [
     {
       icon: "🎁",
-      cat: { th:"การต่อต้านคอร์รัปชัน", en:"Anti-Corruption", zh:"反腐败" },
+      cat: { en:"Anti-Corruption", th:"การต่อต้านคอร์รัปชัน", de:"Antikorruption", zh:"反腐败" },
       scenario: {
-        th:"ซัพพลายเออร์รายหนึ่งเสนอของขวัญราคาแพงให้คุณ ก่อนที่คุณจะตัดสินใจเรื่องสัญญากับเขา",
         en:"A supplier offers you an expensive gift right before you decide on their contract.",
+        th:"ซัพพลายเออร์รายหนึ่งเสนอของขวัญราคาแพงให้คุณ ก่อนที่คุณจะตัดสินใจเรื่องสัญญากับเขา",
+        de:"Ein Lieferant bietet Ihnen kurz vor der Vertragsentscheidung ein teures Geschenk an.",
         zh:"一位供应商在你即将决定合同之前，送给你一份昂贵的礼物。"
       },
       options: [
-        { correct:false, th:"รับไว้เงียบ ๆ เพราะคิดว่าเป็นเรื่องส่วนตัว ไม่เกี่ยวกับบริษัท", en:"Accept it quietly — it's personal, not related to the company.", zh:"悄悄收下 — 这是私事，与公司无关。" },
-        { correct:true, th:"ปฏิเสธของขวัญอย่างสุภาพ และแจ้งหัวหน้างานหรือฝ่ายกำกับดูแลให้ทราบ", en:"Politely decline the gift and inform your manager or the Compliance team.", zh:"礼貌地拒绝礼物，并告知主管或合规团队。" },
-        { correct:false, th:"รับไว้ก่อน แล้วค่อยพิจารณาเรื่องสัญญาแยกกันทีหลัง", en:"Accept it now, then decide on the contract separately later.", zh:"先收下，之后再单独考虑合同事宜。" },
-        { correct:false, th:"รับไว้ เพราะมั่นใจว่าจะไม่กระทบการตัดสินใจของตัวเอง", en:"Accept it — you're confident it won't affect your decision.", zh:"收下，因为你确信这不会影响自己的判断。" }
+        { correct:false, en:"Accept it quietly. It's personal, not related to the company.", th:"รับไว้เงียบ ๆ เพราะคิดว่าเป็นเรื่องส่วนตัว ไม่เกี่ยวกับบริษัท", de:"Nehmen Sie es stillschweigend an. Das ist privat und hat nichts mit dem Unternehmen zu tun.", zh:"悄悄收下 — 这是私事，与公司无关。" },
+        { correct:true, en:"Politely decline the gift and inform your manager or the Compliance team.", th:"ปฏิเสธของขวัญอย่างสุภาพ และแจ้งหัวหน้างานหรือฝ่ายกำกับดูแลให้ทราบ", de:"Lehnen Sie das Geschenk höflich ab und informieren Sie Ihren Vorgesetzten oder die Compliance-Abteilung.", zh:"礼貌地拒绝礼物，并告知主管或合规团队。" },
+        { correct:false, en:"Accept it now, then decide on the contract separately later.", th:"รับไว้ก่อน แล้วค่อยพิจารณาเรื่องสัญญาแยกกันทีหลัง", de:"Nehmen Sie es jetzt an und entscheiden Sie später separat über den Vertrag.", zh:"先收下，之后再单独考虑合同事宜。" },
+        { correct:false, en:"Accept it. You're confident it won't affect your decision.", th:"รับไว้ เพราะมั่นใจว่าจะไม่กระทบการตัดสินใจของตัวเอง", de:"Nehmen Sie es an. Sie sind sich sicher, dass es Ihre Entscheidung nicht beeinflusst.", zh:"收下，因为你确信这不会影响自己的判断。" }
       ],
       explain: {
-        th:"การรับของขวัญราคาแพงก่อนตัดสินใจเรื่องสัญญา อาจถูกมองว่าเป็นการติดสินบนแม้ไม่ได้ตั้งใจ ควรปฏิเสธอย่างสุภาพและแจ้งให้ทราบอย่างโปร่งใสเสมอ",
         en:"Accepting an expensive gift right before a contract decision can look like bribery, even if unintended. Always decline politely and report it transparently.",
+        th:"การรับของขวัญราคาแพงก่อนตัดสินใจเรื่องสัญญา อาจถูกมองว่าเป็นการติดสินบนแม้ไม่ได้ตั้งใจ ควรปฏิเสธอย่างสุภาพและแจ้งให้ทราบอย่างโปร่งใสเสมอ",
+        de:"Ein teures Geschenk kurz vor einer Vertragsentscheidung anzunehmen, kann wie Bestechung wirken, selbst wenn es nicht so gemeint war. Lehnen Sie es immer höflich ab und melden Sie es transparent.",
         zh:"在合同决策前收下贵重礼物，即使无意，也可能被视为行贿。应始终礼貌拒绝并保持透明地上报。"
       }
     },
     {
       icon: "👨‍👩‍👦",
-      cat: { th:"ผลประโยชน์ทับซ้อน", en:"Conflict of Interest", zh:"利益冲突" },
+      cat: { en:"Conflict of Interest", th:"ผลประโยชน์ทับซ้อน", de:"Interessenkonflikt", zh:"利益冲突" },
       scenario: {
-        th:"คุณมีส่วนร่วมในการคัดเลือกซัพพลายเออร์ และหนึ่งในผู้เข้าประมูลเป็นบริษัทของญาติสนิทคุณ",
         en:"You're involved in selecting a supplier, and one of the bidders is owned by a close relative of yours.",
+        th:"คุณมีส่วนร่วมในการคัดเลือกซัพพลายเออร์ และหนึ่งในผู้เข้าประมูลเป็นบริษัทของญาติสนิทคุณ",
+        de:"Sie sind an der Auswahl eines Lieferanten beteiligt, und einer der Bieter gehört einem nahen Verwandten von Ihnen.",
         zh:"你参与供应商甄选，其中一位投标方由你的近亲属所有。"
       },
       options: [
-        { correct:false, th:"เข้าร่วมตัดสินใจตามปกติ เพราะมั่นใจว่าตัวเองเป็นกลาง", en:"Take part in the decision as usual — you're confident you'll stay neutral.", zh:"照常参与决策 — 你确信自己能保持中立。" },
-        { correct:true, th:"เปิดเผยความสัมพันธ์นี้ให้ทีมทราบ แล้วถอนตัวจากการตัดสินใจ", en:"Disclose the relationship to the team and step back from the decision.", zh:"向团队披露这层关系，并退出该决策。" },
-        { correct:false, th:"ไม่พูดอะไร แต่ลงคะแนนให้บริษัทอื่นเพื่อความปลอดภัยของตัวเอง", en:"Say nothing, but vote for another company just to be safe.", zh:"不说明情况，但为求安全投票给其他公司。" },
-        { correct:false, th:"ขอให้ญาติถอนตัวจากการประมูลเป็นการส่วนตัว โดยไม่แจ้งใคร", en:"Privately ask your relative to withdraw, without telling anyone.", zh:"私下要求亲属退出投标，但不告诉任何人。" }
+        { correct:false, en:"Take part in the decision as usual. You're confident you'll stay neutral.", th:"เข้าร่วมตัดสินใจตามปกติ เพราะมั่นใจว่าตัวเองเป็นกลาง", de:"Nehmen Sie wie gewohnt an der Entscheidung teil. Sie sind sich sicher, neutral zu bleiben.", zh:"照常参与决策 — 你确信自己能保持中立。" },
+        { correct:true, en:"Disclose the relationship to the team and step back from the decision.", th:"เปิดเผยความสัมพันธ์นี้ให้ทีมทราบ แล้วถอนตัวจากการตัดสินใจ", de:"Legen Sie die Beziehung gegenüber dem Team offen und ziehen Sie sich aus der Entscheidung zurück.", zh:"向团队披露这层关系，并退出该决策。" },
+        { correct:false, en:"Say nothing, but vote for another company just to be safe.", th:"ไม่พูดอะไร แต่ลงคะแนนให้บริษัทอื่นเพื่อความปลอดภัยของตัวเอง", de:"Sagen Sie nichts, stimmen Sie aber sicherheitshalber für ein anderes Unternehmen.", zh:"不说明情况，但为求安全投票给其他公司。" },
+        { correct:false, en:"Privately ask your relative to withdraw, without telling anyone.", th:"ขอให้ญาติถอนตัวจากการประมูลเป็นการส่วนตัว โดยไม่แจ้งใคร", de:"Bitten Sie Ihren Verwandten privat, sich zurückzuziehen, ohne es jemandem zu sagen.", zh:"私下要求亲属退出投标，但不告诉任何人。" }
       ],
       explain: {
+        en:"The key point is to always disclose the relationship, even if you believe you can stay neutral.",
         th:"จุดสำคัญคือ ต้องเปิดเผยความสัมพันธ์นี้เสมอ แม้จะคิดว่าตัวเองสามารถตัดสินใจอย่างเป็นกลางได้ก็ตาม",
-        en:"The key point is to always disclose the relationship — even if you believe you can stay neutral.",
+        de:"Entscheidend ist, die Beziehung immer offenzulegen, auch wenn Sie glauben, neutral bleiben zu können.",
         zh:"关键在于无论你是否认为自己能保持中立，都必须主动披露这层关系。"
       }
     },
     {
       icon: "💸",
-      cat: { th:"การทุจริต", en:"Fraud", zh:"欺诈" },
+      cat: { en:"Fraud", th:"การทุจริต", de:"Betrug", zh:"欺诈" },
       scenario: {
-        th:"คุณสังเกตเห็นว่าเพื่อนร่วมงานแก้ไขข้อมูลในใบเบิกค่าใช้จ่าย เพื่อเรียกเงินคืนมากกว่าที่จ่ายจริง",
         en:"You notice a colleague altered figures on an expense report to claim more than they actually spent.",
+        th:"คุณสังเกตเห็นว่าเพื่อนร่วมงานแก้ไขข้อมูลในใบเบิกค่าใช้จ่าย เพื่อเรียกเงินคืนมากกว่าที่จ่ายจริง",
+        de:"Sie bemerken, dass ein Kollege Zahlen in einer Spesenabrechnung geändert hat, um mehr zurückzufordern, als tatsächlich ausgegeben wurde.",
         zh:"你发现一位同事修改了报销单上的数据，以领取比实际支出更多的费用。"
       },
       options: [
-        { correct:false, th:"เพิกเฉย เพราะเป็นจำนวนเงินไม่มาก", en:"Ignore it — it's a small amount.", zh:"不予理会 — 金额不大。" },
-        { correct:true, th:"รายงานผ่านช่องทางที่เหมาะสม เช่น หัวหน้างาน หรือช่องทางแจ้งเบาะแส", en:"Report it through the proper channel, such as your manager or the whistleblowing line.", zh:"通过适当渠道上报，例如主管或举报专线。" },
-        { correct:false, th:"เตือนเพื่อนเป็นการส่วนตัวเท่านั้น แล้วปล่อยผ่านไป", en:"Warn your colleague privately and let it go.", zh:"私下提醒同事，然后不再追究。" },
-        { correct:false, th:"แก้ไขตัวเลขให้ถูกต้องเองเงียบ ๆ โดยไม่บอกใคร", en:"Quietly correct the numbers yourself without telling anyone.", zh:"自己悄悄把数字改回正确，不告诉任何人。" }
+        { correct:false, en:"Ignore it. It's a small amount.", th:"เพิกเฉย เพราะเป็นจำนวนเงินไม่มาก", de:"Ignorieren Sie es. Es ist ein kleiner Betrag.", zh:"不予理会 — 金额不大。" },
+        { correct:true, en:"Report it through the proper channel, such as your manager or the whistleblowing line.", th:"รายงานผ่านช่องทางที่เหมาะสม เช่น หัวหน้างาน หรือช่องทางแจ้งเบาะแส", de:"Melden Sie es über den richtigen Weg, zum Beispiel an Ihren Vorgesetzten oder die Meldestelle für Fehlverhalten.", zh:"通过适当渠道上报，例如主管或举报专线。" },
+        { correct:false, en:"Warn your colleague privately and let it go.", th:"เตือนเพื่อนเป็นการส่วนตัวเท่านั้น แล้วปล่อยผ่านไป", de:"Warnen Sie den Kollegen privat und lassen Sie es dabei bewenden.", zh:"私下提醒同事，然后不再追究。" },
+        { correct:false, en:"Quietly correct the numbers yourself without telling anyone.", th:"แก้ไขตัวเลขให้ถูกต้องเองเงียบ ๆ โดยไม่บอกใคร", de:"Korrigieren Sie die Zahlen still und heimlich selbst, ohne es jemandem zu sagen.", zh:"自己悄悄把数字改回正确，不告诉任何人。" }
       ],
       explain: {
+        en:"Fraud isn't only about large sums. Falsifying even small figures is still fraud. Always report it through the proper channel.",
         th:"การทุจริตไม่ได้หมายถึงเรื่องใหญ่เท่านั้น การปลอมแปลงตัวเลขแม้เพียงเล็กน้อยก็ถือเป็นการทุจริต ควรรายงานผ่านช่องทางที่ถูกต้องเสมอ",
-        en:"Fraud isn't only about large sums. Falsifying even small figures is still fraud — always report it through the proper channel.",
+        de:"Betrug betrifft nicht nur große Summen. Auch das Fälschen kleiner Zahlen ist Betrug. Melden Sie es immer über den richtigen Weg.",
         zh:"欺诈不仅限于大额事件。即使是小数字的造假，也属于欺诈行为，应始终通过正当渠道上报。"
       }
     },
     {
       icon: "🏦",
-      cat: { th:"การฟอกเงิน", en:"Money Laundering", zh:"洗钱" },
+      cat: { en:"Money Laundering", th:"การฟอกเงิน", de:"Geldwäsche", zh:"洗钱" },
       scenario: {
-        th:"ลูกค้ารายใหม่ขอชำระเงินผ่านอีกบริษัทหนึ่งที่ไม่เกี่ยวข้องกับธุรกรรมนี้ โดยไม่สามารถอธิบายเหตุผลได้ชัดเจน",
         en:"A new customer asks to pay through a different, unrelated company, and can't clearly explain why.",
+        th:"ลูกค้ารายใหม่ขอชำระเงินผ่านอีกบริษัทหนึ่งที่ไม่เกี่ยวข้องกับธุรกรรมนี้ โดยไม่สามารถอธิบายเหตุผลได้ชัดเจน",
+        de:"Ein neuer Kunde bittet darum, über ein anderes, nicht beteiligtes Unternehmen zu bezahlen, und kann den Grund dafür nicht klar erklären.",
         zh:"一位新客户要求通过一家与交易无关的公司付款，且无法清楚说明原因。"
       },
       options: [
-        { correct:false, th:"ดำเนินการตามที่ลูกค้าขอ เพราะเป็นเรื่องความสะดวกของลูกค้า", en:"Proceed as requested — it's just a convenience for the customer.", zh:"按客户要求处理 — 这只是为了方便客户。" },
-        { correct:true, th:"ชะลอไว้ก่อน สอบถามเหตุผลเพิ่มเติม และปรึกษาฝ่ายกำกับดูแล", en:"Pause, ask more questions, and consult the Compliance team.", zh:"先暂停处理，进一步询问原因，并咨询合规团队。" },
-        { correct:false, th:"รับเงินไว้ก่อน แล้วค่อยตรวจสอบย้อนหลังทีหลัง", en:"Accept the payment first and verify it later.", zh:"先收款，之后再进行核实。" },
-        { correct:false, th:"ปฏิเสธลูกค้าทันที โดยไม่สอบถามหรือแจ้งใครก่อน", en:"Refuse the customer immediately, without asking anything first.", zh:"在未询问任何情况下立即拒绝客户。" }
+        { correct:false, en:"Proceed as requested. It's just a convenience for the customer.", th:"ดำเนินการตามที่ลูกค้าขอ เพราะเป็นเรื่องความสะดวกของลูกค้า", de:"Fahren Sie wie gewünscht fort. Das ist nur eine Annehmlichkeit für den Kunden.", zh:"按客户要求处理 — 这只是为了方便客户。" },
+        { correct:true, en:"Pause, ask more questions, and consult the Compliance team.", th:"ชะลอไว้ก่อน สอบถามเหตุผลเพิ่มเติม และปรึกษาฝ่ายกำกับดูแล", de:"Halten Sie inne, stellen Sie weitere Fragen und wenden Sie sich an die Compliance-Abteilung.", zh:"先暂停处理，进一步询问原因，并咨询合规团队。" },
+        { correct:false, en:"Accept the payment first and verify it later.", th:"รับเงินไว้ก่อน แล้วค่อยตรวจสอบย้อนหลังทีหลัง", de:"Nehmen Sie die Zahlung zunächst an und prüfen Sie sie später.", zh:"先收款，之后再进行核实。" },
+        { correct:false, en:"Refuse the customer immediately, without asking anything first.", th:"ปฏิเสธลูกค้าทันที โดยไม่สอบถามหรือแจ้งใครก่อน", de:"Lehnen Sie den Kunden sofort ab, ohne vorher etwas zu fragen.", zh:"在未询问任何情况下立即拒绝客户。" }
       ],
       explain: {
-        th:"หากธุรกรรมดูผิดปกติหรือไม่ชัดเจน อย่าเพิกเฉย ให้สอบถามและปฏิบัติตามขั้นตอนตรวจสอบที่กำหนดไว้เสมอ",
         en:"If a transaction looks unusual or unclear, don't ignore it. Ask questions and follow the required checks.",
+        th:"หากธุรกรรมดูผิดปกติหรือไม่ชัดเจน อย่าเพิกเฉย ให้สอบถามและปฏิบัติตามขั้นตอนตรวจสอบที่กำหนดไว้เสมอ",
+        de:"Wenn eine Transaktion ungewöhnlich oder unklar erscheint, ignorieren Sie sie nicht. Stellen Sie Fragen und befolgen Sie die vorgeschriebenen Prüfungen.",
         zh:"如果交易看起来异常或不清楚，切勿忽视。应主动询问并遵循必要的核查流程。"
       }
     },
     {
       icon: "🤝",
-      cat: { th:"การแข่งขันที่เป็นธรรม", en:"Fair Competition", zh:"公平竞争" },
+      cat: { en:"Fair Competition", th:"การแข่งขันที่เป็นธรรม", de:"Fairer Wettbewerb", zh:"公平竞争" },
       scenario: {
-        th:"ตัวแทนขายจากบริษัทคู่แข่งชวนคุณแลกเปลี่ยนข้อมูลราคาสินค้าและแผนธุรกิจในอนาคตของแต่ละบริษัท",
         en:"A sales rep from a competitor suggests exchanging pricing and future business plan information.",
+        th:"ตัวแทนขายจากบริษัทคู่แข่งชวนคุณแลกเปลี่ยนข้อมูลราคาสินค้าและแผนธุรกิจในอนาคตของแต่ละบริษัท",
+        de:"Ein Vertriebsmitarbeiter eines Wettbewerbers schlägt vor, Preisinformationen und zukünftige Geschäftspläne auszutauschen.",
         zh:"一位竞争对手的销售代表提议交换双方的定价和未来业务计划信息。"
       },
       options: [
-        { correct:false, th:"แลกเปลี่ยนข้อมูลกัน เพราะเป็นเรื่องปกติที่ทำกันในวงการ", en:"Exchange the information — it's common practice in the industry.", zh:"互相交换信息 — 这是业内常见做法。" },
-        { correct:true, th:"ปฏิเสธทันที และยุติบทสนทนาในประเด็นนี้", en:"Decline immediately and end the conversation on this topic.", zh:"立即拒绝，并终止这方面的对话。" },
-        { correct:false, th:"ฟังข้อมูลจากเขาไว้ก่อน แต่ไม่ให้ข้อมูลของเรากลับไป", en:"Listen to what they share, but don't give any information back.", zh:"先听取对方的信息，但不透露己方信息。" },
-        { correct:false, th:"รับข้อมูลไว้เผื่อเป็นประโยชน์ต่อการวางแผนธุรกิจในอนาคต", en:"Accept the information — it could be useful for future planning.", zh:"接受这些信息，因为可能对未来规划有用。" }
+        { correct:false, en:"Exchange the information. It's common practice in the industry.", th:"แลกเปลี่ยนข้อมูลกัน เพราะเป็นเรื่องปกติที่ทำกันในวงการ", de:"Tauschen Sie die Informationen aus. Das ist in der Branche üblich.", zh:"互相交换信息 — 这是业内常见做法。" },
+        { correct:true, en:"Decline immediately and end the conversation on this topic.", th:"ปฏิเสธทันที และยุติบทสนทนาในประเด็นนี้", de:"Lehnen Sie sofort ab und beenden Sie das Gespräch zu diesem Thema.", zh:"立即拒绝，并终止这方面的对话。" },
+        { correct:false, en:"Listen to what they share, but don't give any information back.", th:"ฟังข้อมูลจากเขาไว้ก่อน แต่ไม่ให้ข้อมูลของเรากลับไป", de:"Hören Sie sich an, was er mitteilt, geben Sie aber keine eigenen Informationen zurück.", zh:"先听取对方的信息，但不透露己方信息。" },
+        { correct:false, en:"Accept the information. It could be useful for future planning.", th:"รับข้อมูลไว้เผื่อเป็นประโยชน์ต่อการวางแผนธุรกิจในอนาคต", de:"Nehmen Sie die Informationen an. Sie könnten für die zukünftige Planung nützlich sein.", zh:"接受这些信息，因为可能对未来规划有用。" }
       ],
       explain: {
+        en:"Exchanging pricing or business plan information with a competitor, even just listening, puts fair competition at risk. Always decline and end the conversation immediately.",
         th:"การแลกเปลี่ยนข้อมูลราคาหรือแผนธุรกิจกับคู่แข่ง แม้เพียงฝ่ายเดียวรับฟัง ก็ถือเป็นความเสี่ยงต่อการแข่งขันที่เป็นธรรม ควรปฏิเสธและยุติทันที",
-        en:"Exchanging pricing or business plan information with a competitor — even just listening — puts fair competition at risk. Always decline and end the conversation immediately.",
+        de:"Der Austausch von Preis- oder Geschäftsplaninformationen mit einem Wettbewerber, selbst wenn Sie nur zuhören, gefährdet den fairen Wettbewerb. Lehnen Sie immer ab und beenden Sie das Gespräch sofort.",
         zh:"与竞争对手交换定价或业务计划信息，哪怕只是单方面聆听，也会危及公平竞争，应立即拒绝并终止对话。"
       }
     },
     {
       icon: "🔒",
-      cat: { th:"การจัดการข้อมูล", en:"Information Management", zh:"信息管理" },
+      cat: { en:"Information Management", th:"การจัดการข้อมูล", de:"Informationsmanagement", zh:"信息管理" },
       scenario: {
-        th:"คุณได้รับข้อมูลลับของลูกค้าจากเพื่อนร่วมงาน และเพื่อนอีกคนที่ทำงานบริษัทคู่แข่งขอให้คุณแชร์ข้อมูลนั้นให้",
         en:"You received confidential customer information from a colleague, and a friend at a competing company asks you to share it.",
+        th:"คุณได้รับข้อมูลลับของลูกค้าจากเพื่อนร่วมงาน และเพื่อนอีกคนที่ทำงานบริษัทคู่แข่งขอให้คุณแชร์ข้อมูลนั้นให้",
+        de:"Sie haben vertrauliche Kundeninformationen von einem Kollegen erhalten, und ein Freund bei einem Wettbewerber bittet Sie, sie weiterzugeben.",
         zh:"你从同事那里获得了客户的机密信息，一位在竞争公司工作的朋友要求你分享给他。"
       },
       options: [
-        { correct:false, th:"แชร์ให้ เพราะเป็นเพื่อนสนิทที่ไว้ใจได้", en:"Share it — they're a close friend you trust.", zh:"分享给他 — 他是值得信赖的好朋友。" },
-        { correct:true, th:"ปฏิเสธ และอธิบายว่าข้อมูลนี้เปิดเผยได้เฉพาะผู้มีสิทธิ์เท่านั้น", en:"Decline, and explain that this information can only be shared with authorized people.", zh:"拒绝，并说明该信息只能与获得授权的人员分享。" },
-        { correct:false, th:"แชร์ข้อมูลบางส่วนที่คิดว่าไม่สำคัญ", en:"Share the parts you think aren't important.", zh:"分享你认为不重要的部分。" },
-        { correct:false, th:"แชร์ให้ แต่ขอร้องไม่ให้บอกต่อ", en:"Share it, but ask them to keep it private.", zh:"分享，但要求对方保密。" }
+        { correct:false, en:"Share it. They're a close friend you trust.", th:"แชร์ให้ เพราะเป็นเพื่อนสนิทที่ไว้ใจได้", de:"Geben Sie sie weiter. Er ist ein enger, vertrauenswürdiger Freund.", zh:"分享给他 — 他是值得信赖的好朋友。" },
+        { correct:true, en:"Decline, and explain that this information can only be shared with authorized people.", th:"ปฏิเสธ และอธิบายว่าข้อมูลนี้เปิดเผยได้เฉพาะผู้มีสิทธิ์เท่านั้น", de:"Lehnen Sie ab und erklären Sie, dass diese Informationen nur an berechtigte Personen weitergegeben werden dürfen.", zh:"拒绝，并说明该信息只能与获得授权的人员分享。" },
+        { correct:false, en:"Share the parts you think aren't important.", th:"แชร์ข้อมูลบางส่วนที่คิดว่าไม่สำคัญ", de:"Geben Sie die Teile weiter, die Sie für unwichtig halten.", zh:"分享你认为不重要的部分。" },
+        { correct:false, en:"Share it, but ask them to keep it private.", th:"แชร์ให้ แต่ขอร้องไม่ให้บอกต่อ", de:"Geben Sie sie weiter, bitten Sie ihn aber, sie vertraulich zu behandeln.", zh:"分享，但要求对方保密。" }
       ],
       explain: {
+        en:"Confidential business information should only be shared with authorized people, no matter how close the personal relationship is.",
         th:"ข้อมูลลับทางธุรกิจควรถูกแชร์เฉพาะกับผู้ที่ได้รับอนุญาตเท่านั้น ไม่ว่าความสัมพันธ์ส่วนตัวจะสนิทกันแค่ไหนก็ตาม",
-        en:"Confidential business information should only be shared with authorized people — no matter how close the personal relationship is.",
+        de:"Vertrauliche Geschäftsinformationen dürfen nur an autorisierte Personen weitergegeben werden, unabhängig davon, wie eng die persönliche Beziehung ist.",
         zh:"机密商业信息只能与获得授权的人员分享 — 无论私人关系有多亲密都不例外。"
       }
     },
     {
       type: "multi",
       icon: "🧩",
-      cat: { th:"หลายหลักการที่เกี่ยวข้อง", en:"Multiple Principles", zh:"多项原则" },
+      cat: { en:"Multiple Principles", th:"หลายหลักการที่เกี่ยวข้อง", de:"Mehrere Grundsätze betroffen", zh:"多项原则" },
       scenario: {
+        en: [
+          "You are responsible for selecting a new supplier for your company. One supplier invites you to an expensive dinner and offers you an expensive gift before the final supplier selection. You accept the gift because you believe it will not affect your decision.",
+          "During the selection process, you discover that the supplier is owned by your close relative, but you decide not to disclose this relationship because you believe you can remain objective.",
+          "Later, the supplier asks you to share the prices offered by other suppliers so they can submit a better offer. You send them the information because you want to make sure your preferred supplier wins the contract.",
+          "After the contract is awarded, the supplier asks you to arrange payment to a different company because it will make the payment process easier. You do not ask for an explanation and approve the payment."
+        ],
         th: [
           "คุณรับผิดชอบในการคัดเลือกซัพพลายเออร์รายใหม่ให้บริษัท ซัพพลายเออร์รายหนึ่งเชิญคุณไปทานอาหารค่ำหรูและมอบของขวัญราคาแพงให้ก่อนการตัดสินใจคัดเลือกรอบสุดท้าย คุณรับของขวัญไว้เพราะเชื่อว่าจะไม่กระทบต่อการตัดสินใจของคุณ",
           "ระหว่างกระบวนการคัดเลือก คุณพบว่าซัพพลายเออร์รายนี้เป็นของญาติสนิทของคุณ แต่คุณเลือกที่จะไม่เปิดเผยความสัมพันธ์นี้ เพราะเชื่อว่าตัวเองยังสามารถตัดสินใจอย่างเป็นกลางได้",
           "ต่อมาซัพพลายเออร์รายนี้ขอให้คุณแชร์ราคาที่ซัพพลายเออร์รายอื่นเสนอมา เพื่อให้เขาสามารถยื่นข้อเสนอที่ดีกว่าได้ คุณส่งข้อมูลให้เพราะต้องการให้ซัพพลายเออร์ที่คุณอยากเลือกชนะสัญญา",
           "หลังจากได้รับสัญญาแล้ว ซัพพลายเออร์รายนี้ขอให้คุณจัดการชำระเงินไปยังอีกบริษัทหนึ่งแทน โดยให้เหตุผลว่าจะทำให้กระบวนการชำระเงินสะดวกขึ้น คุณอนุมัติการชำระเงินโดยไม่สอบถามเหตุผลเพิ่มเติม"
         ],
-        en: [
-          "You are responsible for selecting a new supplier for your company. One supplier invites you to an expensive dinner and offers you an expensive gift before the final supplier selection. You accept the gift because you believe it will not affect your decision.",
-          "During the selection process, you discover that the supplier is owned by your close relative, but you decide not to disclose this relationship because you believe you can remain objective.",
-          "Later, the supplier asks you to share the prices offered by other suppliers so they can submit a better offer. You send them the information because you want to make sure your preferred supplier wins the contract.",
-          "After the contract is awarded, the supplier asks you to arrange payment to a different company because it will make the payment process easier. You do not ask for an explanation and approve the payment."
+        de: [
+          "Sie sind dafür verantwortlich, einen neuen Lieferanten für Ihr Unternehmen auszuwählen. Ein Lieferant lädt Sie vor der endgültigen Auswahl zu einem teuren Abendessen ein und bietet Ihnen ein teures Geschenk an. Sie nehmen das Geschenk an, weil Sie glauben, dass es Ihre Entscheidung nicht beeinflussen wird.",
+          "Während des Auswahlprozesses stellen Sie fest, dass der Lieferant einem nahen Verwandten von Ihnen gehört, entscheiden sich aber, diese Beziehung nicht offenzulegen, weil Sie glauben, objektiv bleiben zu können.",
+          "Später bittet Sie der Lieferant, die von anderen Lieferanten angebotenen Preise mitzuteilen, damit er ein besseres Angebot abgeben kann. Sie senden ihm die Informationen, weil Sie sicherstellen möchten, dass Ihr bevorzugter Lieferant den Auftrag erhält.",
+          "Nachdem der Auftrag vergeben wurde, bittet Sie der Lieferant, die Zahlung an ein anderes Unternehmen zu veranlassen, weil dies den Zahlungsvorgang erleichtern würde. Sie fragen nicht nach einer Erklärung und genehmigen die Zahlung."
         ],
         zh: [
           "你负责为公司挑选新的供应商。在最终确定供应商之前，一家供应商邀请你参加一场昂贵的晚宴，并送给你一份贵重的礼物。你收下了礼物，因为你相信这不会影响你的决定。",
@@ -690,32 +783,36 @@
         ]
       },
       options: [
-        { key:"anticorruption", groupId:"g1", th:"การต่อต้านคอร์รัปชัน", en:"Anti-Corruption", zh:"反腐败" },
-        { key:"conflict", groupId:"g2", th:"ผลประโยชน์ทับซ้อน", en:"Conflict of Interest", zh:"利益冲突" },
-        { key:"fraud", groupId:null, th:"การทุจริต", en:"Fraud", zh:"欺诈" },
-        { key:"moneylaundering", groupId:"g4", th:"การฟอกเงิน", en:"Money Laundering", zh:"洗钱" },
-        { key:"faircompetition", groupId:null, th:"การแข่งขันที่เป็นธรรม", en:"Fair Competition", zh:"公平竞争" },
-        { key:"infomanagement", groupId:"g3", th:"การจัดการข้อมูล", en:"Information Management", zh:"信息管理" }
+        { key:"anticorruption", groupId:"g1", en:"Anti-Corruption", th:"การต่อต้านคอร์รัปชัน", de:"Antikorruption", zh:"反腐败" },
+        { key:"conflict", groupId:"g2", en:"Conflict of Interest", th:"ผลประโยชน์ทับซ้อน", de:"Interessenkonflikt", zh:"利益冲突" },
+        { key:"fraud", groupId:null, en:"Fraud", th:"การทุจริต", de:"Betrug", zh:"欺诈" },
+        { key:"moneylaundering", groupId:"g4", en:"Money Laundering", th:"การฟอกเงิน", de:"Geldwäsche", zh:"洗钱" },
+        { key:"faircompetition", groupId:null, en:"Fair Competition", th:"การแข่งขันที่เป็นธรรม", de:"Fairer Wettbewerb", zh:"公平竞争" },
+        { key:"infomanagement", groupId:"g3", en:"Information Management", th:"การจัดการข้อมูล", de:"Informationsmanagement", zh:"信息管理" }
       ],
       groupExplain: {
         g1: {
+          en:"Accepting an expensive gift from a supplier before the selection decision may create improper influence or benefit over the outcome.",
           th:"การรับของขวัญมูลค่าสูงจากซัพพลายเออร์ก่อนการตัดสินใจเลือก อาจสร้างอิทธิพลหรือผลประโยชน์ที่ไม่เหมาะสมต่อการตัดสินใจ",
-          en:"Accepting an expensive gift from a supplier before the selection decision may create improper influence or benefit over the outcome. (Anti-Corruption)",
+          de:"Ein teures Geschenk von einem Lieferanten vor der Auswahlentscheidung anzunehmen, kann die Entscheidung unangemessen beeinflussen oder einen unzulässigen Vorteil verschaffen.",
           zh:"在选定供应商之前收下高价礼物，可能对决策产生不当影响或利益输送。"
         },
         g2: {
+          en:"The supplier is owned by a close relative, and the relationship was never disclosed to the team.",
           th:"ซัพพลายเออร์รายนี้เป็นของญาติใกล้ชิด แต่ไม่ได้เปิดเผยความสัมพันธ์ดังกล่าวให้ทีมทราบ",
-          en:"The supplier is owned by a close relative, and the relationship was never disclosed to the team. (Conflict of Interest)",
+          de:"Der Lieferant gehört einem nahen Verwandten, und die Beziehung wurde dem Team nie offengelegt.",
           zh:"该供应商由你的近亲属所有，却从未向团队披露这层关系。"
         },
         g3: {
+          en:"Sharing a competing supplier's pricing with your preferred supplier is disclosing confidential business information to someone not authorized to see it, an improper handling of information.",
           th:"การเปิดเผยราคาของซัพพลายเออร์รายอื่นให้กับซัพพลายเออร์ที่ตนต้องการเลือก เป็นการเปิดเผยข้อมูลทางธุรกิจที่เป็นความลับให้กับผู้ที่ไม่มีสิทธิ์รับรู้ ถือเป็นการจัดการข้อมูลที่ไม่เหมาะสม",
-          en:"Sharing a competing supplier's pricing with your preferred supplier is disclosing confidential business information to someone not authorized to see it — an improper handling of information.",
+          de:"Die Preise eines konkurrierenden Lieferanten an Ihren bevorzugten Lieferanten weiterzugeben, bedeutet, vertrauliche Geschäftsinformationen an eine nicht autorisierte Person weiterzugeben, ein unsachgemäßer Umgang mit Informationen.",
           zh:"把其他供应商的报价透露给你属意的供应商，等于把机密商业信息泄露给无权知悉的人，属于不当的信息管理行为。"
         },
         g4: {
+          en:"Approving payment to an unrelated company without any verification or clear explanation is a red flag that requires further checking.",
           th:"การอนุมัติให้ชำระเงินไปยังบริษัทอื่นที่ไม่เกี่ยวข้องกับธุรกรรม โดยไม่มีการตรวจสอบหรือคำอธิบายที่ชัดเจน ถือเป็นสัญญาณเตือนที่ควรตรวจสอบเพิ่มเติม",
-          en:"Approving payment to an unrelated company without any verification or clear explanation is a red flag that requires further checking. (Money Laundering)",
+          de:"Eine Zahlung an ein nicht beteiligtes Unternehmen ohne Überprüfung oder klare Erklärung zu genehmigen, ist ein Warnsignal, das weiter untersucht werden sollte.",
           zh:"在没有核实或明确说明的情况下批准向无关公司付款，是需要进一步核查的危险信号。"
         }
       }
@@ -723,7 +820,7 @@
     {
       type: "photo",
       icon: "📸",
-      cat: { th:"ภารกิจโบนัส", en:"Bonus Challenge", zh:"奖励挑战" }
+      cat: { en:"Bonus Challenge", th:"ภารกิจโบนัส", de:"Bonusaufgabe", zh:"奖励挑战" }
     }
   ];
 
@@ -737,7 +834,7 @@
 
   const app = document.getElementById('app');
   const state = {
-    lang: 'th',
+    lang: 'en',
     screen: 'intro',
     name: '',
     email: '',
@@ -854,9 +951,14 @@
     render();
   }
 
-  function confirmPhotoSection(){
+  function confirmPhotoSection(skip){
     const c = CASES[state.index];
-    state.history.push({ cat: c.cat, icon: c.icon, correct: null, pts: 0, pending: true });
+    if(skip){
+      state.photos = [];
+      state.history.push({ cat: c.cat, icon: c.icon, correct: null, pts: 0, skipped: true });
+    } else {
+      state.history.push({ cat: c.cat, icon: c.icon, correct: null, pts: 0, pending: true });
+    }
     nextQuestion();
   }
 
@@ -1002,7 +1104,7 @@
   }
 
   function topbarHTML(){
-    const langs = [['th','TH'],['en','EN'],['zh','中文']];
+    const langs = [['en','EN'],['th','TH'],['de','DE'],['zh','中文']];
     const langBtns = langs.map(([code,label]) =>
       `<button class="lang-btn ${state.lang===code?'active':''}" data-lang="${code}">${label}</button>`
     ).join('');
@@ -1193,12 +1295,12 @@
     ` : '';
 
     return `
-      <div class="case-card">
+      <div class="case-card bonus-card">
         <div class="case-meta">
-          <div class="case-icon">${c.icon}</div>
+          <div class="case-icon bonus-icon">${c.icon}</div>
           <div class="case-meta-text">
             <div class="case-no">${t('caseLabel')} 0${state.index+1} / 0${CASES.length}</div>
-            <div class="case-cat">${esc(c.cat[state.lang])}</div>
+            <div class="case-cat">${esc(c.cat[state.lang])} <span class="bonus-badge">${t('bonusLabel')}</span></div>
           </div>
         </div>
         <div class="prompt-label">${t('photoPrompt')}</div>
@@ -1207,7 +1309,10 @@
           ${thumbs}
           ${addTile}
         </div>
-        <button class="btn-next" id="photoContinueBtn">${t('lastNextBtn')}</button>
+        <div class="photo-actions">
+          <button class="btn-skip" id="photoSkipBtn">${t('skipBtn')}</button>
+          <button class="btn-next" id="photoSubmitBtn" ${state.photos.length === 0 ? 'disabled' : ''}>${t('submitPhotoBtn')}</button>
+        </div>
       </div>
     `;
   }
@@ -1216,7 +1321,7 @@
     const items = state.history.map(h => `
       <div class="breakdown-item">
         <span class="bi-cat">${h.icon} ${esc(h.cat[state.lang])}</span>
-        <span class="bi-pts">${h.pending ? t('pendingReview') : '+' + h.pts}</span>
+        <span class="bi-pts">${h.skipped ? t('skippedLabel') : h.pending ? t('pendingReview') : '+' + h.pts}</span>
       </div>
     `).join('');
 
@@ -1383,8 +1488,14 @@
       btn.onclick = () => removePhoto(parseInt(btn.getAttribute('data-idx'), 10));
     });
 
-    const photoContinueBtn = document.getElementById('photoContinueBtn');
-    if(photoContinueBtn) photoContinueBtn.onclick = confirmPhotoSection;
+    const photoSkipBtn = document.getElementById('photoSkipBtn');
+    if(photoSkipBtn) photoSkipBtn.onclick = () => confirmPhotoSection(true);
+
+    const photoSubmitBtn = document.getElementById('photoSubmitBtn');
+    if(photoSubmitBtn) photoSubmitBtn.onclick = () => {
+      if(state.photos.length === 0) return;
+      confirmPhotoSection(false);
+    };
 
     const nextBtn = document.getElementById('nextBtn');
     if(nextBtn) nextBtn.onclick = nextQuestion;
