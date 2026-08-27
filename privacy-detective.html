@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Matters: Case Files</title>
+<style>
+  :root{
+    --ink:#0F3D3A;
+    --teal:#12665F;
+    --teal-light:#1E8A80;
+    --sage:#8FB09E;
+    --cream:#F6F3EA;
+    --paper:#FFFFFF;
+    --gold:#E3A73B;
+    --coral:#E0663D;
+    --good:#2E9B6B;
+    --bad:#D9524A;
+    --shadow: 0 10px 30px rgba(15,61,58,.15);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans Thai', 'Noto Sans SC', sans-serif;
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(30,138,128,.15), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(227,167,59,.14), transparent 45%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='none' stroke='%23124f49' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='0.055'%3E%3Cg transform='translate(10,10) rotate(-8)'%3E%3Crect x='0' y='0' width='22' height='38' rx='4'/%3E%3Cline x1='8' y1='33' x2='14' y2='33'/%3E%3C/g%3E%3Cg transform='translate(150,20) rotate(6)'%3E%3Cpath d='M0 22 L34 22 L30 2 L4 2 Z'/%3E%3Crect x='-4' y='22' width='42' height='4' rx='1'/%3E%3C/g%3E%3Cg transform='translate(30,110) rotate(35)'%3E%3Cline x1='0' y1='30' x2='22' y2='4'/%3E%3Cpath d='M22 4 L27 -1 L30 2 L25 7 Z'/%3E%3C/g%3E%3Cg transform='translate(170,108) rotate(-6)'%3E%3Crect x='0' y='0' width='26' height='34' rx='2'/%3E%3Cline x1='4' y1='8' x2='22' y2='8'/%3E%3Cline x1='4' y1='14' x2='22' y2='14'/%3E%3Cline x1='4' y1='20' x2='18' y2='20'/%3E%3C/g%3E%3Cg transform='translate(15,190) rotate(10)'%3E%3Crect x='0' y='0' width='28' height='38' rx='5'/%3E%3Ccircle cx='14' cy='33' r='1.6'/%3E%3C/g%3E%3Cg transform='translate(140,200) rotate(-4)'%3E%3Crect x='0' y='0' width='46' height='20' rx='2'/%3E%3Crect x='5' y='5' width='5' height='4'/%3E%3Crect x='13' y='5' width='5' height='4'/%3E%3Crect x='21' y='5' width='5' height='4'/%3E%3Crect x='29' y='5' width='5' height='4'/%3E%3Crect x='37' y='5' width='5' height='4'/%3E%3Crect x='5' y='11' width='5' height='4'/%3E%3Crect x='13' y='11' width='5' height='4'/%3E%3Crect x='21' y='11' width='5' height='4'/%3E%3Crect x='29' y='11' width='5' height='4'/%3E%3Crect x='37' y='11' width='5' height='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat, repeat;
+    background-size: auto, auto, 260px 260px;
+    min-height:100vh;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  #app{
+    width:100%;
+    max-width:640px;
+  }
+
+  /* ===== MAIN CAMPAIGN HEADER ===== */
+  .main-week-header{
+    text-align:center;
+    margin-bottom:18px;
+    animation:fadeDown .5s ease both;
+  }
+  .main-week-title{
+    display:inline-block;
+    position:relative;
+    font-size:28px;
+    font-weight:900;
+    color:var(--ink);
+    letter-spacing:.3px;
+    padding-bottom:10px;
+  }
+  .main-week-title::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:0;
+    transform:translateX(-50%);
+    width:64px;
+    height:4px;
+    border-radius:4px;
+    background:linear-gradient(90deg,var(--teal-light),var(--gold));
+  }
+  @media (max-width:480px){
+    .main-week-title{font-size:21px;padding-bottom:8px;}
+    .main-week-title::after{width:48px;height:3px;}
+  }
+
+  /* ===== HEADER / PROGRESS ===== */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    font-weight:800;
+    font-size:14.5px;
+    letter-spacing:.4px;
+    color:var(--teal);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .brand .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--gold);
+    animation:pulse 1.6s ease-in-out infinite;
+    flex-shrink:0;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:.5;}}
+
+  .topbar-right{display:flex;align-items:center;gap:8px;}
+
+  .lang-pills{display:flex;gap:5px;}
+  .lang-pill{
+    padding:5px 10px;
+    border-radius:999px;
+    border:2px solid rgba(15,61,58,.15);
+    background:var(--paper);
+    font-weight:700;
+    font-size:11.5px;
+    color:var(--teal);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .lang-pill:hover{border-color:var(--teal-light);}
+  .lang-pill.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+  .score-chip{
+    background:var(--paper);
+    border:2px solid var(--teal);
+    color:var(--teal);
+    font-weight:800;
+    font-size:14px;
+    padding:6px 14px;
+    border-radius:999px;
+    box-shadow:var(--shadow);
+    transition:transform .25s ease;
+    white-space:nowrap;
+  }
+  .score-chip.bump{transform:scale(1.18);}
+
+  .progress-track{
+    display:flex;
+    gap:6px;
+    margin-bottom:22px;
+  }
+  .progress-seg{
+    flex:1;
+    height:7px;
+    border-radius:5px;
+    background:rgba(15,61,58,.12);
+    overflow:hidden;
+  }
+  .progress-seg .fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--teal-light),var(--gold));
+    transition:width .5s ease;
+  }
+
+  /* ===== REGISTRATION ===== */
+  .reg-screen{
+    display:none;
+    background:var(--paper);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:28px 24px;
+    animation:fadeUp .4s ease both;
+  }
+  .reg-screen.show{display:block;}
+  .reg-title{font-size:21px;font-weight:800;margin:0 0 4px;}
+  .reg-sub{font-size:13.5px;color:var(--sage);margin:0 0 18px;line-height:1.5;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;font-size:12.5px;font-weight:700;color:var(--teal);margin-bottom:5px;
+  }
+  .field input, .field select{
+    width:100%;
+    padding:11px 12px;
+    border-radius:12px;
+    border:2px solid rgba(15,61,58,.15);
+    font-size:14px;
+    font-family:inherit;
+    color:var(--ink);
+    background:var(--cream);
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input:focus, .field select:focus{border-color:var(--teal-light);}
+  .field.err input, .field.err select{border-color:var(--bad);}
+  .reg-error{
+    color:var(--bad);font-size:12.5px;margin:-6px 0 12px;display:none;
+  }
+  .reg-error.show{display:block;}
+  .reg-submit{
+    width:100%;
+    background:var(--teal);
+    color:#fff;border:none;
+    padding:13px 22px;
+    border-radius:999px;
+    font-weight:800;font-size:15px;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(18,102,95,.3);
+    margin-top:4px;
+  }
+  .reg-submit:hover{transform:translateY(-2px);}
+  .reg-note{font-size:11.5px;color:var(--sage);text-align:center;margin-top:10px;}
+
+  /* ===== CARD / STAGE ===== */
+  .stage{
+    background:var(--paper);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:26px 22px 24px;
+    position:relative;
+    overflow:hidden;
+    min-height:420px;
+    display:none;
+    flex-direction:column;
+  }
+  .stage.show{display:flex;}
+  .case-tag{
+    align-self:flex-start;
+    background:rgba(30,138,128,.12);
+    color:var(--teal);
+    font-weight:700;
+    font-size:12.5px;
+    padding:5px 12px;
+    border-radius:999px;
+    margin-bottom:14px;
+    letter-spacing:.3px;
+    animation:fadeDown .5s ease both;
+  }
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.case-title{
+    margin:0 0 16px;
+    font-size:20px;
+    color:var(--ink);
+    animation:fadeDown .55s ease both .05s;
+  }
+
+  .scene{
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    margin-bottom:12px;
+    min-height:74px;
+  }
+  .scene.roleB{ flex-direction:row-reverse; }
+  .avatar{
+    width:58px;height:58px;border-radius:50%;
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:20px;color:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.15);
+    position:relative;
+    animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes popIn{from{opacity:0;transform:scale(.4) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+  .avatar.talking{animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both, bob 1.1s ease-in-out infinite .5s;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  .avatar.roleA{background:linear-gradient(145deg,#1E8A80,#0F3D3A);}
+  .avatar.roleB{background:linear-gradient(145deg,#E3A73B,#C97A2C);}
+
+  .bubble-col{
+    flex:1;min-width:0;
+    display:flex;flex-direction:column;
+    max-width:calc(100% - 68px);
+  }
+  .scene.roleA .bubble-col{align-items:flex-start;}
+  .scene.roleB .bubble-col{align-items:flex-end;}
+  .speaker-name{font-size:12px;font-weight:700;color:var(--sage);margin-bottom:3px;}
+  .scene.roleB .speaker-name{text-align:right;}
+  .bubble{
+    background:var(--cream);
+    border:1px solid rgba(15,61,58,.1);
+    border-radius:4px 16px 16px 16px;
+    padding:12px 14px;
+    font-size:14.5px;
+    line-height:1.5;
+    color:var(--ink);
+    box-shadow:0 4px 10px rgba(15,61,58,.06);
+    min-height:1.6em;
+    max-width:100%;
+    width:fit-content;
+    text-align:left;
+  }
+  .scene.roleB .bubble{
+    background:rgba(227,167,59,.16);
+    border-color:rgba(227,167,59,.35);
+    border-radius:16px 4px 16px 16px;
+  }
+  .cursor{display:inline-block;width:2px;height:1em;background:var(--teal);vertical-align:middle;margin-left:2px;animation:blink .8s step-end infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  .scene-note{
+    text-align:center;
+    font-size:12.5px;
+    font-style:italic;
+    color:var(--sage);
+    background:rgba(15,61,58,.05);
+    border-radius:10px;
+    padding:8px 12px;
+    margin-bottom:14px;
+    animation:fadeDown .45s ease both;
+  }
+
+  .question-block{
+    margin-top:auto;
+    animation:fadeUp .4s ease both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .q-text{font-weight:700;font-size:15px;margin:6px 0 12px;color:var(--ink);}
+  .points-tag{
+    display:inline-block;
+    background:var(--gold);
+    color:#fff;font-size:11.5px;font-weight:800;
+    padding:2px 9px;border-radius:999px;margin-left:8px;
+    vertical-align:middle;
+    white-space:nowrap;
+  }
+  .options{
+    display:flex;flex-direction:column;gap:9px;
+  }
+  .opt{
+    text-align:left;
+    background:var(--paper);
+    border:2px solid rgba(15,61,58,.15);
+    border-radius:14px;
+    padding:11px 14px;
+    font-size:14px;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+    opacity:0;
+    animation:optIn .4s ease forwards;
+  }
+  .opt:nth-child(1){animation-delay:.05s;}
+  .opt:nth-child(2){animation-delay:.15s;}
+  .opt:nth-child(3){animation-delay:.25s;}
+  .opt:nth-child(4){animation-delay:.35s;}
+  @keyframes optIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+  .opt:hover:not(.locked){border-color:var(--teal-light);background:rgba(30,138,128,.06);transform:translateX(3px);}
+  .opt .lbl{
+    flex-shrink:0;width:22px;height:22px;border-radius:50%;
+    background:rgba(15,61,58,.1);color:var(--teal);
+    font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .opt.correct{border-color:var(--good);background:rgba(46,155,107,.1);animation:none;opacity:1;}
+  .opt.correct .lbl{background:var(--good);color:#fff;}
+  .opt.wrong{border-color:var(--bad);background:rgba(217,82,74,.08);animation:shake .4s ease;opacity:1;}
+  .opt.wrong .lbl{background:var(--bad);color:#fff;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+  .opt.locked{cursor:default;}
+  .opt.dim{opacity:.45!important;animation:none;}
+
+  .feedback{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:14px;
+    font-size:13.5px;
+    line-height:1.5;
+    display:none;
+    animation:fadeUp .35s ease both;
+  }
+  .feedback.show{display:block;}
+  .feedback.good{background:rgba(46,155,107,.1);color:#1F6B4B;border:1px solid rgba(46,155,107,.3);}
+  .feedback.bad{background:rgba(217,82,74,.08);color:#A03B35;border:1px solid rgba(217,82,74,.25);}
+  .feedback strong{display:block;margin-bottom:3px;font-size:14px;}
+
+  .concept-card{
+    margin-top:14px;
+    background:linear-gradient(135deg, rgba(30,138,128,.10), rgba(227,167,59,.10));
+    border:1px solid rgba(15,61,58,.12);
+    border-radius:16px;
+    padding:14px 16px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--ink);
+    animation:fadeUp .4s ease both;
+  }
+  .concept-card b{color:var(--teal);}
+
+  .btn-row{display:flex;justify-content:flex-end;margin-top:16px;}
+  .btn{
+    background:var(--teal);
+    color:#fff;border:none;
+    padding:11px 22px;
+    border-radius:999px;
+    font-weight:700;font-size:14px;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(18,102,95,.3);
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:none;
+  }
+  .btn.show{display:inline-flex;align-items:center;gap:6px;animation:fadeUp .3s ease both;}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(18,102,95,.4);}
+  .btn:active{transform:translateY(0);}
+
+  /* ===== END SCREEN ===== */
+  .end-screen{display:none;text-align:center;padding:24px 22px;background:var(--paper);border-radius:24px;box-shadow:var(--shadow);}
+  .end-screen.show{display:block;animation:fadeUp .5s ease both;}
+  .trophy{
+    font-size:52px;margin-bottom:6px;
+    animation:trophyPop .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes trophyPop{0%{transform:scale(0) rotate(-20deg);opacity:0;}70%{transform:scale(1.2) rotate(8deg);}100%{transform:scale(1) rotate(0);opacity:1;}}
+  .end-title{font-size:21px;font-weight:800;margin:6px 0 4px;color:var(--ink);}
+  .end-sub{font-size:14px;color:var(--teal);margin-bottom:18px;}
+  .final-score{
+    font-size:46px;font-weight:900;color:var(--teal);
+    font-variant-numeric:tabular-nums;
+  }
+  .final-score span{font-size:18px;color:var(--sage);font-weight:700;}
+  .end-msg{
+    margin:16px auto 22px;
+    max-width:440px;
+    background:var(--cream);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--ink);
+    text-align:left;
+  }
+  .restart-btn{
+    background:var(--gold);color:#fff;border:none;
+    padding:12px 26px;border-radius:999px;
+    font-weight:800;font-size:14px;cursor:pointer;
+    box-shadow:0 6px 16px rgba(227,167,59,.4);
+  }
+  .restart-btn:hover{transform:translateY(-2px);}
+
+  /* leaderboard */
+  .lb-wrap{margin-top:26px;text-align:left;}
+  .lb-title{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:2px;}
+  .lb-sub{font-size:12.5px;color:var(--sage);margin-bottom:12px;}
+  .lb-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .lb-table th{
+    text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;
+    color:var(--teal);padding:8px 8px;border-bottom:2px solid rgba(15,61,58,.12);
+  }
+  .lb-table td{padding:9px 8px;border-bottom:1px solid rgba(15,61,58,.08);color:var(--ink);}
+  .lb-table tr.me{background:rgba(227,167,59,.14);}
+  .lb-table tr.me td:first-child{border-radius:8px 0 0 8px;}
+  .lb-table tr.me td:last-child{border-radius:0 8px 8px 0;}
+  .lb-rank{font-weight:800;color:var(--teal);}
+  .lb-empty{font-size:13px;color:var(--sage);padding:14px 0;text-align:center;}
+  .lb-loading{font-size:13px;color:var(--sage);padding:14px 0;text-align:center;}
+  .lb-toggle{
+    background:none;border:none;color:var(--teal);font-weight:700;font-size:12.5px;
+    cursor:pointer;margin-top:8px;padding:0;text-decoration:underline;
+  }
+
+  #confetti-wrap{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5;}
+  .confetti-piece{
+    position:absolute;top:-12px;
+    width:9px;height:14px;
+    opacity:.9;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(600deg);opacity:.2;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important;}
+  }
+  @media (max-width:480px){
+    .stage, .reg-screen, .end-screen{padding:20px 16px;}
+    .stage{min-height:460px;}
+    .avatar{width:48px;height:48px;font-size:17px;}
+    .field-row{flex-direction:column;gap:0;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="main-week-header">
+    <div class="main-week-title" id="mainWeekTitle">WEEK 9 · Sensitive Information</div>
+  </div>
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span><span id="brandText">PRIVACY MATTERS · Case Files</span></div>
+    <div class="topbar-right">
+      <div class="lang-pills" id="langPills"></div>
+      <div class="score-chip" id="scoreChip" style="display:none;">0 pts</div>
+    </div>
+  </div>
+
+  <div class="progress-track" id="progressTrack" style="display:none;"></div>
+
+  <div class="reg-screen" id="regScreen"></div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="end-screen" id="endScreen"></div>
+</div>
+<div id="confetti-wrap"></div>
+
+<script>
+/* =========================================================
+   LANGUAGE + UI STRINGS
+   ========================================================= */
+const UI = {
+  en:{
+    brand:"PRIVACY MATTERS · Case Files",
+    weekTag:"WEEK 9 · Sensitive Information",
+    regTitle:"Before we start",
+    regSub:"Tell us a bit about yourself so we can add you to the leaderboard.",
+    firstName:"First name", lastName:"Last name", email:"Email", department:"Department", country:"Country",
+    startBtn:"Start the game →", requiredNote:"All fields are required.",
+    invalidEmail:"Please enter a valid email address.",
+    continueBtn:"Continue →",
+    ptsInline:"+{n} pts", ptsChip:"{n} pts",
+    finalScore:"{n}<span>/{t} pts</span>",
+    endTitle:"Case Files Closed", endSub:"Here's how you did",
+    msgPerfect:"Perfect score! You clearly know how to hold a professional boundary — for yourself, for company data, and for a colleague's privacy.",
+    msgGood:"Solid instincts. A couple of these situations are easy to get pulled into — worth a second look at the ones you missed.",
+    msgLow:"Good effort — privacy calls like these come up more than we think. Review the explanations above and try again.",
+    playAgain:"▶ Play Again",
+    lbTitle:"Leaderboard", lbSub:"See how everyone's doing",
+    colRank:"#", colName:"Name", colDept:"Dept.", colCountry:"Country", colScore:"Score",
+    lbLoading:"Loading leaderboard…",
+    lbEmpty:"No scores yet — be the first!",
+    lbNotConnected:"Leaderboard isn't connected yet. Your score has been recorded on this device only.",
+    you:"You", viewAll:"View full leaderboard", viewTop:"Show top 10 only"
+  },
+  th:{
+    brand:"การเคารพความเป็นส่วนตัว · แฟ้มคดี",
+    weekTag:"สัปดาห์ที่ 9 · ข้อมูลที่ละเอียดอ่อน",
+    regTitle:"ก่อนเริ่มเกม",
+    regSub:"กรอกข้อมูลเล็กน้อยเพื่อบันทึกชื่อของคุณลงในตารางคะแนน",
+    firstName:"ชื่อ", lastName:"นามสกุล", email:"อีเมล", department:"แผนก", country:"ประเทศ",
+    startBtn:"เริ่มเกม →", requiredNote:"กรุณากรอกข้อมูลให้ครบทุกช่อง",
+    invalidEmail:"กรุณากรอกอีเมลให้ถูกต้อง",
+    continueBtn:"ถัดไป →",
+    ptsInline:"+{n} คะแนน", ptsChip:"{n} คะแนน",
+    finalScore:"{n}<span>/{t} คะแนน</span>",
+    endTitle:"ปิดแฟ้มคดีแล้ว", endSub:"ผลคะแนนของคุณ",
+    msgPerfect:"คะแนนเต็ม! คุณเข้าใจการรักษาขอบเขตในการทำงานเป็นอย่างดี ทั้งเรื่องของตัวเอง ข้อมูลของบริษัท และความเป็นส่วนตัวของเพื่อนร่วมงาน",
+    msgGood:"ทำได้ดีค่ะ บางสถานการณ์ชวนให้พลาดได้ง่าย ลองกลับไปดูข้อที่ตอบผิดอีกครั้งนะคะ",
+    msgLow:"พยายามได้ดีค่ะ สถานการณ์แบบนี้เกิดขึ้นบ่อยกว่าที่คิด ลองทบทวนคำอธิบายด้านบนแล้วลองใหม่อีกครั้ง",
+    playAgain:"▶ เล่นอีกครั้ง",
+    lbTitle:"ตารางคะแนน", lbSub:"ดูผลคะแนนของผู้เล่นทุกคน",
+    colRank:"#", colName:"ชื่อ", colDept:"แผนก", colCountry:"ประเทศ", colScore:"คะแนน",
+    lbLoading:"กำลังโหลดตารางคะแนน…",
+    lbEmpty:"ยังไม่มีคะแนน — เป็นคนแรกเลย!",
+    lbNotConnected:"ยังไม่ได้เชื่อมต่อตารางคะแนน คะแนนของคุณถูกบันทึกไว้บนอุปกรณ์นี้เท่านั้น",
+    you:"คุณ", viewAll:"ดูตารางคะแนนทั้งหมด", viewTop:"แสดงแค่ 10 อันดับแรก"
+  },
+  zh:{
+    brand:"隐私很重要 · 案例档案",
+    weekTag:"第9周 · 敏感信息",
+    regTitle:"开始之前",
+    regSub:"请填写一些基本信息,以便将你加入排行榜。",
+    firstName:"名", lastName:"姓", email:"电子邮箱", department:"部门", country:"国家",
+    startBtn:"开始游戏 →", requiredNote:"所有字段均为必填项。",
+    invalidEmail:"请输入有效的电子邮箱地址。",
+    continueBtn:"继续 →",
+    ptsInline:"+{n}分", ptsChip:"{n}分",
+    finalScore:"{n}<span>/{t}分</span>",
+    endTitle:"案件已结案", endSub:"你的表现如下",
+    msgPerfect:"满分!你显然懂得如何守住职业界限——无论是对自己、公司数据,还是同事的隐私。",
+    msgGood:"直觉不错。有几种情况很容易让人不小心陷进去——不妨再看看答错的那几题。",
+    msgLow:"很不错的尝试——这类隐私判断在现实中比我们想象得更常见。回顾一下上面的解释,再试一次吧。",
+    playAgain:"▶ 再玩一次",
+    lbTitle:"排行榜", lbSub:"查看所有玩家的成绩",
+    colRank:"#", colName:"姓名", colDept:"部门", colCountry:"国家", colScore:"分数",
+    lbLoading:"正在加载排行榜…",
+    lbEmpty:"暂时还没有成绩——快来当第一个吧!",
+    lbNotConnected:"排行榜尚未连接。你的分数仅保存在本设备上。",
+    you:"你", viewAll:"查看完整排行榜", viewTop:"只显示前10名"
+  },
+  de:{
+    brand:"PRIVATSPHÄRE ZÄHLT · Fallakten",
+    weekTag:"WOCHE 9 · Sensible Informationen",
+    regTitle:"Bevor wir beginnen",
+    regSub:"Erzähl uns kurz etwas über dich, damit wir dich in die Bestenliste aufnehmen können.",
+    firstName:"Vorname", lastName:"Nachname", email:"E-Mail", department:"Abteilung", country:"Land",
+    startBtn:"Spiel starten →", requiredNote:"Alle Felder sind erforderlich.",
+    invalidEmail:"Bitte gib eine gültige E-Mail-Adresse ein.",
+    continueBtn:"Weiter →",
+    ptsInline:"+{n} Pkt.", ptsChip:"{n} Pkt.",
+    finalScore:"{n}<span>/{t} Pkt.</span>",
+    endTitle:"Fallakte geschlossen", endSub:"So hast du abgeschnitten",
+    msgPerfect:"Perfekte Punktzahl! Du weißt eindeutig, wie man professionelle Grenzen wahrt — für dich selbst, für Unternehmensdaten und für die Privatsphäre eines Kollegen.",
+    msgGood:"Gutes Gespür. Ein paar dieser Situationen können einen leicht mitreißen — ein zweiter Blick auf die verpassten Fragen lohnt sich.",
+    msgLow:"Guter Versuch — solche Entscheidungen zur Privatsphäre kommen häufiger vor, als man denkt. Sieh dir die Erklärungen oben noch einmal an und versuch es erneut.",
+    playAgain:"▶ Nochmal spielen",
+    lbTitle:"Bestenliste", lbSub:"Sieh, wie alle anderen abgeschnitten haben",
+    colRank:"#", colName:"Name", colDept:"Abt.", colCountry:"Land", colScore:"Punkte",
+    lbLoading:"Bestenliste wird geladen…",
+    lbEmpty:"Noch keine Ergebnisse — sei die/der Erste!",
+    lbNotConnected:"Die Bestenliste ist noch nicht verbunden. Dein Ergebnis wurde nur auf diesem Gerät gespeichert.",
+    you:"Du", viewAll:"Ganze Bestenliste anzeigen", viewTop:"Nur Top 10 anzeigen"
+  }
+};
+
+/* names per case per language: [roleA name, roleB name] */
+const NAMES = {
+  case1:{ en:["Alex","Linda"], th:["อเล็กซ์","ลินดา"], zh:["亚历克斯","琳达"], de:["Alex","Linda"] },
+  case2:{ en:["Charlie","Christopher"], th:["ชาลี","คริสโตเฟอร์"], zh:["查理","克里斯托弗"], de:["Charlie","Christopher"] },
+  case3:{ en:["Alex","Linda"], th:["อเล็กซ์","ลินดา"], zh:["亚历克斯","琳达"], de:["Alex","Linda"] }
+};
+
+/* =========================================================
+   CASE CONTENT PER LANGUAGE (placeholders {A} / {B})
+   ========================================================= */
+const CASES_BY_LANG = {
+en:[
+ { key:"case1", tag:"CASE 1 · Lunch Break", title:"The Salary Question", steps:[
+   {type:"say", who:"A", text:"Hey {B}! Enjoying your lunch break?"},
+   {type:"say", who:"B", text:"Yes, just relaxing a bit before heading back. How about you?"},
+   {type:"say", who:"A", text:"Same here! Hey, can I ask you something a bit personal?"},
+   {type:"say", who:"B", text:"Sure, go ahead."},
+   {type:"say", who:"A", text:"How much salary increase did you get this year? Just want to compare — I won't tell anyone, promise!"},
+   {type:"say", who:"B", text:"Hmm... I feel a bit uncomfortable talking about that."},
+   {type:"question", points:20, q:"If you were {B}, what would you do?",
+     options:[
+       {label:"A", text:"Share your salary information because you are colleagues."},
+       {label:"B", text:"Politely refuse and explain that you are not comfortable sharing personal information."},
+       {label:"C", text:"Do not answer and walk away without saying anything."}
+     ], correct:1,
+     feedback:{ good:"Right. A calm, honest refusal respects your own boundary without damaging the relationship.",
+       bad:"Not quite. Salary is personal information — you always have the right to decline, but a polite, clear answer keeps things respectful (avoiding the topic silently can feel awkward or confusing for both sides)." } },
+   {type:"say", who:"B", text:"Sorry, I'm not comfortable sharing my salary information."},
+   {type:"question", points:20, q:"What should {A} do next?",
+     options:[
+       {label:"A", text:"Ask again, because it is normal between colleagues."},
+       {label:"B", text:"Respect {B}'s decision and do not ask further."},
+       {label:"C", text:"Ask other colleagues about {B}'s salary instead."}
+     ], correct:1,
+     feedback:{ good:"Exactly. Once someone sets a boundary, the respectful move is to accept it — first time, every time.",
+       bad:"Not quite. Pushing again, or going around {B} to find the same information elsewhere, still ignores {B}'s decision." } },
+   {type:"concept", text:"<b>Respecting privacy</b> means recognizing that people have different boundaries and a reasonable level of control over information about themselves. When someone chooses not to share, we respect that decision rather than pressuring them or seeking it from someone else."},
+   {type:"question", points:20, q:"What value does this scenario demonstrate?",
+     options:[
+       {label:"A", text:"Respect for Privacy"},
+       {label:"B", text:"Conflict of Interest"},
+       {label:"C", text:"Anti-Bribery"},
+       {label:"D", text:"Environmental Responsibility"}
+     ], correct:0,
+     feedback:{ good:"Correct — this whole exchange is a textbook case of respecting privacy at work.",
+       bad:"Not this one. There's no competing interest, payment, or environmental issue here — it's purely about personal information boundaries: Respect for Privacy." } }
+ ]},
+ { key:"case2", tag:"CASE 2 · A Favor Between Friends", title:"The Customer List", steps:[
+   {type:"note", text:"{A} and {B} are close friends — but they work at two different companies."},
+   {type:"say", who:"B", text:"Hi {A}! Got a sec?"},
+   {type:"say", who:"A", text:"Sure, what's up?"},
+   {type:"say", who:"B", text:"I'm promoting a new product and could really use some contacts to reach out to. You handle the customer list at work, right? Could you send me a few?"},
+   {type:"question", points:20, q:"If you were {A}, what would you do?",
+     options:[
+       {label:"A", text:"Give the contacts because they are only names and phone numbers."},
+       {label:"B", text:"Give a few contacts to help the friend."},
+       {label:"C", text:"Refuse to share the information because it was collected for a business purpose."},
+       {label:"D", text:"Send the information but ask the friend not to share it further."}
+     ], correct:2,
+     feedback:{ good:"Correct. Customer data belongs to the company and its purpose — it was never meant for personal favors, no matter how small the ask feels.",
+       bad:"Not quite. Even a few contacts, or contacts sent with a 'please don't share' request, is still using company data outside its intended business purpose. The data should stay within its original purpose — decline the request." } }
+ ]},
+ { key:"case3", tag:"CASE 3 · The Office Grapevine", title:"\u201cEveryone Already Knows\u201d", steps:[
+   {type:"say", who:"A", text:"Hey {B}, how's your afternoon going?"},
+   {type:"say", who:"B", text:"Pretty good, just busy with reports. What's up?"},
+   {type:"say", who:"A", text:"Did you hear about what's going on with our colleague? A few people already know..."},
+   {type:"say", who:"B", text:"Really? I hadn't heard that."},
+   {type:"question", points:20, q:"{A} hears that a colleague is having a personal problem. Several people already know. {A} wants to tell another colleague because \u201ceveryone already knows.\u201d What should {A} do?",
+     options:[
+       {label:"A", text:"Share it because it is already known by some people."},
+       {label:"B", text:"Share it only with close friends."},
+       {label:"C", text:"Avoid sharing it, because knowing something does not mean we have permission to spread it."},
+       {label:"D", text:"Post it in the group chat and ask people not to share it."}
+     ], correct:2,
+     feedback:{ good:"Correct. Knowing something is not the same as having permission to pass it on — the responsible move is to stop it from spreading further, not add to it.",
+       bad:"Not quite. \u201cA few people know\u201d, \u201conly close friends\u201d, or even posting it with a request for discretion — all still spread someone's personal situation further. The safest and most respectful choice is simply not to share it." } }
+ ]}
+],
+th:[
+ { key:"case1", tag:"เคส 1 · พักเที่ยง", title:"คำถามเรื่องเงินเดือน", steps:[
+   {type:"say", who:"A", text:"ไง {B}! พักเที่ยงเป็นไงบ้าง"},
+   {type:"say", who:"B", text:"ก็เรื่อยๆ นะ พักผ่อนนิดหน่อยก่อนกลับไปทำงานต่อ แล้วเธอล่ะ"},
+   {type:"say", who:"A", text:"เหมือนกันเลย! เอ่อ ขอถามอะไรหน่อยได้ไหม เรื่องส่วนตัวนิดนึงนะ"},
+   {type:"say", who:"B", text:"ได้สิ ถามมาเลย"},
+   {type:"say", who:"A", text:"ปีนี้เธอได้ขึ้นเงินเดือนกี่เปอร์เซ็นต์เหรอ อยากเทียบดูเฉยๆ ไม่บอกใครหรอก สัญญา!"},
+   {type:"say", who:"B", text:"อืม... รู้สึกไม่ค่อยสบายใจที่จะคุยเรื่องนี้เท่าไหร่"},
+   {type:"question", points:20, q:"ถ้าคุณเป็น {B} คุณจะทำอย่างไร",
+     options:[
+       {label:"A", text:"บอกข้อมูลเงินเดือนไป เพราะเป็นเพื่อนร่วมงานกัน"},
+       {label:"B", text:"ปฏิเสธอย่างสุภาพ และอธิบายว่าไม่สบายใจที่จะเปิดเผยข้อมูลส่วนตัว"},
+       {label:"C", text:"ไม่ตอบและเดินจากไปเฉยๆ โดยไม่พูดอะไร"}
+     ], correct:1,
+     feedback:{ good:"ถูกต้องค่ะ การปฏิเสธอย่างสงบและตรงไปตรงมา ช่วยรักษาขอบเขตของตัวเองได้ โดยไม่ทำให้ความสัมพันธ์เสียหาย",
+       bad:"ยังไม่ใช่คำตอบที่ดีที่สุดค่ะ เงินเดือนเป็นข้อมูลส่วนตัว คุณมีสิทธิ์ปฏิเสธได้เสมอ แต่การตอบอย่างสุภาพและชัดเจนจะรักษาความสัมพันธ์ได้ดีกว่า (การเงียบแล้วเดินจากไปอาจทำให้อีกฝ่ายรู้สึกอึดอัดหรือสับสนได้)" } },
+   {type:"say", who:"B", text:"ขอโทษนะ ฉันไม่ค่อยสบายใจที่จะบอกเรื่องเงินเดือนของตัวเอง"},
+   {type:"question", points:20, q:"{A} ควรทำอย่างไรต่อไป",
+     options:[
+       {label:"A", text:"ถามซ้ำอีกครั้ง เพราะเป็นเรื่องปกติระหว่างเพื่อนร่วมงาน"},
+       {label:"B", text:"เคารพการตัดสินใจของ {B} และไม่ถามต่อ"},
+       {label:"C", text:"ไปถามเพื่อนร่วมงานคนอื่นเรื่องเงินเดือนของ {B} แทน"}
+     ], correct:1,
+     feedback:{ good:"ถูกต้องค่ะ เมื่อมีคนกำหนดขอบเขตแล้ว การเคารพคือสิ่งที่ควรทำ ไม่ว่าจะครั้งแรกหรือครั้งต่อๆ ไป",
+       bad:"ยังไม่ใช่คำตอบที่ดีที่สุดค่ะ การถามซ้ำ หรือไปหาข้อมูลเดียวกันจากทางอื่น ก็ยังถือว่าไม่เคารพการตัดสินใจของ {B} อยู่ดี" } },
+   {type:"concept", text:"<b>การเคารพความเป็นส่วนตัว</b> หมายถึงการตระหนักว่าแต่ละคนมีขอบเขตที่แตกต่างกัน และมีสิทธิ์ในการควบคุมข้อมูลเกี่ยวกับตัวเองอย่างเหมาะสม เมื่อใครเลือกที่จะไม่เปิดเผยข้อมูล เราควรเคารพการตัดสินใจนั้น แทนที่จะกดดันหรือพยายามหาข้อมูลจากคนอื่นแทน"},
+   {type:"question", points:20, q:"สถานการณ์นี้แสดงถึงคุณค่าข้อใด",
+     options:[
+       {label:"A", text:"การเคารพความเป็นส่วนตัว"},
+       {label:"B", text:"ผลประโยชน์ทับซ้อน"},
+       {label:"C", text:"การต่อต้านการติดสินบน"},
+       {label:"D", text:"ความรับผิดชอบต่อสิ่งแวดล้อม"}
+     ], correct:0,
+     feedback:{ good:"ถูกต้องค่ะ บทสนทนาทั้งหมดนี้คือตัวอย่างคลาสสิกของการเคารพความเป็นส่วนตัวในที่ทำงาน",
+       bad:"ไม่ใช่ข้อนี้ค่ะ ไม่มีเรื่องผลประโยชน์ทับซ้อน การจ่ายเงิน หรือสิ่งแวดล้อมเกี่ยวข้องเลย เรื่องนี้เป็นเรื่องขอบเขตของข้อมูลส่วนตัวล้วนๆ คือ การเคารพความเป็นส่วนตัว" } }
+ ]},
+ { key:"case2", tag:"เคส 2 · ขอความช่วยเหลือจากเพื่อน", title:"รายชื่อลูกค้า", steps:[
+   {type:"note", text:"{A} และ {B} เป็นเพื่อนสนิทกัน แต่ทำงานอยู่คนละบริษัทกัน"},
+   {type:"say", who:"B", text:"ไง {A} ว่างไหม"},
+   {type:"say", who:"A", text:"ว่างสิ มีอะไรเหรอ"},
+   {type:"say", who:"B", text:"ฉันกำลังโฆษณาสินค้าตัวใหม่อยู่ อยากได้เบอร์ลูกค้าไปติดต่อเพิ่มหน่อย เธอดูแลรายชื่อลูกค้าอยู่ใช่ไหม ช่วยส่งให้หน่อยได้ไหม"},
+   {type:"question", points:20, q:"ถ้าคุณเป็น {A} คุณจะทำอย่างไร",
+     options:[
+       {label:"A", text:"ให้เบอร์ไป เพราะเป็นแค่ชื่อกับเบอร์โทรเท่านั้น"},
+       {label:"B", text:"ให้ไปบางส่วนเพื่อช่วยเพื่อน"},
+       {label:"C", text:"ปฏิเสธที่จะเปิดเผยข้อมูล เพราะข้อมูลนี้ถูกเก็บไว้เพื่อวัตถุประสงค์ทางธุรกิจ"},
+       {label:"D", text:"ส่งข้อมูลไปให้ แต่ขอให้เพื่อนไม่นำไปเผยแพร่ต่อ"}
+     ], correct:2,
+     feedback:{ good:"ถูกต้องค่ะ ข้อมูลลูกค้าเป็นของบริษัทและมีไว้เพื่อวัตถุประสงค์ทางธุรกิจเท่านั้น ไม่ได้มีไว้เพื่อช่วยเหลือส่วนตัว ไม่ว่าจะดูเป็นเรื่องเล็กน้อยแค่ไหนก็ตาม",
+       bad:"ยังไม่ใช่คำตอบที่ดีที่สุดค่ะ แม้จะให้แค่บางส่วน หรือให้พร้อมขอร้องว่า \u201cอย่าเอาไปบอกต่อ\u201d ก็ยังถือว่านำข้อมูลบริษัทไปใช้นอกวัตถุประสงค์ทางธุรกิจอยู่ดี ข้อมูลควรถูกใช้ตามวัตถุประสงค์เดิมเท่านั้น ควรปฏิเสธคำขอนี้" } }
+ ]},
+ { key:"case3", tag:"เคส 3 · ข่าวลือในออฟฟิศ", title:"\u201cทุกคนก็รู้กันหมดแล้ว\u201d", steps:[
+   {type:"say", who:"A", text:"ไง {B} บ่ายนี้เป็นไงบ้าง"},
+   {type:"say", who:"B", text:"ก็ดีนะ กำลังยุ่งกับรายงานอยู่ มีอะไรเหรอ"},
+   {type:"say", who:"A", text:"ได้ยินเรื่องเพื่อนร่วมงานเราไหม มีบางคนรู้กันแล้วนะ..."},
+   {type:"say", who:"B", text:"จริงเหรอ ฉันไม่เคยได้ยินเลย"},
+   {type:"question", points:20, q:"{A} ได้ยินว่าเพื่อนร่วมงานคนหนึ่งกำลังมีปัญหาส่วนตัว และมีคนรู้เรื่องนี้อยู่แล้วหลายคน {A} อยากบอกเพื่อนร่วมงานอีกคน เพราะคิดว่า \u201cทุกคนก็รู้กันหมดแล้ว\u201d {A} ควรทำอย่างไร",
+     options:[
+       {label:"A", text:"บอกต่อไปเลย เพราะมีคนรู้อยู่แล้วบางส่วน"},
+       {label:"B", text:"บอกเฉพาะเพื่อนสนิทเท่านั้น"},
+       {label:"C", text:"ไม่บอกต่อ เพราะการที่เรารู้เรื่องอะไรบางอย่าง ไม่ได้แปลว่าเรามีสิทธิ์ที่จะเล่าต่อ"},
+       {label:"D", text:"ส่งข้อความในกลุ่มสนทนา แล้วขอให้ทุกคนอย่านำไปบอกต่อ"}
+     ], correct:2,
+     feedback:{ good:"ถูกต้องค่ะ การรู้เรื่องอะไรบางอย่าง ไม่เท่ากับการมีสิทธิ์เล่าต่อ สิ่งที่ควรทำคือช่วยหยุดไม่ให้เรื่องแพร่กระจายต่อไป ไม่ใช่ไปเพิ่มการแพร่กระจายนั้น",
+       bad:"ยังไม่ใช่คำตอบที่ดีที่สุดค่ะ ไม่ว่าจะ \u201cมีคนรู้อยู่แล้วบางส่วน\u201d \u201cบอกแค่เพื่อนสนิท\u201d หรือแม้แต่ส่งข้อความบอกต่อพร้อมขอให้ระมัดระวัง ก็ยังถือว่าทำให้เรื่องส่วนตัวของคนอื่นแพร่กระจายต่อไปอยู่ดี ทางเลือกที่ปลอดภัยและเคารพผู้อื่นที่สุดคือการไม่บอกต่อเลย" } }
+ ]}
+],
+zh:[
+ { key:"case1", tag:"案例 1·午休时间", title:"关于薪资的问题", steps:[
+   {type:"say", who:"A", text:"嘿,{B}!午休还开心吗?"},
+   {type:"say", who:"B", text:"还不错,吃完饭休息一下再回去工作。你呢?"},
+   {type:"say", who:"A", text:"我也是!对了,能问你一个比较私人的问题吗?"},
+   {type:"say", who:"B", text:"可以啊,你问吧。"},
+   {type:"say", who:"A", text:"你今年加薪加了多少?我就是想比较一下,不会跟别人说的,我保证!"},
+   {type:"say", who:"B", text:"嗯……聊这个我有点不太自在。"},
+   {type:"question", points:20, q:"如果你是{B},你会怎么做?",
+     options:[
+       {label:"A", text:"告诉对方薪资信息,因为大家是同事。"},
+       {label:"B", text:"礼貌地拒绝,并说明自己不方便分享个人信息。"},
+       {label:"C", text:"不回答,直接一言不发地走开。"}
+     ], correct:1,
+     feedback:{ good:"答对了。冷静而诚实地拒绝,既能守住自己的界限,又不会破坏彼此的关系。",
+       bad:"不太对。薪资属于个人信息,你随时都有权拒绝分享,但礼貌而明确地回应会更妥当(沉默走开可能会让双方都感到尴尬或困惑)。" } },
+   {type:"say", who:"B", text:"不好意思,我不太想透露自己的薪资信息。"},
+   {type:"question", points:20, q:"{A}接下来应该怎么做?",
+     options:[
+       {label:"A", text:"再问一次,因为同事之间这很正常。"},
+       {label:"B", text:"尊重{B}的决定,不再追问。"},
+       {label:"C", text:"转而向其他同事打听{B}的薪资。"}
+     ], correct:1,
+     feedback:{ good:"完全正确。一旦有人设下界限,尊重就是正确的做法——无论第一次还是之后每一次。",
+       bad:"不太对。再次追问,或绕过对方从别处打听同样的信息,依然是没有尊重{B}的决定。" } },
+   {type:"concept", text:"<b>尊重隐私</b>是指认识到每个人对自身信息都有不同的界限,并拥有合理的自主权。当有人选择不分享信息时,我们应尊重这个决定,而不是施加压力,或转而从别人那里打听。"},
+   {type:"question", points:20, q:"这个情境体现了以下哪种价值观?",
+     options:[
+       {label:"A", text:"尊重隐私"},
+       {label:"B", text:"利益冲突"},
+       {label:"C", text:"反贿赂"},
+       {label:"D", text:"环境责任"}
+     ], correct:0,
+     feedback:{ good:"正确——整段对话正是尊重职场隐私的典型例子。",
+       bad:"不是这个。这里没有利益冲突、付款或环境问题——完全是关于个人信息界限的问题:尊重隐私。" } }
+ ]},
+ { key:"case2", tag:"案例 2·朋友的请求", title:"客户名单", steps:[
+   {type:"note", text:"{A}和{B}是好朋友,但他们在两家不同的公司工作。"},
+   {type:"say", who:"B", text:"嘿,{A}!有空吗?"},
+   {type:"say", who:"A", text:"有啊,怎么了?"},
+   {type:"say", who:"B", text:"我在推广一款新产品,想多找些客户联系方式。你负责管理客户名单对吧?能不能给我发几个?"},
+   {type:"question", points:20, q:"如果你是{A},你会怎么做?",
+     options:[
+       {label:"A", text:"提供联系方式,因为只是姓名和电话号码而已。"},
+       {label:"B", text:"提供几个联系方式来帮朋友的忙。"},
+       {label:"C", text:"拒绝分享该信息,因为这些数据是为业务目的收集的。"},
+       {label:"D", text:"把信息发给朋友,但请对方不要再外传。"}
+     ], correct:2,
+     feedback:{ good:"正确。客户数据属于公司,且只能用于其收集目的——无论请求听起来多么微不足道,都不应被用于私人帮忙。",
+       bad:"不太对。即使只给几个联系方式,或者附上\u201c请不要外传\u201d的请求,仍然是把公司数据用在了业务目的之外。数据应始终用于其原本目的——应拒绝这个请求。" } }
+ ]},
+ { key:"case3", tag:"案例 3·办公室八卦", title:"\u201c反正大家都知道了\u201d", steps:[
+   {type:"say", who:"A", text:"嘿,{B},下午过得怎么样?"},
+   {type:"say", who:"B", text:"还不错,正忙着写报告。怎么了?"},
+   {type:"say", who:"A", text:"你听说我们同事的事了吗?已经有几个人知道了……"},
+   {type:"say", who:"B", text:"真的吗?我倒是没听说过。"},
+   {type:"question", points:20, q:"{A}听说一位同事正遇到个人问题,已经有几个人知道了。{A}想告诉另一位同事,理由是\u201c反正大家都知道了\u201d。{A}应该怎么做?",
+     options:[
+       {label:"A", text:"分享出去,因为已经有些人知道了。"},
+       {label:"B", text:"只告诉关系亲近的朋友。"},
+       {label:"C", text:"不要分享,因为知道某件事并不代表有权把它传出去。"},
+       {label:"D", text:"发到群聊里,并请大家不要外传。"}
+     ], correct:2,
+     feedback:{ good:"正确。知道某件事,并不代表有权把它传出去——负责任的做法是阻止它继续扩散,而不是让它传得更广。",
+       bad:"不太对。\u201c已经有些人知道\u201d\u201c只告诉亲近的朋友\u201d,甚至\u201c发出去但请大家保密\u201d,这些做法都仍然是在扩散别人的个人情况。最安全、最尊重他人的做法就是完全不分享。" } }
+ ]}
+],
+de:[
+ { key:"case1", tag:"Fall 1 · Mittagspause", title:"Die Gehaltsfrage", steps:[
+   {type:"say", who:"A", text:"Hey {B}! Genießt du deine Mittagspause?"},
+   {type:"say", who:"B", text:"Ja, ich entspanne mich kurz, bevor es weitergeht. Und du?"},
+   {type:"say", who:"A", text:"Mir geht's genauso! Darf ich dich mal etwas Persönliches fragen?"},
+   {type:"say", who:"B", text:"Klar, frag ruhig."},
+   {type:"say", who:"A", text:"Wie viel Gehaltserhöhung hast du dieses Jahr bekommen? Ich will nur vergleichen — ich sag's niemandem, versprochen!"},
+   {type:"say", who:"B", text:"Hm... darüber zu sprechen ist mir etwas unangenehm."},
+   {type:"question", points:20, q:"Wenn du {B} wärst, was würdest du tun?",
+     options:[
+       {label:"A", text:"Die Gehaltsinformationen teilen, weil ihr Kollegen seid."},
+       {label:"B", text:"Höflich ablehnen und erklären, dass du dich nicht wohlfühlst, persönliche Informationen zu teilen."},
+       {label:"C", text:"Nicht antworten und wortlos weggehen."}
+     ], correct:1,
+     feedback:{ good:"Richtig. Eine ruhige, ehrliche Absage schützt deine Grenze, ohne die Beziehung zu belasten.",
+       bad:"Nicht ganz. Das Gehalt ist eine persönliche Information — du darfst jederzeit ablehnen, aber eine höfliche, klare Antwort wirkt respektvoller (schweigend wegzugehen kann für beide Seiten unangenehm oder verwirrend sein)." } },
+   {type:"say", who:"B", text:"Tut mir leid, ich bin nicht wohl dabei, meine Gehaltsinformationen zu teilen."},
+   {type:"question", points:20, q:"Was sollte {A} als Nächstes tun?",
+     options:[
+       {label:"A", text:"Noch einmal fragen, weil das unter Kollegen normal ist."},
+       {label:"B", text:"{B}s Entscheidung respektieren und nicht weiter nachfragen."},
+       {label:"C", text:"Stattdessen andere Kollegen nach {B}s Gehalt fragen."}
+     ], correct:1,
+     feedback:{ good:"Genau. Sobald jemand eine Grenze setzt, ist es richtig, sie zu respektieren — beim ersten Mal und jedes weitere Mal.",
+       bad:"Nicht ganz. Erneut nachzufragen oder die gleiche Information anderswo zu suchen, missachtet trotzdem {B}s Entscheidung." } },
+   {type:"concept", text:"<b>Privatsphäre zu respektieren</b> bedeutet anzuerkennen, dass Menschen unterschiedliche Grenzen haben und ein angemessenes Maß an Kontrolle über Informationen zu ihrer eigenen Person besitzen. Wenn jemand sich entscheidet, etwas nicht zu teilen, respektieren wir diese Entscheidung, anstatt Druck auszuüben oder die Information anderswo zu suchen."},
+   {type:"question", points:20, q:"Welchen Wert zeigt dieses Szenario?",
+     options:[
+       {label:"A", text:"Respekt vor der Privatsphäre"},
+       {label:"B", text:"Interessenkonflikt"},
+       {label:"C", text:"Anti-Korruption"},
+       {label:"D", text:"Umweltverantwortung"}
+     ], correct:0,
+     feedback:{ good:"Richtig — dieser ganze Austausch ist ein Lehrbuchbeispiel für Respekt vor der Privatsphäre am Arbeitsplatz.",
+       bad:"Nicht diese Antwort. Hier geht es nicht um einen Interessenkonflikt, Zahlungen oder die Umwelt — es geht rein um persönliche Informationsgrenzen: Respekt vor der Privatsphäre." } }
+ ]},
+ { key:"case2", tag:"Fall 2 · Ein Gefallen unter Freunden", title:"Die Kundenliste", steps:[
+   {type:"note", text:"{A} und {B} sind gute Freunde — sie arbeiten jedoch bei zwei verschiedenen Unternehmen."},
+   {type:"say", who:"B", text:"Hey {A}! Hast du kurz Zeit?"},
+   {type:"say", who:"A", text:"Klar, was gibt's?"},
+   {type:"say", who:"B", text:"Ich bewerbe gerade ein neues Produkt und könnte ein paar Kontakte gebrauchen. Du verwaltest doch die Kundenliste bei der Arbeit, oder? Könntest du mir ein paar schicken?"},
+   {type:"question", points:20, q:"Wenn du {A} wärst, was würdest du tun?",
+     options:[
+       {label:"A", text:"Die Kontakte weitergeben, weil es nur Namen und Telefonnummern sind."},
+       {label:"B", text:"Ein paar Kontakte geben, um dem Freund zu helfen."},
+       {label:"C", text:"Die Weitergabe ablehnen, weil die Daten für einen geschäftlichen Zweck gesammelt wurden."},
+       {label:"D", text:"Die Informationen senden, aber den Freund bitten, sie nicht weiterzugeben."}
+     ], correct:2,
+     feedback:{ good:"Richtig. Kundendaten gehören dem Unternehmen und seinem Zweck — sie waren nie für persönliche Gefallen gedacht, egal wie klein die Bitte erscheint.",
+       bad:"Nicht ganz. Auch ein paar Kontakte oder Kontakte mit der Bitte \u201ebitte nicht weitergeben\u201c bedeuten immer noch, Unternehmensdaten außerhalb ihres vorgesehenen Zwecks zu nutzen. Die Daten sollten bei ihrem ursprünglichen Zweck bleiben — die Bitte sollte abgelehnt werden." } }
+ ]},
+ { key:"case3", tag:"Fall 3 · Der Büroflurfunk", title:"\u201eDas weiß doch schon jeder\u201c", steps:[
+   {type:"say", who:"A", text:"Hey {B}, wie läuft dein Nachmittag?"},
+   {type:"say", who:"B", text:"Ganz gut, ich bin nur mit Berichten beschäftigt. Was gibt's?"},
+   {type:"say", who:"A", text:"Hast du gehört, was mit unserem Kollegen los ist? Ein paar Leute wissen es schon..."},
+   {type:"say", who:"B", text:"Wirklich? Davon habe ich nichts gehört."},
+   {type:"question", points:20, q:"{A} hört, dass ein Kollege ein persönliches Problem hat. Mehrere Leute wissen bereits davon. {A} möchte es einem weiteren Kollegen erzählen, weil \u201edas doch schon jeder weiß\u201c. Was sollte {A} tun?",
+     options:[
+       {label:"A", text:"Es weitererzählen, weil es schon einige Leute wissen."},
+       {label:"B", text:"Es nur engen Freunden erzählen."},
+       {label:"C", text:"Es nicht weitererzählen, denn etwas zu wissen bedeutet nicht, die Erlaubnis zu haben, es zu verbreiten."},
+       {label:"D", text:"Es in den Gruppenchat posten und darum bitten, es nicht weiterzugeben."}
+     ], correct:2,
+     feedback:{ good:"Richtig. Etwas zu wissen ist nicht dasselbe wie die Erlaubnis zu haben, es weiterzugeben — die verantwortungsvolle Wahl ist, die Verbreitung zu stoppen, nicht sie zu vergrößern.",
+       bad:"Nicht ganz. \u201eEinige wissen es schon\u201c, \u201enur enge Freunde\u201c oder selbst ein Post mit der Bitte um Diskretion — all das verbreitet die persönliche Situation einer Person trotzdem weiter. Die sicherste und respektvollste Wahl ist, es einfach nicht zu teilen." } }
+ ]}
+]
+};
+
+/* =========================================================
+   BACKEND CONFIG
+   Paste your deployed Google Apps Script Web App URL below to
+   enable the shared leaderboard. Leave blank to run local-only.
+   ========================================================= */
+const BACKEND = {
+  webhookUrl: "" // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let currentLang = "en";
+let player = null; // {firstName,lastName,email,department,country}
+let score = 0;
+let CASES = [];
+let totalPoints = 0;
+let flatSteps = [];
+let cursor = 0;
+let answeredCount = 0;
+let totalQuestions = 0;
+let stepAnswers = {}; // flatSteps index -> chosen option index (for rebuilding on language switch)
+
+const stage = document.getElementById('stage');
+const scoreChip = document.getElementById('scoreChip');
+const progressTrack = document.getElementById('progressTrack');
+const regScreen = document.getElementById('regScreen');
+const endScreen = document.getElementById('endScreen');
+const langPillsEl = document.getElementById('langPills');
+const brandText = document.getElementById('brandText');
+const mainWeekTitle = document.getElementById('mainWeekTitle');
+
+function t(key){ return UI[currentLang][key]; }
+function fmt(str, map){
+  return str.replace(/\{(\w+)\}/g, (m,k)=> map[k] !== undefined ? map[k] : m);
+}
+
+/* =========================================================
+   LANGUAGE SWITCH
+   ========================================================= */
+function renderLangPills(){
+  langPillsEl.innerHTML = ['en','th','zh','de'].map(l=>{
+    const label = {en:'EN',th:'ไทย',zh:'中文',de:'DE'}[l];
+    return `<button type="button" class="lang-pill ${l===currentLang?'active':''}" data-lang="${l}">${label}</button>`;
+  }).join('');
+  langPillsEl.querySelectorAll('.lang-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=> setLanguage(btn.dataset.lang));
+  });
+}
+
+function setLanguage(lang){
+  currentLang = lang;
+  brandText.textContent = t('brand');
+  mainWeekTitle.textContent = t('weekTag');
+  renderLangPills();
+  buildCases();
+  if(regScreen.classList.contains('show')) renderRegistration();
+  else if(stage.classList.contains('show')) renderStep();
+  else if(endScreen.classList.contains('show')) renderEndScreen();
+}
+
+function buildCases(){
+  CASES = CASES_BY_LANG[currentLang].map(c=>({...c}));
+  totalPoints = 0;
+  CASES.forEach(c=>c.steps.forEach(s=>{ if(s.type==="question") totalPoints += s.points; }));
+  flatSteps = [];
+  CASES.forEach((c,ci)=>c.steps.forEach((s,si)=>flatSteps.push({ci,si})));
+  totalQuestions = flatSteps.filter(f=>CASES[f.ci].steps[f.si].type==="question").length;
+}
+
+function namesFor(caseKey){
+  return NAMES[caseKey][currentLang];
+}
+
+/* =========================================================
+   REGISTRATION SCREEN
+   ========================================================= */
+function renderRegistration(){
+  regScreen.innerHTML = `
+    <div class="reg-title">${t('regTitle')}</div>
+    <div class="reg-sub">${t('regSub')}</div>
+    <div class="field-row">
+      <div class="field" id="f-first"><label>${t('firstName')}</label><input type="text" id="inFirst"></div>
+      <div class="field" id="f-last"><label>${t('lastName')}</label><input type="text" id="inLast"></div>
+    </div>
+    <div class="field" id="f-email"><label>${t('email')}</label><input type="email" id="inEmail"></div>
+    <div class="field-row">
+      <div class="field" id="f-dept"><label>${t('department')}</label><input type="text" id="inDept"></div>
+      <div class="field" id="f-country"><label>${t('country')}</label><input type="text" id="inCountry"></div>
+    </div>
+    <div class="reg-error" id="regError"></div>
+    <button class="reg-submit" id="regSubmit">${t('startBtn')}</button>
+  `;
+  document.getElementById('regSubmit').addEventListener('click', onRegisterSubmit);
+}
+
+function onRegisterSubmit(){
+  const first = document.getElementById('inFirst').value.trim();
+  const last = document.getElementById('inLast').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const dept = document.getElementById('inDept').value.trim();
+  const country = document.getElementById('inCountry').value.trim();
+
+  const fields = {first,last,email,dept,country};
+  const ids = {first:'f-first',last:'f-last',email:'f-email',dept:'f-dept',country:'f-country'};
+  let hasErr = false;
+  Object.keys(fields).forEach(k=>{
+    const el = document.getElementById(ids[k]);
+    el.classList.toggle('err', !fields[k]);
+    if(!fields[k]) hasErr = true;
+  });
+
+  const errBox = document.getElementById('regError');
+  if(hasErr){
+    errBox.textContent = t('requiredNote');
+    errBox.classList.add('show');
+    return;
+  }
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if(!emailOk){
+    document.getElementById('f-email').classList.add('err');
+    errBox.textContent = t('invalidEmail');
+    errBox.classList.add('show');
+    return;
+  }
+  errBox.classList.remove('show');
+
+  player = { firstName:first, lastName:last, email, department:dept, country, language:currentLang };
+
+  regScreen.classList.remove('show');
+  scoreChip.style.display = 'inline-flex';
+  progressTrack.style.display = 'flex';
+  stage.classList.add('show');
+  buildProgress();
+  updateProgress();
+  cursor = 0; score = 0; answeredCount = 0; stepAnswers = {};
+  scoreChip.textContent = fmt(t('ptsChip'), {n:0});
+  stage.innerHTML = '';
+  renderStep();
+}
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+function buildProgress(){
+  progressTrack.innerHTML = '';
+  for(let i=0;i<totalQuestions;i++){
+    const seg = document.createElement('div');
+    seg.className='progress-seg';
+    seg.innerHTML = '<div class="fill" id="seg'+i+'"></div>';
+    progressTrack.appendChild(seg);
+  }
+}
+function updateProgress(){
+  for(let i=0;i<totalQuestions;i++){
+    const f = document.getElementById('seg'+i);
+    if(!f) continue;
+    f.style.width = i < answeredCount ? '100%' : '0%';
+  }
+}
+
+/* =========================================================
+   TYPEWRITER
+   ========================================================= */
+function typewriter(el, text, speed=16){
+  return new Promise(resolve=>{
+    el.innerHTML = '<span class="txt"></span><span class="cursor"></span>';
+    const txt = el.querySelector('.txt');
+    const cur = el.querySelector('.cursor');
+    let i=0;
+    const iv = setInterval(()=>{
+      txt.textContent += text[i];
+      i++;
+      if(i>=text.length){
+        clearInterval(iv);
+        cur.remove();
+        resolve();
+      }
+    }, speed);
+  });
+}
+
+/* =========================================================
+   GAME RENDER
+   ========================================================= */
+function renderStep(){
+  const {ci,si} = flatSteps[cursor];
+  const c = CASES[ci];
+  const step = c.steps[si];
+  const names = namesFor(c.key);
+  const nameMap = {A:names[0], B:names[1]};
+
+  // Always rebuild the whole case's conversation from scratch. This keeps
+  // previously completed lines/questions in sync with the current language
+  // (e.g. after switching language mid-case) instead of only translating
+  // whatever renders next.
+  stage.innerHTML = `
+    <div class="case-tag">${c.tag}</div>
+    <h2 class="case-title">${c.title}</h2>
+    <div id="convo"></div>
+  `;
+  const convo = document.getElementById('convo');
+
+  // Replay every step before the current one in its finished state.
+  for(let s=0; s<si; s++){
+    renderStaticStep(c.steps[s], convo, nameMap, cursor - (si - s));
+  }
+
+  if(step.type==="say"){
+    const speakerName = nameMap[step.who];
+    const roleClass = step.who==="A" ? "roleA" : "roleB";
+    const row = document.createElement('div');
+    row.className='scene '+roleClass;
+    row.innerHTML = `
+      <div class="avatar ${roleClass} talking">${speakerName.charAt(0)}</div>
+      <div class="bubble-col">
+        <div class="speaker-name">${speakerName}</div>
+        <div class="bubble" id="liveBubble"></div>
+      </div>`;
+    convo.appendChild(row);
+    const bubbleEl = row.querySelector('#liveBubble');
+    const text = fmt(step.text, nameMap);
+    typewriter(bubbleEl, text).then(()=>{
+      row.querySelector('.avatar').classList.remove('talking');
+      showContinue(()=>{ cursor++; renderStep(); });
+    });
+  }
+  else if(step.type==="note"){
+    const div = document.createElement('div');
+    div.className='scene-note';
+    div.innerHTML = fmt(step.text, nameMap);
+    convo.appendChild(div);
+    showContinue(()=>{ cursor++; renderStep(); });
+  }
+  else if(step.type==="concept"){
+    const div = document.createElement('div');
+    div.className='concept-card';
+    div.innerHTML = fmt(step.text, nameMap);
+    convo.appendChild(div);
+    showContinue(()=>{ cursor++; renderStep(); });
+  }
+  else if(step.type==="question"){
+    if(stepAnswers[cursor] !== undefined){
+      // Already answered (e.g. we're redrawing after a language switch) —
+      // show the frozen result instead of a fresh, clickable question.
+      renderStaticQuestionBlock(step, convo, nameMap, stepAnswers[cursor]);
+      showContinue(()=>{
+        cursor++;
+        if(cursor >= flatSteps.length) finishGame();
+        else renderStep();
+      });
+    } else {
+      renderQuestion(step, convo, nameMap);
+    }
+  }
+}
+
+/* Render a "say" or "concept" step (or an already-answered question) in
+   its final, non-interactive state — used to replay conversation history. */
+function renderStaticStep(step, convo, nameMap, flatIndex){
+  if(step.type==="say"){
+    const speakerName = nameMap[step.who];
+    const roleClass = step.who==="A" ? "roleA" : "roleB";
+    const row = document.createElement('div');
+    row.className='scene '+roleClass;
+    row.innerHTML = `
+      <div class="avatar ${roleClass}">${speakerName.charAt(0)}</div>
+      <div class="bubble-col">
+        <div class="speaker-name">${speakerName}</div>
+        <div class="bubble">${fmt(step.text, nameMap)}</div>
+      </div>`;
+    convo.appendChild(row);
+  }
+  else if(step.type==="note"){
+    const div = document.createElement('div');
+    div.className='scene-note';
+    div.innerHTML = fmt(step.text, nameMap);
+    convo.appendChild(div);
+  }
+  else if(step.type==="concept"){
+    const div = document.createElement('div');
+    div.className='concept-card';
+    div.innerHTML = fmt(step.text, nameMap);
+    convo.appendChild(div);
+  }
+  else if(step.type==="question"){
+    const chosen = stepAnswers[flatIndex];
+    renderStaticQuestionBlock(step, convo, nameMap, chosen);
+  }
+}
+
+function renderStaticQuestionBlock(step, convo, nameMap, chosen){
+  const qText = fmt(step.q, nameMap);
+  const ptsTag = fmt(t('ptsInline'), {n:step.points});
+  const isCorrect = chosen === step.correct;
+  const block = document.createElement('div');
+  block.className='question-block';
+  block.innerHTML = `
+    <div class="q-text">${qText}<span class="points-tag">${ptsTag}</span></div>
+    <div class="options">
+      ${step.options.map((o,i)=>{
+        let cls = 'locked';
+        if(i===step.correct) cls += ' correct';
+        else if(i===chosen) cls += ' wrong';
+        else cls += ' dim';
+        return `<button class="opt ${cls}" data-i="${i}">
+          <span class="lbl">${o.label}</span>
+          <span>${fmt(o.text, nameMap)}</span>
+        </button>`;
+      }).join('')}
+    </div>
+    <div class="feedback show ${isCorrect ? 'good' : 'bad'}">
+      <strong>${isCorrect ? '✅ ' + fmt(t('ptsInline'), {n:step.points}) : '❌'}</strong>${fmt(isCorrect ? step.feedback.good : step.feedback.bad, nameMap)}
+    </div>
+  `;
+  convo.appendChild(block);
+}
+
+function showContinue(onNext){
+  let btn = document.getElementById('nextBtn');
+  if(!btn){
+    const row = document.createElement('div');
+    row.className='btn-row';
+    row.innerHTML = `<button class="btn" id="nextBtn">${t('continueBtn')}</button>`;
+    stage.appendChild(row);
+    btn = row.querySelector('#nextBtn');
+  }
+  btn.textContent = t('continueBtn');
+  btn.classList.add('show');
+  btn.onclick = ()=>{ btn.classList.remove('show'); if(btn.parentElement) btn.parentElement.remove(); onNext(); };
+}
+
+function renderQuestion(step, convo, nameMap){
+  const qText = fmt(step.q, nameMap);
+  const ptsTag = fmt(t('ptsInline'), {n:step.points});
+  const block = document.createElement('div');
+  block.className='question-block';
+  block.innerHTML = `
+    <div class="q-text">${qText}<span class="points-tag">${ptsTag}</span></div>
+    <div class="options">
+      ${step.options.map((o,i)=>`
+        <button class="opt" data-i="${i}">
+          <span class="lbl">${o.label}</span>
+          <span>${fmt(o.text, nameMap)}</span>
+        </button>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>
+  `;
+  convo.appendChild(block);
+
+  const opts = block.querySelectorAll('.opt');
+  opts.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const chosen = parseInt(btn.dataset.i);
+      stepAnswers[cursor] = chosen;
+      opts.forEach(b=>b.classList.add('locked'));
+      const fb = block.querySelector('#fb');
+      if(chosen === step.correct){
+        btn.classList.add('correct');
+        opts.forEach(b=>{ if(parseInt(b.dataset.i)!==chosen) b.classList.add('dim'); });
+        addScore(step.points);
+        fb.className='feedback good show';
+        fb.innerHTML = `<strong>✅ ${fmt(t('ptsInline'), {n:step.points})}</strong>${fmt(step.feedback.good, nameMap)}`;
+      } else {
+        btn.classList.add('wrong');
+        opts[step.correct].classList.add('correct');
+        opts.forEach(b=>{ const bi=parseInt(b.dataset.i); if(bi!==chosen && bi!==step.correct) b.classList.add('dim'); });
+        fb.className='feedback bad show';
+        fb.innerHTML = `<strong>❌</strong>${fmt(step.feedback.bad, nameMap)}`;
+      }
+      answeredCount++;
+      updateProgress();
+      showContinue(()=>{
+        cursor++;
+        if(cursor >= flatSteps.length){
+          finishGame();
+        } else {
+          renderStep();
+        }
+      });
+    });
+  });
+}
+
+function addScore(pts){
+  score += pts;
+  scoreChip.textContent = fmt(t('ptsChip'), {n:score});
+  scoreChip.classList.add('bump');
+  setTimeout(()=>scoreChip.classList.remove('bump'), 260);
+}
+
+/* =========================================================
+   END SCREEN + LEADERBOARD
+   ========================================================= */
+let showAllRows = false;
+let leaderboardCache = null;
+
+function finishGame(){
+  stage.classList.remove('show');
+  progressTrack.style.display = 'none';
+  renderEndScreen();
+  endScreen.classList.add('show');
+  submitScore();
+  loadLeaderboard();
+}
+
+function renderEndScreen(){
+  const pct = totalPoints ? Math.round((score/totalPoints)*100) : 0;
+  let msg;
+  if(pct===100) msg = t('msgPerfect');
+  else if(pct>=70) msg = t('msgGood');
+  else msg = t('msgLow');
+
+  endScreen.innerHTML = `
+    <div class="trophy">🏆</div>
+    <div class="end-title">${t('endTitle')}</div>
+    <div class="end-sub">${t('endSub')}</div>
+    <div class="final-score" id="finalScore">0<span>/${totalPoints}</span></div>
+    <div class="end-msg">${msg}</div>
+    <button class="restart-btn" id="restartBtn">${t('playAgain')}</button>
+    <div class="lb-wrap" id="lbWrap">
+      <div class="lb-title">${t('lbTitle')}</div>
+      <div class="lb-sub">${t('lbSub')}</div>
+      <div id="lbBody"><div class="lb-loading">${t('lbLoading')}</div></div>
+    </div>
+  `;
+  document.getElementById('restartBtn').addEventListener('click', restartGame);
+  animateCount(document.getElementById('finalScore'), score, totalPoints);
+  if(leaderboardCache) renderLeaderboard(leaderboardCache);
+  launchConfetti();
+}
+
+function animateCount(el, target, total){
+  let cur=0;
+  const step = Math.max(1, Math.round(target/30) || 1);
+  const iv = setInterval(()=>{
+    cur += step;
+    if(cur>=target){cur=target; clearInterval(iv);}
+    el.innerHTML = fmt(t('finalScore'), {n:cur, t:total});
+  }, 25);
+}
+
+function launchConfetti(){
+  const wrap = document.getElementById('confetti-wrap');
+  const colors = ['#12665F','#E3A73B','#E0663D','#8FB09E','#1E8A80'];
+  for(let i=0;i<60;i++){
+    const p = document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (2.5+Math.random()*2)+'s';
+    p.style.animationDelay = (Math.random()*0.6)+'s';
+    p.style.borderRadius = Math.random()>0.5 ? '50%':'2px';
+    wrap.appendChild(p);
+    setTimeout(()=>p.remove(), 6000);
+  }
+}
+
+/* ---- backend submit + fetch ---- */
+function submitScore(){
+  if(!BACKEND.webhookUrl || !player) return;
+  const payload = {
+    game: "privacy-matters",
+    firstName: player.firstName,
+    lastName: player.lastName,
+    email: player.email,
+    department: player.department,
+    country: player.country,
+    language: player.language,
+    score: score,
+    total: totalPoints,
+    timestamp: new Date().toISOString()
+  };
+  fetch(BACKEND.webhookUrl, {
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  }).catch(()=>{ /* silently ignore; leaderboard fetch will still be attempted */ });
+}
+
+function loadLeaderboard(){
+  const lbBody = document.getElementById('lbBody');
+  if(!BACKEND.webhookUrl){
+    if(lbBody) lbBody.innerHTML = `<div class="lb-empty">${t('lbNotConnected')}</div>`;
+    return;
+  }
+  const url = BACKEND.webhookUrl + (BACKEND.webhookUrl.includes('?') ? '&' : '?') + 'game=privacy-matters';
+  fetch(url).then(r=>r.json()).then(data=>{
+    leaderboardCache = data;
+    renderLeaderboard(data);
+  }).catch(()=>{
+    jsonpFallback(url);
+  });
+}
+
+function jsonpFallback(url){
+  const cbName = 'lbCallback_' + Date.now();
+  window[cbName] = function(data){
+    leaderboardCache = data;
+    renderLeaderboard(data);
+    delete window[cbName];
+    script.remove();
+  };
+  const script = document.createElement('script');
+  script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
+  script.onerror = ()=>{
+    const lbBody = document.getElementById('lbBody');
+    if(lbBody) lbBody.innerHTML = `<div class="lb-empty">${t('lbNotConnected')}</div>`;
+  };
+  document.body.appendChild(script);
+}
+
+function renderLeaderboard(data){
+  const lbBody = document.getElementById('lbBody');
+  if(!lbBody) return;
+  let rows = (data && data.rows) ? data.rows.slice() : [];
+  if(!rows.length){
+    lbBody.innerHTML = `<div class="lb-empty">${t('lbEmpty')}</div>`;
+    return;
+  }
+  rows.sort((a,b)=> (b.score||0) - (a.score||0));
+  const visibleRows = showAllRows ? rows : rows.slice(0,10);
+  const myEmail = player ? player.email : null;
+
+  const tableRows = visibleRows.map((r,i)=>{
+    const isMe = myEmail && r.email === myEmail;
+    const name = [r.firstName,r.lastName].filter(Boolean).join(' ');
+    return `<tr class="${isMe?'me':''}">
+      <td class="lb-rank">${i+1}</td>
+      <td>${name}${isMe? ' · '+t('you') : ''}</td>
+      <td>${r.department||''}</td>
+      <td>${r.country||''}</td>
+      <td>${r.score}</td>
+    </tr>`;
+  }).join('');
+
+  lbBody.innerHTML = `
+    <table class="lb-table">
+      <thead><tr>
+        <th>${t('colRank')}</th><th>${t('colName')}</th><th>${t('colDept')}</th><th>${t('colCountry')}</th><th>${t('colScore')}</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    ${rows.length>10 ? `<button class="lb-toggle" id="lbToggle">${showAllRows? t('viewTop') : t('viewAll')}</button>` : ''}
+  `;
+  const toggleBtn = document.getElementById('lbToggle');
+  if(toggleBtn){
+    toggleBtn.addEventListener('click', ()=>{
+      showAllRows = !showAllRows;
+      renderLeaderboard(data);
+    });
+  }
+}
+
+function restartGame(){
+  score=0; answeredCount=0; cursor=0; showAllRows=false; stepAnswers={};
+  endScreen.classList.remove('show');
+  regScreen.classList.add('show');
+  progressTrack.style.display = 'none';
+  scoreChip.style.display = 'none';
+  renderRegistration();
+}
+
+/* init */
+renderLangPills();
+brandText.textContent = t('brand');
+mainWeekTitle.textContent = t('weekTag');
+buildCases();
+regScreen.classList.add('show');
+renderRegistration();
+</script>
+</body>
+</html>
