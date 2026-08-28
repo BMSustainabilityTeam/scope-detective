@@ -134,6 +134,12 @@
   #leaderboardTable tr.rank-1 td{background:#fff8e6;font-weight:700;}
   #leaderboardTable tr.rank-2 td{background:#f3f5f7;font-weight:700;}
   #leaderboardTable tr.rank-3 td{background:#fbeee6;font-weight:700;}
+  #leaderboardTable tr.me-row td, #leaderboardAllTable tr.me-row td{background:#eafaf1;font-weight:700;border-top:2px solid var(--primary);border-bottom:2px solid var(--primary);}
+  tr.divider-row td{text-align:center;color:var(--muted);letter-spacing:2px;padding:2px 6px;border-bottom:none;}
+  .table-scroll{max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;margin-top:8px;}
+  .table-scroll table{margin-top:0;}
+  .table-scroll thead th{position:sticky;top:0;background:#fff;z-index:1;}
+  #leaderboardAllTable td:first-child, #leaderboardAllTable th:first-child{width:34px;text-align:center;}
   .score-hero{text-align:center;padding:8px 0 4px;}
   .score-num{font-size:2.6rem;font-weight:800;color:var(--primary-dark);}
   .score-note{font-size:0.85rem;color:var(--muted);margin-top:4px;}
@@ -240,6 +246,7 @@
   <div class="card hidden" id="screen-leaderboard">
     <h2 data-i18n="leaderboardTitle">Leaderboard</h2>
     <p class="hint" data-i18n="leaderboardHint">Ranked by auto-graded score (Q1 + Q2, out of 40). Final ranking will also include Q3 and Q4 once reviewed.</p>
+    <p class="hint" id="leaderboardTotalCount"></p>
     <div id="leaderboardLoading" class="hint" data-i18n="leaderboardLoading">Loading...</div>
     <table id="leaderboardTable">
       <thead><tr>
@@ -247,7 +254,22 @@
       </tr></thead>
       <tbody id="leaderboardBody"></tbody>
     </table>
+    <button class="btn btn-secondary" id="btnViewAllPlayers" data-i18n="viewAllPlayersBtn">View all players</button>
     <button class="btn btn-secondary" id="btnBackFromLeaderboard" data-i18n="backToResultsBtn">Back to my result</button>
+  </div>
+
+  <div class="card hidden" id="screen-leaderboard-all">
+    <h2 data-i18n="allPlayersTitle">All players</h2>
+    <p class="hint" id="allPlayersTotalCount"></p>
+    <div class="table-scroll">
+      <table id="leaderboardAllTable">
+        <thead><tr>
+          <th data-i18n="thRank">#</th><th data-i18n="thName">Name</th><th data-i18n="thDept">Dept</th><th data-i18n="thAuto">Auto</th>
+        </tr></thead>
+        <tbody id="leaderboardAllBody"></tbody>
+      </table>
+    </div>
+    <button class="btn btn-secondary" id="btnBackFromAllPlayers" data-i18n="backToLeaderboardBtn">Back to leaderboard</button>
   </div>
 
 </div>
@@ -285,6 +307,9 @@ const I18N = {
     viewLeaderboardBtn: "View leaderboard", backToResultsBtn: "Back to my result",
     leaderboardHint: "Ranked by auto-graded score (Q1 + Q2, out of 40). Final ranking will also include Q3 and Q4 once reviewed.",
     leaderboardLoading: "Loading...", leaderboardEmpty: "No results yet.",
+    totalPlayersLabel: "Total players so far: {n}",
+    viewAllPlayersBtn: "View all players", allPlayersTitle: "All players", backToLeaderboardBtn: "Back to leaderboard",
+    youLabel: "You",
     errRegister: "Please fill in all fields with a valid email.",
     errSelect: "Please select an answer.",
     errMatch: "Please match all 4 terms before continuing.",
@@ -316,6 +341,9 @@ const I18N = {
     viewLeaderboardBtn: "ดู Leaderboard", backToResultsBtn: "กลับไปดูคะแนนของฉัน",
     leaderboardHint: "จัดอันดับตามคะแนนที่ตรวจอัตโนมัติ (ข้อ 1 + ข้อ 2 เต็ม 40) อันดับสุดท้ายจะรวมข้อ 3 และข้อ 4 หลังตรวจเสร็จ",
     leaderboardLoading: "กำลังโหลด...", leaderboardEmpty: "ยังไม่มีข้อมูลผู้เล่น",
+    totalPlayersLabel: "จำนวนผู้เล่นทั้งหมด: {n} คน",
+    viewAllPlayersBtn: "ดูผู้เล่นทั้งหมด", allPlayersTitle: "ผู้เล่นทั้งหมด", backToLeaderboardBtn: "กลับไปหน้า Leaderboard",
+    youLabel: "คุณ",
     errRegister: "กรุณากรอกข้อมูลให้ครบและอีเมลให้ถูกต้อง",
     errSelect: "กรุณาเลือกคำตอบ",
     errMatch: "กรุณาจับคู่ให้ครบทั้ง 4 คู่ก่อนไปต่อ",
@@ -347,6 +375,9 @@ const I18N = {
     viewLeaderboardBtn: "查看排行榜", backToResultsBtn: "返回我的成绩",
     leaderboardHint: "按自动评分排名（第1题+第2题，满分40）。最终排名将在第3、4题审核后更新。",
     leaderboardLoading: "加载中...", leaderboardEmpty: "暂无数据。",
+    totalPlayersLabel: "目前参与人数：{n} 人",
+    viewAllPlayersBtn: "查看所有玩家", allPlayersTitle: "所有玩家", backToLeaderboardBtn: "返回排行榜",
+    youLabel: "你",
     errRegister: "请填写所有字段并输入正确的电子邮件。",
     errSelect: "请选择一个答案。",
     errMatch: "请先完成全部4组配对再继续。",
@@ -378,6 +409,9 @@ const I18N = {
     viewLeaderboardBtn: "Bestenliste ansehen", backToResultsBtn: "Zurück zu meinem Ergebnis",
     leaderboardHint: "Rangliste nach automatisch bewerteter Punktzahl (Frage 1 + Frage 2, von 40). Die Endrangliste enthält später auch Frage 3 und Frage 4.",
     leaderboardLoading: "Wird geladen \u2026", leaderboardEmpty: "Noch keine Ergebnisse.",
+    totalPlayersLabel: "Teilnehmer bisher insgesamt: {n}",
+    viewAllPlayersBtn: "Alle Teilnehmer ansehen", allPlayersTitle: "Alle Teilnehmer", backToLeaderboardBtn: "Zurück zur Bestenliste",
+    youLabel: "Sie",
     errRegister: "Bitte füllen Sie alle Felder aus und geben Sie eine gültige E-Mail-Adresse ein.",
     errSelect: "Bitte wählen Sie eine Antwort aus.",
     errMatch: "Bitte ordnen Sie alle 4 Begriffe zu, bevor Sie fortfahren.",
@@ -423,11 +457,13 @@ function applyI18n(){
   if(resultScreenVisible && lastAutoScore !== null) renderResultReview(lastAutoScore);
   const leaderboardVisible = !document.getElementById('screen-leaderboard').classList.contains('hidden');
   if(leaderboardVisible) loadLeaderboard();
+  const allPlayersVisible = !document.getElementById('screen-leaderboard-all').classList.contains('hidden');
+  if(allPlayersVisible && cachedLeaderboard) renderAllPlayers(cachedLeaderboard);
 }
 
 /* ================= SCREENS ================= */
 function show(id){
-  ['screen-register','screen-quiz','screen-result','screen-leaderboard'].forEach(s=>{
+  ['screen-register','screen-quiz','screen-result','screen-leaderboard','screen-leaderboard-all'].forEach(s=>{
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
 }
@@ -714,29 +750,79 @@ function submitResult(autoScore){
   }).catch(()=>{});
 }
 
+let cachedLeaderboard = null; // sorted array of {rank, name, dept, score}, cached after first successful fetch
+
+function buildRankedList(players){
+  if(!Array.isArray(players)) players = [];
+  const cleaned = players
+    .filter(p => p && p.name)
+    .map(p => ({ name: p.name, dept: p.dept || '', score: parseInt(p.score, 10) || 0 }))
+    .sort((a,b) => b.score - a.score);
+  // Sequential true rank based on sorted position (ties simply keep list order).
+  return cleaned.map((p, idx) => ({ rank: idx + 1, name: p.name, dept: p.dept, score: p.score }));
+}
+
+function rowHtml(p, isMe){
+  const medal = p.rank===1 ? '\u{1F947}' : p.rank===2 ? '\u{1F948}' : p.rank===3 ? '\u{1F949}' : p.rank;
+  const nameLabel = isMe ? escapeHtml(p.name) + ' (' + t('youLabel') + ')' : escapeHtml(p.name);
+  return '<td>'+ medal +'</td><td>'+ nameLabel +'</td><td>'+ escapeHtml(p.dept) +'</td><td>'+ p.score +'/40</td>';
+}
+
 function renderLeaderboardRows(players){
   const loadingEl = document.getElementById('leaderboardLoading');
   const body = document.getElementById('leaderboardBody');
+  const totalEl = document.getElementById('leaderboardTotalCount');
   body.innerHTML = '';
-  if(!Array.isArray(players)) players = [];
-  players = players
-    .filter(p => p && p.name)
-    .map(p => ({ name: p.name, dept: p.dept || '', score: parseInt(p.score, 10) || 0 }))
-    .sort((a,b) => b.score - a.score)
-    .slice(0, 20);
 
-  if(players.length === 0){
+  const ranked = buildRankedList(players);
+  cachedLeaderboard = ranked;
+
+  if(ranked.length === 0){
+    totalEl.textContent = '';
     loadingEl.textContent = t('leaderboardEmpty');
     loadingEl.classList.remove('hidden');
     return;
   }
   loadingEl.classList.add('hidden');
-  players.forEach((p, idx)=>{
-    const rank = idx + 1;
-    const medal = rank===1 ? '\u{1F947}' : rank===2 ? '\u{1F948}' : rank===3 ? '\u{1F949}' : rank;
+  totalEl.textContent = t('totalPlayersLabel').replace('{n}', ranked.length);
+
+  const topTen = ranked.slice(0, 10);
+  topTen.forEach(p=>{
     const tr = document.createElement('tr');
-    if(rank<=3) tr.className = 'rank-' + rank;
-    tr.innerHTML = '<td>'+ medal +'</td><td>'+ escapeHtml(p.name) +'</td><td>'+ escapeHtml(p.dept) +'</td><td>'+ p.score +'/40</td>';
+    if(p.rank<=3) tr.className = 'rank-' + p.rank;
+    tr.innerHTML = rowHtml(p, false);
+    body.appendChild(tr);
+  });
+
+  // If the player just finished the quest and isn't in the top 10, show them as an extra row.
+  if(lastAutoScore !== null && player.name){
+    const myEntry = ranked.find(p => p.rank > 10 && p.name === player.name && p.score === lastAutoScore);
+    if(myEntry){
+      const divider = document.createElement('tr');
+      divider.className = 'divider-row';
+      divider.innerHTML = '<td colspan="4">\u22ee</td>';
+      body.appendChild(divider);
+
+      const meRow = document.createElement('tr');
+      meRow.className = 'me-row';
+      meRow.innerHTML = rowHtml(myEntry, true);
+      body.appendChild(meRow);
+    }
+  }
+}
+
+function renderAllPlayers(ranked){
+  const body = document.getElementById('leaderboardAllBody');
+  const totalEl = document.getElementById('allPlayersTotalCount');
+  body.innerHTML = '';
+  totalEl.textContent = t('totalPlayersLabel').replace('{n}', ranked.length);
+
+  ranked.forEach(p=>{
+    const isMe = lastAutoScore !== null && player.name && p.name === player.name && p.score === lastAutoScore;
+    const tr = document.createElement('tr');
+    if(p.rank<=3) tr.className = 'rank-' + p.rank;
+    if(isMe) tr.className = (tr.className ? tr.className + ' ' : '') + 'me-row';
+    tr.innerHTML = rowHtml(p, isMe);
     body.appendChild(tr);
   });
 }
@@ -791,6 +877,24 @@ document.getElementById('btnViewLeaderboard').addEventListener('click', ()=>{
 });
 document.getElementById('btnBackFromLeaderboard').addEventListener('click', ()=>{
   show('screen-result');
+});
+document.getElementById('btnViewAllPlayers').addEventListener('click', ()=>{
+  show('screen-leaderboard-all');
+  if(cachedLeaderboard){
+    renderAllPlayers(cachedLeaderboard);
+  } else {
+    // Shouldn't normally happen (button only shows once the leaderboard has loaded), but
+    // fetch fresh data as a safety net if the cache is somehow empty.
+    const url = GOOGLE_SHEETS_WEBHOOK_URL + '?quest=' + encodeURIComponent(QUEST_ID);
+    fetch(url).then(r=>r.json()).then(players=>{
+      const ranked = buildRankedList(players);
+      cachedLeaderboard = ranked;
+      renderAllPlayers(ranked);
+    }).catch(()=>{});
+  }
+});
+document.getElementById('btnBackFromAllPlayers').addEventListener('click', ()=>{
+  show('screen-leaderboard');
 });
 </script>
 </body>
