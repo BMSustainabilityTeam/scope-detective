@@ -1305,8 +1305,7 @@ function finishGame(){
   progressTrack.style.display = 'none';
   renderEndScreen();
   endScreen.classList.add('show');
-  submitScore();
-  loadLeaderboard();
+  submitScore().finally(()=>{ loadLeaderboard(); });
 }
 
 function renderEndScreen(){
@@ -1363,8 +1362,11 @@ function launchConfetti(){
 }
 
 /* ---- backend submit + fetch ---- */
+let lastSubmission = null; // {email, score, total} for this session's own attempt, used to highlight the right row
+
 function submitScore(){
-  if(!BACKEND.webhookUrl || !player) return;
+  if(!BACKEND.webhookUrl || !player) return Promise.resolve();
+  lastSubmission = { email: player.email, score: score, total: totalPoints };
   const payload = {
     action: "submitPrivacyMatters",
     firstName: player.firstName,
@@ -1377,7 +1379,7 @@ function submitScore(){
     total: totalPoints,
     timestamp: new Date().toISOString()
   };
-  fetch(BACKEND.webhookUrl, {
+  return fetch(BACKEND.webhookUrl, {
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
     body: JSON.stringify(payload)
@@ -1426,10 +1428,14 @@ function renderLeaderboard(data){
   }
   rows.sort((a,b)=> (b.score||0) - (a.score||0));
   const visibleRows = showAllRows ? rows : rows.slice(0,10);
-  const myEmail = player ? player.email : null;
 
+  let matchedMe = false; // only flag the single row matching this session's own attempt, not every row that shares the player's email
   const tableRows = visibleRows.map((r,i)=>{
-    const isMe = myEmail && r.email === myEmail;
+    const isMe = !matchedMe && lastSubmission
+      && r.email === lastSubmission.email
+      && Number(r.score) === lastSubmission.score
+      && Number(r.total) === lastSubmission.total;
+    if(isMe) matchedMe = true;
     const name = r.name || [r.firstName,r.lastName].filter(Boolean).join(' ');
     return `<tr class="${isMe?'me':''}">
       <td class="lb-rank">${i+1}</td>
@@ -1459,7 +1465,7 @@ function renderLeaderboard(data){
 }
 
 function restartGame(){
-  score=0; answeredCount=0; cursor=0; showAllRows=false; stepAnswers={};
+  score=0; answeredCount=0; cursor=0; showAllRows=false; stepAnswers={}; lastSubmission=null;
   endScreen.classList.remove('show');
   regScreen.classList.add('show');
   progressTrack.style.display = 'none';
