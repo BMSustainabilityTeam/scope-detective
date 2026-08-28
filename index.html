@@ -1504,11 +1504,16 @@ async function loadEntries(){
 }
 
 async function saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer, finishedAtISO){
+  const quizAnswersObj = quizIds.reduce((o,id)=>{ o[id] = state.quizAnswers[id] === quizAnswerKey[id] ? 1 : 0; return o; }, {});
   const entry = {
     name: state.playerName,
     email: state.playerEmail,
     dept: state.playerDept,
-    quizAnswers: quizIds.reduce((o,id)=>{ o[id] = state.quizAnswers[id] === quizAnswerKey[id] ? 1 : 0; return o; }, {}),
+    quizAnswers: quizAnswersObj,
+    // flat q1..q6 too — the shared Apps Script backend (used by all 5 Sustain
+    // Connect games on this webhook) reads data.q1..data.q6 directly rather
+    // than data.quizAnswers.q1..q6, so both shapes are sent to stay compatible
+    ...quizAnswersObj,
     quizScore: quizScore,
     matchScore: matchScore,
     autoTotal: quizScore + matchScore, // out of 22 — Part 3 is scored manually
