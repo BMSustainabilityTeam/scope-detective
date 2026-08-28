@@ -287,14 +287,17 @@
   @keyframes blink{50%{opacity:0;}}
 
   .scene-note{
-    text-align:center;
-    font-size:12.5px;
-    font-style:italic;
-    color:var(--sage);
-    background:rgba(15,61,58,.05);
+    text-align:left;
+    font-size:14px;
+    font-weight:700;
+    font-style:normal;
+    color:#B45A17;
+    background:rgba(224,102,61,.10);
+    border-left:4px solid var(--coral);
     border-radius:10px;
-    padding:8px 12px;
-    margin-bottom:14px;
+    padding:11px 14px;
+    margin-bottom:16px;
+    line-height:1.5;
     animation:fadeDown .45s ease both;
   }
 
@@ -367,8 +370,8 @@
 
   .concept-card{
     margin-top:14px;
-    background:linear-gradient(135deg, rgba(30,138,128,.10), rgba(227,167,59,.10));
-    border:1px solid rgba(15,61,58,.12);
+    background:rgba(63,90,166,.08);
+    border:1px solid rgba(63,90,166,.3);
     border-radius:16px;
     padding:14px 16px;
     font-size:13.5px;
@@ -376,7 +379,18 @@
     color:var(--ink);
     animation:fadeUp .4s ease both;
   }
-  .concept-card b{color:var(--teal);}
+  .concept-card b{color:#3F5AA6;}
+  .concept-label{
+    display:inline-block;
+    background:#3F5AA6;
+    color:#fff;
+    font-weight:800;
+    font-size:11px;
+    letter-spacing:.3px;
+    padding:3px 10px;
+    border-radius:999px;
+    margin-bottom:8px;
+  }
 
   .btn-row{display:flex;justify-content:flex-end;margin-top:16px;}
   .btn{
@@ -409,6 +423,13 @@
     font-variant-numeric:tabular-nums;
   }
   .final-score span{font-size:18px;color:var(--sage);font-weight:700;}
+  .final-tagline{
+    font-size:13.5px;
+    font-weight:800;
+    color:var(--teal);
+    letter-spacing:.2px;
+    margin:8px 0 4px;
+  }
   .end-msg{
     margin:16px auto 22px;
     max-width:440px;
@@ -520,7 +541,9 @@ const UI = {
     lbLoading:"Loading leaderboard…",
     lbEmpty:"No scores yet — be the first!",
     lbNotConnected:"Leaderboard isn't connected yet. Your score has been recorded on this device only.",
-    you:"You", viewAll:"View full leaderboard", viewTop:"Show top 10 only"
+    you:"You", viewAll:"View full leaderboard", viewTop:"Show top 10 only",
+    keyConceptLabel:"💡 Key Concept",
+    finalTagline:"🔐 Protect Data. Respect Privacy. Build Trust."
   },
   th:{
     brand:"การเคารพความเป็นส่วนตัว · แฟ้มคดี",
@@ -543,7 +566,9 @@ const UI = {
     lbLoading:"กำลังโหลดตารางคะแนน…",
     lbEmpty:"ยังไม่มีคะแนน — เป็นคนแรกเลย!",
     lbNotConnected:"ยังไม่ได้เชื่อมต่อตารางคะแนน คะแนนของคุณถูกบันทึกไว้บนอุปกรณ์นี้เท่านั้น",
-    you:"คุณ", viewAll:"ดูตารางคะแนนทั้งหมด", viewTop:"แสดงแค่ 10 อันดับแรก"
+    you:"คุณ", viewAll:"ดูตารางคะแนนทั้งหมด", viewTop:"แสดงแค่ 10 อันดับแรก",
+    keyConceptLabel:"💡 แนวคิดสำคัญ",
+    finalTagline:"🔐 ปกป้องข้อมูล เคารพความเป็นส่วนตัว สร้างความไว้วางใจ"
   },
   zh:{
     brand:"隐私很重要 · 案例档案",
@@ -566,7 +591,9 @@ const UI = {
     lbLoading:"正在加载排行榜…",
     lbEmpty:"暂时还没有成绩——快来当第一个吧!",
     lbNotConnected:"排行榜尚未连接。你的分数仅保存在本设备上。",
-    you:"你", viewAll:"查看完整排行榜", viewTop:"只显示前10名"
+    you:"你", viewAll:"查看完整排行榜", viewTop:"只显示前10名",
+    keyConceptLabel:"💡 核心概念",
+    finalTagline:"🔐 保护数据,尊重隐私,建立信任。"
   },
   de:{
     brand:"PRIVATSPHÄRE ZÄHLT · Fallakten",
@@ -589,7 +616,9 @@ const UI = {
     lbLoading:"Bestenliste wird geladen…",
     lbEmpty:"Noch keine Ergebnisse — sei die/der Erste!",
     lbNotConnected:"Die Bestenliste ist noch nicht verbunden. Dein Ergebnis wurde nur auf diesem Gerät gespeichert.",
-    you:"Du", viewAll:"Ganze Bestenliste anzeigen", viewTop:"Nur Top 10 anzeigen"
+    you:"Du", viewAll:"Ganze Bestenliste anzeigen", viewTop:"Nur Top 10 anzeigen",
+    keyConceptLabel:"💡 Kernkonzept",
+    finalTagline:"🔐 Daten schützen. Privatsphäre respektieren. Vertrauen aufbauen."
   }
 };
 
@@ -641,7 +670,7 @@ en:[
        bad:"Not this one. There's no competing interest, payment, or environmental issue here — it's purely about personal information boundaries: Respect for Privacy." } }
  ]},
  { key:"case2", tag:"CASE 2 · A Favor Between Friends", title:"The Customer List", steps:[
-   {type:"note", text:"{A} and {B} are close friends — but they work at two different companies."},
+   {type:"note", text:"🏢 Important context: {A} and {B} are close friends, but they work at two <u>different companies</u>."},
    {type:"say", who:"B", text:"Hi {A}! Got a sec?"},
    {type:"say", who:"A", text:"Sure, what's up?"},
    {type:"say", who:"B", text:"I'm promoting a new product and could really use some contacts to reach out to. You handle the customer list at work, right? Could you send me a few?"},
@@ -708,7 +737,7 @@ th:[
        bad:"ไม่ใช่ข้อนี้ค่ะ ไม่มีเรื่องผลประโยชน์ทับซ้อน การจ่ายเงิน หรือสิ่งแวดล้อมเกี่ยวข้องเลย เรื่องนี้เป็นเรื่องขอบเขตของข้อมูลส่วนตัวล้วนๆ คือ การเคารพความเป็นส่วนตัว" } }
  ]},
  { key:"case2", tag:"เคส 2 · ขอความช่วยเหลือจากเพื่อน", title:"รายชื่อลูกค้า", steps:[
-   {type:"note", text:"{A} และ {B} เป็นเพื่อนสนิทกัน แต่ทำงานอยู่คนละบริษัทกัน"},
+   {type:"note", text:"🏢 บริบทสำคัญ: {A} และ {B} เป็นเพื่อนสนิทกัน แต่ทำงานอยู่<u>คนละบริษัทกัน</u>"},
    {type:"say", who:"B", text:"ไง {A} ว่างไหม"},
    {type:"say", who:"A", text:"ว่างสิ มีอะไรเหรอ"},
    {type:"say", who:"B", text:"ฉันกำลังโฆษณาสินค้าตัวใหม่อยู่ อยากได้เบอร์ลูกค้าไปติดต่อเพิ่มหน่อย เธอดูแลรายชื่อลูกค้าอยู่ใช่ไหม ช่วยส่งให้หน่อยได้ไหม"},
@@ -775,7 +804,7 @@ zh:[
        bad:"不是这个。这里没有利益冲突、付款或环境问题——完全是关于个人信息界限的问题:尊重隐私。" } }
  ]},
  { key:"case2", tag:"案例 2·朋友的请求", title:"客户名单", steps:[
-   {type:"note", text:"{A}和{B}是好朋友,但他们在两家不同的公司工作。"},
+   {type:"note", text:"🏢 重要背景:{A}和{B}是好朋友,但他们在两家<u>不同的公司</u>工作。"},
    {type:"say", who:"B", text:"嘿,{A}!有空吗?"},
    {type:"say", who:"A", text:"有啊,怎么了?"},
    {type:"say", who:"B", text:"我在推广一款新产品,想多找些客户联系方式。你负责管理客户名单对吧?能不能给我发几个?"},
@@ -842,7 +871,7 @@ de:[
        bad:"Nicht diese Antwort. Hier geht es nicht um einen Interessenkonflikt, Zahlungen oder die Umwelt — es geht rein um persönliche Informationsgrenzen: Respekt vor der Privatsphäre." } }
  ]},
  { key:"case2", tag:"Fall 2 · Ein Gefallen unter Freunden", title:"Die Kundenliste", steps:[
-   {type:"note", text:"{A} und {B} sind gute Freunde — sie arbeiten jedoch bei zwei verschiedenen Unternehmen."},
+   {type:"note", text:"🏢 Wichtiger Kontext: {A} und {B} sind gute Freunde, arbeiten aber bei zwei <u>verschiedenen Unternehmen</u>."},
    {type:"say", who:"B", text:"Hey {A}! Hast du kurz Zeit?"},
    {type:"say", who:"A", text:"Klar, was gibt's?"},
    {type:"say", who:"B", text:"Ich bewerbe gerade ein neues Produkt und könnte ein paar Kontakte gebrauchen. Du verwaltest doch die Kundenliste bei der Arbeit, oder? Könntest du mir ein paar schicken?"},
@@ -880,7 +909,7 @@ de:[
    enable the shared leaderboard. Leave blank to run local-only.
    ========================================================= */
 const BACKEND = {
-  webhookUrl: "" // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
+  webhookUrl: "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec"
 };
 
 /* =========================================================
@@ -1111,7 +1140,7 @@ function renderStep(){
   else if(step.type==="concept"){
     const div = document.createElement('div');
     div.className='concept-card';
-    div.innerHTML = fmt(step.text, nameMap);
+    div.innerHTML = `<span class="concept-label">${t('keyConceptLabel')}</span><div>${fmt(step.text, nameMap)}</div>`;
     convo.appendChild(div);
     showContinue(()=>{ cursor++; renderStep(); });
   }
@@ -1156,7 +1185,7 @@ function renderStaticStep(step, convo, nameMap, flatIndex){
   else if(step.type==="concept"){
     const div = document.createElement('div');
     div.className='concept-card';
-    div.innerHTML = fmt(step.text, nameMap);
+    div.innerHTML = `<span class="concept-label">${t('keyConceptLabel')}</span><div>${fmt(step.text, nameMap)}</div>`;
     convo.appendChild(div);
   }
   else if(step.type==="question"){
@@ -1292,6 +1321,7 @@ function renderEndScreen(){
     <div class="end-title">${t('endTitle')}</div>
     <div class="end-sub">${t('endSub')}</div>
     <div class="final-score" id="finalScore">0<span>/${totalPoints}</span></div>
+    <div class="final-tagline">${t('finalTagline')}</div>
     <div class="end-msg">${msg}</div>
     <button class="restart-btn" id="restartBtn">${t('playAgain')}</button>
     <div class="lb-wrap" id="lbWrap">
@@ -1336,7 +1366,7 @@ function launchConfetti(){
 function submitScore(){
   if(!BACKEND.webhookUrl || !player) return;
   const payload = {
-    game: "privacy-matters",
+    action: "submitPrivacyMatters",
     firstName: player.firstName,
     lastName: player.lastName,
     email: player.email,
@@ -1360,7 +1390,7 @@ function loadLeaderboard(){
     if(lbBody) lbBody.innerHTML = `<div class="lb-empty">${t('lbNotConnected')}</div>`;
     return;
   }
-  const url = BACKEND.webhookUrl + (BACKEND.webhookUrl.includes('?') ? '&' : '?') + 'game=privacy-matters';
+  const url = BACKEND.webhookUrl + (BACKEND.webhookUrl.includes('?') ? '&' : '?') + 'action=getPrivacyLeaderboard';
   fetch(url).then(r=>r.json()).then(data=>{
     leaderboardCache = data;
     renderLeaderboard(data);
@@ -1389,7 +1419,7 @@ function jsonpFallback(url){
 function renderLeaderboard(data){
   const lbBody = document.getElementById('lbBody');
   if(!lbBody) return;
-  let rows = (data && data.rows) ? data.rows.slice() : [];
+  let rows = Array.isArray(data) ? data.slice() : ((data && data.rows) ? data.rows.slice() : []);
   if(!rows.length){
     lbBody.innerHTML = `<div class="lb-empty">${t('lbEmpty')}</div>`;
     return;
@@ -1400,7 +1430,7 @@ function renderLeaderboard(data){
 
   const tableRows = visibleRows.map((r,i)=>{
     const isMe = myEmail && r.email === myEmail;
-    const name = [r.firstName,r.lastName].filter(Boolean).join(' ');
+    const name = r.name || [r.firstName,r.lastName].filter(Boolean).join(' ');
     return `<tr class="${isMe?'me':''}">
       <td class="lb-rank">${i+1}</td>
       <td>${name}${isMe? ' · '+t('you') : ''}</td>
