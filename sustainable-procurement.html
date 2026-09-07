@@ -1,0 +1,1404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sustainable Procurement Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F4EE;
+    --paper:#FFFFFF;
+    --ink:#1F2A22;
+    --ink-soft:#5B6660;
+    --navy:#1E3A4C;
+    --green:#2E7D53;
+    --green-dark:#1F5C3C;
+    --line:#E4E0D4;
+    --gold:#C7962B;
+    --red:#B5453A;
+    --p1:#2E8B57;
+    --p2:#2C3E66;
+    --p3:#A5622B;
+    --p4:#6B4C7C;
+    --p5:#1E7A78;
+    --radius:16px;
+    --shadow:0 2px 0 rgba(31,42,34,0.06), 0 10px 24px rgba(31,42,34,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Poppins',system-ui,sans-serif;}
+  #app{
+    max-width:640px;
+    margin:0 auto;
+    min-height:100vh;
+    padding:0 0 40px;
+    position:relative;
+  }
+  .lang-switch{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    justify-content:flex-end;
+    gap:6px;
+    padding:10px 16px;
+    background:var(--bg);
+  }
+  .lang-btn{
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink-soft);
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:20px;
+    cursor:pointer;
+  }
+  .lang-btn.active{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#fff;
+  }
+  .topband{padding:6px 24px 18px;}
+  .week-tag{
+    display:inline-block;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--green-dark);
+    background:#E4F0E6;
+    border-radius:20px;
+    padding:5px 12px;
+    margin-bottom:12px;
+  }
+  .week-tag-hero{
+    font-size:16.5px;
+    padding:8px 18px;
+    border-radius:24px;
+  }
+  .headline{font-size:26px; line-height:1.25; font-weight:800; color:var(--navy); margin:0 0 8px;}
+  .sub{font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin:0;}
+  .screen{display:none; padding:0 20px;}
+  .screen.active{display:block;}
+
+  body.has-intro-bg{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170' viewBox='0 0 170 170'%3E%3Cg fill='none' stroke='%231E3A4C' stroke-width='1.4' opacity='0.066'%3E%3Cpath d='M22 18c-11 9-11 34 0 45 11-11 11-36 0-45z'/%3E%3Cpath d='M22 20v40'/%3E%3Cellipse cx='128' cy='24' rx='11' ry='15' transform='rotate(20 128 24)'/%3E%3Cellipse cx='140' cy='36' rx='11' ry='15' transform='rotate(20 140 36)'/%3E%3Cpath d='M24 112v38'/%3E%3Cpath d='M9 116h30'/%3E%3Cpath d='M9 116v6'/%3E%3Cpath d='M39 116v6'/%3E%3Ccircle cx='9' cy='127' r='5'/%3E%3Ccircle cx='39' cy='127' r='5'/%3E%3Ccircle cx='132' cy='128' r='13'/%3E%3Ccircle cx='148' cy='140' r='13'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat:repeat;
+    background-size:170px 170px;
+  }
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:20px;
+  }
+  .card.bonus-card{border:2px solid var(--gold);}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .field input{
+    width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:10px;
+    font-size:15px; font-family:'Inter',sans-serif; background:#FBFAF6;
+  }
+  .field input:focus{outline:none; border-color:var(--green);}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    padding:14px 18px; background:var(--green); color:#fff; border:none; border-radius:12px;
+    font-family:'Inter',sans-serif; font-size:15.5px; font-weight:700; cursor:pointer; margin-top:6px;
+  }
+  .btn:disabled{opacity:0.45; cursor:not-allowed;}
+  .btn.secondary{background:transparent; color:var(--navy); border:1.5px solid var(--line);}
+  .btn.navy{background:var(--navy);}
+  .btn.gold{background:var(--gold);}
+  .btn.outline-gold{background:transparent; border:1.5px solid var(--gold); color:var(--gold);}
+  .err{color:var(--red); font-size:12.5px; margin-top:-6px; margin-bottom:10px; display:none;}
+
+  .pillar-strip{display:flex; gap:8px; margin:18px 0 6px; flex-wrap:wrap;}
+  .pillar-chip{font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:20px; color:#fff;}
+
+  .progress-row{display:flex; align-items:center; justify-content:space-between; margin:14px 0 18px;}
+  .dots{display:flex; gap:6px;}
+  .dot{width:9px; height:9px; border-radius:50%; background:var(--line);}
+  .dot.done{background:var(--green);}
+  .streak{display:flex; align-items:center; gap:4px; font-size:13px; font-weight:700; color:var(--gold); opacity:0; transition:opacity .2s;}
+  .streak.show{opacity:1;}
+  .assigned-count{font-size:12.5px; font-weight:700; color:var(--ink-soft);}
+
+  .part-title{font-size:19px; font-weight:800; color:var(--navy); margin:2px 0 4px;}
+  .part-instructions{font-size:13.5px; color:var(--ink-soft); margin:0 0 16px; line-height:1.5;}
+
+  .match-board{display:flex; gap:10px;}
+  .match-col{flex:1; display:flex; flex-direction:column; gap:10px;}
+  .match-card{
+    background:var(--paper); border:2px solid var(--line); border-radius:12px; padding:12px 10px;
+    font-size:13px; line-height:1.4; cursor:pointer; display:flex; align-items:center; gap:8px;
+    min-height:64px; transition:transform .12s, border-color .12s, background .12s; user-select:none;
+  }
+  .match-card:active{transform:scale(0.98);}
+  .match-card .badge{
+    flex:none; width:24px; height:24px; border-radius:50%; background:var(--bg); color:var(--navy);
+    font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center;
+  }
+  .match-card.right .badge{font-size:16px;}
+  .match-card.selected{border-color:var(--green); background:#EEF6EF;}
+  .match-card.linked{border-color:var(--navy); background:#EAF0F4;}
+  .match-card .link-tag{
+    margin-left:auto; flex:none; font-size:11px; font-weight:800; color:var(--navy);
+    background:#fff; border:1px solid var(--navy); border-radius:6px; padding:1px 6px;
+  }
+  .match-card.correct{border-color:var(--green); background:var(--green); color:#fff; cursor:default;}
+  .match-card.correct .badge{background:rgba(255,255,255,0.25); color:#fff;}
+  .match-card.correct .link-tag{background:rgba(255,255,255,0.25); border-color:transparent; color:#fff;}
+  .match-card.wrong{border-color:var(--red); background:#FBECEA; cursor:default;}
+  .match-card.wrong .link-tag{background:#fff; border-color:var(--red); color:var(--red);}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-5px);}
+    75%{transform:translateX(5px);}
+  }
+
+  .part1-score{text-align:center; margin-top:16px; font-size:13px; color:var(--ink-soft); font-weight:600;}
+
+  .complete-emoji{font-size:44px; text-align:center; margin-bottom:6px;}
+  .complete-title{font-size:21px; font-weight:800; color:var(--navy); text-align:center; margin:0 0 4px;}
+  .complete-sub{font-size:13.5px; color:var(--ink-soft); text-align:center; margin:0 0 18px;}
+  .score-tally{display:flex; justify-content:center; gap:24px; margin-bottom:20px; flex-wrap:wrap;}
+  .tally-item{text-align:center;}
+  .tally-num{font-size:26px; font-weight:800; color:var(--green-dark); font-family:'Poppins',sans-serif;}
+  .tally-label{font-size:11px; color:var(--ink-soft); font-weight:600; margin-top:2px;}
+
+  .scenario-tag{
+    display:inline-block; font-size:11.5px; font-weight:700; color:var(--navy);
+    background:#EAF0F4; border-radius:8px; padding:4px 10px; margin-bottom:10px;
+  }
+  .scenario-tag.gold{color:#7A5C10; background:#FBF1DA;}
+  .situation-box{
+    background:#FBFAF6; border-left:3px solid var(--navy); border-radius:8px; padding:14px 16px;
+    font-size:13.5px; line-height:1.65; white-space:pre-line; margin-bottom:14px; color:var(--ink);
+  }
+  .question-text{font-size:15.5px; font-weight:700; color:var(--navy); margin:0 0 14px; line-height:1.4;}
+  .option{
+    display:flex; gap:10px; align-items:flex-start; padding:13px 14px; border:1.5px solid var(--line);
+    border-radius:12px; margin-bottom:9px; cursor:pointer; font-size:14px; line-height:1.5; background:var(--paper);
+  }
+  .option .opt-letter{
+    flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:800; color:var(--ink-soft);
+  }
+  .option.checkbox .opt-letter{border-radius:6px;}
+  .option.correct{border-color:var(--green); background:#EEF6EF;}
+  .option.correct .opt-letter{background:var(--green); border-color:var(--green); color:#fff;}
+  .option.wrong{border-color:var(--red); background:#FBECEA;}
+  .option.wrong .opt-letter{background:var(--red); border-color:var(--red); color:#fff;}
+  .option.picked .opt-letter{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .option.disabled{cursor:default;}
+
+  .feedback{margin-top:4px; padding:12px 14px; border-radius:10px; font-size:13px; line-height:1.55; display:none;}
+  .feedback.show{display:block;}
+  .feedback.good{background:#EEF6EF; color:var(--green-dark);}
+  .feedback.bad{background:#FBECEA; color:#7A2E26;}
+
+  .info-block{
+    background:#FBFAF6; border:1px solid var(--line); border-left:3px solid var(--navy);
+    border-radius:8px; padding:14px 14px 4px; margin-bottom:16px;
+  }
+  .info-block-label{
+    font-size:10.5px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:8px;
+  }
+  .supplier-table{width:100%; border-collapse:collapse; font-size:12.5px; background:transparent;}
+  .supplier-table th{
+    text-align:left; font-size:11px; color:var(--ink-soft); font-weight:700;
+    padding:6px 8px; border-bottom:1.5px solid var(--line); background:transparent;
+  }
+  .supplier-table td{padding:10px 8px; border-bottom:1px solid var(--line); line-height:1.5; vertical-align:top;}
+  .supplier-table tr:last-child td{border-bottom:none;}
+  .supplier-table td.s-letter{font-weight:700; color:var(--ink-soft); width:22px;}
+  .answer-label{
+    font-size:11px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--green-dark); margin:0 0 8px;
+  }
+
+  .final-score{text-align:center; padding:26px 0 10px;}
+  .final-num{font-size:52px; font-weight:800; color:var(--green-dark); font-family:'Poppins',sans-serif; line-height:1;}
+  .final-den{font-size:15px; color:var(--ink-soft); font-weight:600;}
+
+  .you-banner{
+    display:flex; align-items:center; justify-content:space-between;
+    background:#EEF6EF; border:1.5px solid var(--green); border-radius:12px;
+    padding:14px 16px; margin-bottom:16px;
+  }
+  .you-banner .yb-score{font-size:24px; font-weight:800; color:var(--green-dark); font-family:'Poppins',sans-serif;}
+  .you-banner .yb-label{font-size:11px; color:var(--ink-soft); font-weight:600;}
+  .you-banner .yb-rank{font-size:20px; font-weight:800; color:var(--navy); font-family:'Poppins',sans-serif; text-align:right;}
+
+  table.lb{width:100%; border-collapse:collapse; margin-top:4px;}
+  table.lb th{text-align:left; font-size:11px; color:var(--ink-soft); font-weight:700; padding:8px 6px; border-bottom:1.5px solid var(--line);}
+  table.lb td{font-size:13px; padding:9px 6px; border-bottom:1px solid var(--line);}
+  table.lb tr.me td{background:#EEF6EF; font-weight:700;}
+  table.lb tr.ellipsis td{text-align:center; color:var(--ink-soft); font-weight:400; padding:4px;}
+  .rank{width:26px; font-weight:800; color:var(--navy);}
+  .lb-empty{text-align:center; color:var(--ink-soft); font-size:13.5px; padding:24px 0;}
+
+  .footer-tagline{text-align:center; font-size:13px; color:var(--ink-soft); font-weight:600; margin-top:22px;}
+  .btn-row{display:flex; gap:10px; margin-top:16px;}
+  .btn-row .btn{margin-top:0;}
+
+  @media (max-width:380px){
+    .headline{font-size:22px;}
+    .match-card{font-size:12px; padding:10px 8px;}
+    .supplier-table{font-size:11.5px;}
+  }
+</style>
+</head>
+<body class="has-intro-bg">
+<div id="app">
+
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="th">TH</button>
+    <button class="lang-btn" data-lang="zh">中文</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+  </div>
+
+  <!-- INTRO -->
+  <section id="screen-intro" class="screen active">
+    <div class="topband">
+      <div class="week-tag week-tag-hero" data-t="weekLabel"></div>
+      <h1 class="headline" data-t="introTitle"></h1>
+      <p class="sub" data-t="introSubtitle"></p>
+      <div class="pillar-strip">
+        <span class="pillar-chip" style="background:var(--p1)">🌱</span>
+        <span class="pillar-chip" style="background:var(--p2)">⚖️</span>
+        <span class="pillar-chip" style="background:var(--p3)">🤝</span>
+        <span class="pillar-chip" style="background:var(--p4)">🏘️</span>
+        <span class="pillar-chip" style="background:var(--p5)">🔗</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="field"><label data-t="formName"></label><input type="text" id="inputName"></div>
+      <div class="field"><label data-t="formEmail"></label><input type="email" id="inputEmail"></div>
+      <div class="field"><label data-t="formDept"></label><input type="text" id="inputDept"></div>
+      <div class="err" id="formErr" data-t="formErrTxt"></div>
+      <button class="btn" id="startBtn" data-t="startBtn"></button>
+    </div>
+  </section>
+
+  <!-- PART 1: MATCHING -->
+  <section id="screen-part1" class="screen">
+    <div class="topband"><div class="week-tag" data-t="weekLabel"></div></div>
+    <div class="card">
+      <div class="part-title" data-t="part1Title"></div>
+      <div class="part-instructions" data-t="part1Instructions"></div>
+      <div class="progress-row">
+        <div class="dots" id="part1Dots"></div>
+        <div class="assigned-count" id="assignedCount"></div>
+      </div>
+      <div class="match-board">
+        <div class="match-col" id="colLeft"></div>
+        <div class="match-col" id="colRight"></div>
+      </div>
+      <button class="btn" id="submitMatchesBtn" data-t="submitMatchesBtn" disabled style="margin-top:16px;"></button>
+      <div class="part1-score" id="part1ScoreLine"></div>
+    </div>
+  </section>
+
+  <!-- PART 1 COMPLETE -->
+  <section id="screen-part1-complete" class="screen">
+    <div class="topband"><div class="week-tag" data-t="weekLabel"></div></div>
+    <div class="card">
+      <div class="complete-emoji">🎉</div>
+      <div class="complete-title" data-t="part1CompleteTitle"></div>
+      <div class="complete-sub" data-t="part1CompleteSub"></div>
+      <div class="score-tally">
+        <div class="tally-item"><div class="tally-num" id="p1FinalScore">0</div><div class="tally-label" data-t="pointsLabel"></div></div>
+        <div class="tally-item"><div class="tally-num" id="p1CorrectPairs">0</div><div class="tally-label" data-t="correctPairsLabel"></div></div>
+      </div>
+      <button class="btn" id="toPart2Btn" data-t="continueBtn"></button>
+    </div>
+  </section>
+
+  <!-- PART 2: SCENARIOS -->
+  <section id="screen-part2" class="screen">
+    <div class="topband"><div class="week-tag" data-t="weekLabel"></div></div>
+    <div class="card">
+      <div class="part-title" data-t="part2Title"></div>
+      <div class="progress-row">
+        <div class="dots" id="part2Dots"></div>
+        <div></div>
+      </div>
+      <div class="scenario-tag" id="scenarioTag"></div>
+      <div class="situation-box" id="situationText"></div>
+      <div class="question-text" id="questionText"></div>
+      <div id="optionsList"></div>
+      <button class="btn" id="part2SubmitBtn" data-t="submitAnswerBtn" disabled></button>
+      <div class="feedback" id="scenarioFeedback"></div>
+      <button class="btn" id="nextScenarioBtn" style="display:none;" data-t="nextBtn"></button>
+    </div>
+  </section>
+
+  <!-- BONUS CHOICE -->
+  <section id="screen-bonus-choice" class="screen">
+    <div class="topband"><div class="week-tag" data-t="weekLabel"></div></div>
+    <div class="card bonus-card">
+      <div class="scenario-tag gold" data-t="bonusTitle"></div>
+      <div class="part-instructions" style="margin-bottom:18px;" data-t="bonusDesc"></div>
+      <button class="btn gold" id="bonusTakeBtn" data-t="bonusTakeBtn"></button>
+      <button class="btn secondary" id="bonusSkipBtn" data-t="bonusSkipBtn"></button>
+    </div>
+  </section>
+
+  <!-- BONUS Q1 -->
+  <section id="screen-bonus-q1" class="screen">
+    <div class="topband"><div class="week-tag" data-t="weekLabel"></div></div>
+    <div class="card bonus-card">
+      <div class="scenario-tag gold" data-t="bonusQ1Tag"></div>
+      <div class="info-block">
+        <div class="info-block-label" data-t="supplierInfoLabel"></div>
+        <table class="supplier-table">
+          <thead><tr><th data-t="supplierCol"></th><th data-t="infoCol"></th></tr></thead>
+          <tbody>
+            <tr><td class="s-letter">A</td><td id="supplierAText"></td></tr>
+            <tr><td class="s-letter">B</td><td id="supplierBText"></td></tr>
+            <tr><td class="s-letter">C</td><td id="supplierCText"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="question-text" id="bonusQ1Question"></div>
+      <div class="answer-label" data-t="chooseAnswerLabel"></div>
+      <div id="bonusQ1Options"></div>
+      <button class="btn gold" id="bonusQ1SubmitBtn" data-t="submitAnswerBtn" disabled></button>
+      <div class="feedback" id="bonusQ1Feedback"></div>
+      <button class="btn gold" id="bonusQ1NextBtn" style="display:none;" data-t="nextBtn"></button>
+    </div>
+  </section>
+
+  <!-- BONUS Q2 -->
+  <section id="screen-bonus-q2" class="screen">
+    <div class="topband"><div class="week-tag" data-t="weekLabel"></div></div>
+    <div class="card bonus-card">
+      <div class="scenario-tag gold" data-t="bonusTitle"></div>
+      <div class="question-text" id="bonusQ2Question"></div>
+      <div class="part-instructions" data-t="bonusQ2Instruction"></div>
+      <div id="bonusQ2Options"></div>
+      <div class="feedback" id="bonusQ2Feedback"></div>
+      <button class="btn gold" id="bonusQ2SubmitBtn" data-t="submitAnswerBtn" disabled></button>
+      <button class="btn navy" id="bonusQ2FinishBtn" style="display:none;" data-t="seeLeaderboardBtn"></button>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section id="screen-leaderboard" class="screen">
+    <div class="topband">
+      <div class="week-tag" data-t="weekLabel"></div>
+      <h1 class="headline" data-t="leaderboardTitle"></h1>
+    </div>
+    <div class="card">
+      <div class="you-banner" id="youBanner" style="display:none;">
+        <div>
+          <div class="yb-score" id="ybScore">0</div>
+          <div class="yb-label" data-t="yourScoreLabel"></div>
+        </div>
+        <div>
+          <div class="yb-rank" id="ybRank">—</div>
+          <div class="yb-label" data-t="rankLabel"></div>
+        </div>
+      </div>
+      <table class="lb" id="lbTable" style="display:none;">
+        <thead>
+          <tr>
+            <th data-t="rankCol"></th>
+            <th data-t="playerCol"></th>
+            <th data-t="deptCol"></th>
+            <th data-t="scoreCol"></th>
+          </tr>
+        </thead>
+        <tbody id="lbBody"></tbody>
+      </table>
+      <div class="lb-empty" id="lbEmptyMsg" style="display:none;"></div>
+      <button class="btn secondary" id="lbToggleBtn" style="display:none; margin-top:14px;"></button>
+      <button class="btn navy" id="restartBtn" data-t="playAgainBtn" style="margin-top:14px;"></button>
+      <div class="footer-tagline" data-t="footerTagline"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ======================= CONTENT / TRANSLATIONS ======================= */
+const T = {
+en:{
+  weekLabel:"Week 10 · Sustainable Procurement",
+  introTitle:"The ESG Pillars Quest",
+  introSubtitle:"Match the ESG principles to their pillar, then make the call in two real procurement scenarios.",
+  formName:"Full name", formEmail:"Email", formDept:"Department / Country",
+  formErrTxt:"Please fill in all fields.",
+  startBtn:"Start the quest",
+  part1Title:"Match the ESG pillar",
+  part1Instructions:"Tap a statement, then tap a pillar to link them. You can change any match as many times as you like. Only correct pairs earn points — tap Submit when all five are linked to see your score.",
+  pointsLabel:"points", correctPairsLabel:"correct pairs", submitMatchesBtn:"Submit matches", assignedCountLabel:"linked",
+  part1CompleteTitle:"Part 1 complete!",
+  part1CompleteSub:"Nice work. Now let's put it into practice.",
+  continueBtn:"Continue to Part 2",
+  part2Title:"Procurement scenarios",
+  nextBtn:"Next",
+  bonusTitle:"Bonus Challenge",
+  bonusDesc:"Answer two more questions for up to 30 extra points, or skip straight to the leaderboard.",
+  bonusTakeBtn:"Take the bonus challenge (+30 pts)",
+  bonusSkipBtn:"Skip and see leaderboard",
+  bonusQ1Tag:"Bonus · Choose the right supplier",
+  supplierCol:"Supplier", infoCol:"Information",
+  supplierInfoLabel:"Reference · supplier details", chooseAnswerLabel:"Your answer",
+  submitAnswerBtn:"Submit answer",
+  seeLeaderboardBtn:"Go to leaderboard",
+  bonusQ2Instruction:"Select all that apply, then submit.",
+  resultsTitle:"Your result",
+  viewLeaderboard:"View leaderboard",
+  footerTagline:"Choose responsibly. Source sustainably.",
+  leaderboardTitle:"Leaderboard",
+  rankCol:"#", playerCol:"Name", deptCol:"Dept", scoreCol:"Score",
+  lbEmpty:"No entries yet.", lbNotConnected:"Leaderboard is not connected yet.",
+  you:"you", yourScoreLabel:"Your score", rankLabel:"Rank",
+  showAllBtn:"Show full leaderboard", showLessBtn:"Show less",
+  playAgainBtn:"Play again",
+  statements:[
+    "Complies with environmental laws and takes action to reduce emissions, waste, and resource consumption.",
+    "Prevents bribery and corruption, promotes fair business conduct, and provides an ethical reporting mechanism.",
+    "Respects workers' rights, prohibits child and forced labour, and prevents discrimination.",
+    "Supports local communities through fair employment, community engagement, education, or social initiatives.",
+    "Applies a fair, transparent, and non-discriminatory approach to supplier selection and promotes inclusive sourcing."
+  ],
+  categories:["Environment","Business Ethics","Labor & Human Rights","Community Development","Supplier Diversity"],
+  icons:["🌱","⚖️","🤝","🏘️","🔗"],
+  scenarios:[
+    {
+      tag:"Scenario 1 · Choosing the right supplier",
+      situation:"Your company needs to select a new supplier. Two suppliers offer the same product at a similar price.\n\nSupplier A offers a slightly lower price but cannot provide information about its environmental and social practices.\nSupplier B provides information about its environmental practices, labor and human rights practices, ethical business conduct, and community initiatives.",
+      question:"Which supplier is the better choice from a Sustainable Procurement perspective?",
+      options:[
+        "Supplier A, because the price is lower.",
+        "Supplier B, because Sustainable Procurement considers sustainability and responsible business practices in addition to price and quality.",
+        "Supplier A, because sustainability is the supplier's responsibility.",
+        "Both suppliers are equally suitable because ESG factors are not related to procurement."
+      ],
+      correct:1,
+      explain:"Sustainable Procurement weighs price and quality together with sustainability and responsible business conduct — not price alone."
+    },
+    {
+      tag:"Scenario 2 · Something doesn't look right",
+      situation:"You are working with an existing supplier. You discover that the supplier may be improperly disposing of waste. You also hear concerns about workers' treatment, and the supplier cannot provide clear information about its sustainability practices.",
+      question:"What would be the most responsible action?",
+      options:[
+        "Continue working with the supplier because they offer good prices and products.",
+        "Ignore the issues unless there is a legal complaint.",
+        "Raise the concerns with the supplier, request relevant information or evidence, and assess the situation against the company's Sustainable Procurement requirements.",
+        "Immediately stop working with the supplier without checking the facts."
+      ],
+      correct:2,
+      explain:"Raise the concerns, ask for evidence, and assess the situation against your company's requirements before deciding on next steps."
+    }
+  ],
+  bonusQ1Question:"3 suppliers meet the technical requirements. Which supplier should Behn Meyer select?",
+  supplierA:"Lowest price, but no ESG policies or sustainability information available.",
+  supplierB:"Medium price, has ISO certifications, shares ESG data, and complies with labour and environmental regulations.",
+  supplierC:"Highest price, has strong environmental performance, but was recently investigated for bribery allegations.",
+  bonusQ1Options:["Supplier A","Supplier B","Supplier C"],
+  bonusQ1Correct:1,
+  bonusQ1Explain:"Supplier B gives the best balance of price with verifiable ESG practices, certification, and regulatory compliance.",
+  bonusQ2Question:"Based on your answer above, which Sustainable Procurement principles are relevant to the supplier selection decision?",
+  bonusQ2Options:["Environment","Business Ethics","Labor & Human Rights","Community Development","Supplier Diversity"],
+  bonusQ2Correct:[0,1,2],
+  bonusQ2Explain:"Environmental performance, business ethics (bribery risk), and labour and environmental compliance are all relevant here. Community development and supplier diversity aren't mentioned in the supplier information."
+},
+th:{
+  weekLabel:"สัปดาห์ที่ 10 · การจัดซื้อจัดหาอย่างยั่งยืน",
+  introTitle:"ภารกิจเสาหลัก ESG",
+  introSubtitle:"จับคู่หลักการ ESG กับเสาหลักที่ถูกต้อง แล้วตัดสินใจในสถานการณ์จัดซื้อจริง 2 เรื่อง",
+  formName:"ชื่อ-นามสกุล", formEmail:"อีเมล", formDept:"แผนก / ประเทศ",
+  formErrTxt:"กรุณากรอกข้อมูลให้ครบทุกช่อง",
+  startBtn:"เริ่มภารกิจ",
+  part1Title:"จับคู่เสาหลัก ESG",
+  part1Instructions:"แตะข้อความ แล้วแตะเสาหลักเพื่อจับคู่กัน เปลี่ยนคู่ไหนก็ได้กี่ครั้งก็ได้ก่อนส่งคำตอบ คู่ที่ถูกต้องเท่านั้นที่จะได้คะแนน กดส่งคำตอบเมื่อจับคู่ครบทั้ง 5 คู่แล้ว",
+  pointsLabel:"คะแนน", correctPairsLabel:"คู่ที่ถูกต้อง", submitMatchesBtn:"ส่งคำตอบ", assignedCountLabel:"จับคู่แล้ว",
+  part1CompleteTitle:"จบส่วนที่ 1 แล้ว!",
+  part1CompleteSub:"ทำได้ดีมาก ต่อไปมาลองใช้จริงกัน",
+  continueBtn:"ไปต่อส่วนที่ 2",
+  part2Title:"สถานการณ์การจัดซื้อ",
+  nextBtn:"ถัดไป",
+  bonusTitle:"ภารกิจโบนัส",
+  bonusDesc:"ตอบคำถามอีก 2 ข้อ รับคะแนนเพิ่มสูงสุด 30 คะแนน หรือข้ามไปดูกระดานผู้นำได้เลย",
+  bonusTakeBtn:"ทำภารกิจโบนัส (+30 คะแนน)",
+  bonusSkipBtn:"ข้ามและไปดูกระดานผู้นำ",
+  bonusQ1Tag:"โบนัส · เลือกซัพพลายเออร์ที่เหมาะสม",
+  supplierCol:"ซัพพลายเออร์", infoCol:"ข้อมูล",
+  supplierInfoLabel:"ข้อมูลอ้างอิง · รายละเอียดซัพพลายเออร์", chooseAnswerLabel:"คำตอบของคุณ",
+  submitAnswerBtn:"ส่งคำตอบ",
+  seeLeaderboardBtn:"ไปดูกระดานผู้นำ",
+  bonusQ2Instruction:"เลือกทุกข้อที่เกี่ยวข้อง แล้วกดส่งคำตอบ",
+  resultsTitle:"ผลของคุณ",
+  viewLeaderboard:"ดูกระดานผู้นำ",
+  footerTagline:"เลือกอย่างรับผิดชอบ จัดหาอย่างยั่งยืน",
+  leaderboardTitle:"กระดานผู้นำ",
+  rankCol:"#", playerCol:"ชื่อ", deptCol:"แผนก", scoreCol:"คะแนน",
+  lbEmpty:"ยังไม่มีข้อมูล", lbNotConnected:"ยังไม่เชื่อมต่อกับระบบเก็บคะแนน",
+  you:"คุณ", yourScoreLabel:"คะแนนของคุณ", rankLabel:"อันดับ",
+  showAllBtn:"ดูกระดานผู้นำทั้งหมด", showLessBtn:"ย่อกลับ",
+  playAgainBtn:"เล่นอีกครั้ง",
+  statements:[
+    "ปฏิบัติตามกฎหมายสิ่งแวดล้อม และลงมือลดการปล่อยมลพิษ ของเสีย และการใช้ทรัพยากร",
+    "ป้องกันการติดสินบนและการทุจริต ส่งเสริมการดำเนินธุรกิจอย่างเป็นธรรม และมีช่องทางแจ้งเบาะแสตามหลักจริยธรรม",
+    "เคารพสิทธิแรงงาน ห้ามใช้แรงงานเด็กและแรงงานบังคับ และป้องกันการเลือกปฏิบัติ",
+    "สนับสนุนชุมชนท้องถิ่นผ่านการจ้างงานที่เป็นธรรม การมีส่วนร่วมกับชุมชน การศึกษา หรือโครงการเพื่อสังคม",
+    "คัดเลือกซัพพลายเออร์ด้วยความเป็นธรรม โปร่งใส ไม่เลือกปฏิบัติ และส่งเสริมการจัดหาที่เปิดโอกาสอย่างทั่วถึง"
+  ],
+  categories:["สิ่งแวดล้อม","จริยธรรมทางธุรกิจ","แรงงานและสิทธิมนุษยชน","การพัฒนาชุมชน","ความหลากหลายของซัพพลายเออร์"],
+  icons:["🌱","⚖️","🤝","🏘️","🔗"],
+  scenarios:[
+    {
+      tag:"สถานการณ์ที่ 1 · เลือกซัพพลายเออร์รายใหม่",
+      situation:"บริษัทของคุณต้องเลือกซัพพลายเออร์รายใหม่ ซัพพลายเออร์สองรายเสนอสินค้าชนิดเดียวกันในราคาใกล้เคียงกัน\n\nซัพพลายเออร์ A เสนอราคาต่ำกว่าเล็กน้อย แต่ไม่สามารถให้ข้อมูลด้านสิ่งแวดล้อมและสังคมได้\nซัพพลายเออร์ B ให้ข้อมูลด้านสิ่งแวดล้อม แรงงานและสิทธิมนุษยชน จริยธรรมทางธุรกิจ และโครงการเพื่อชุมชน",
+      question:"ซัพพลายเออร์รายใดเป็นตัวเลือกที่ดีกว่า ในมุมมองของการจัดซื้อจัดหาอย่างยั่งยืน",
+      options:[
+        "ซัพพลายเออร์ A เพราะราคาต่ำกว่า",
+        "ซัพพลายเออร์ B เพราะการจัดซื้อจัดหาอย่างยั่งยืนพิจารณาความยั่งยืนและการดำเนินธุรกิจอย่างรับผิดชอบ นอกเหนือจากราคาและคุณภาพ",
+        "ซัพพลายเออร์ A เพราะความยั่งยืนเป็นหน้าที่ของซัพพลายเออร์เอง",
+        "ทั้งสองรายเหมาะสมเท่ากัน เพราะปัจจัยด้าน ESG ไม่เกี่ยวข้องกับการจัดซื้อ"
+      ],
+      correct:1,
+      explain:"การจัดซื้อจัดหาอย่างยั่งยืนพิจารณาราคาและคุณภาพร่วมกับความยั่งยืนและการดำเนินธุรกิจอย่างรับผิดชอบ ไม่ใช่ดูแค่ราคาอย่างเดียว"
+    },
+    {
+      tag:"สถานการณ์ที่ 2 · มีบางอย่างดูไม่ถูกต้อง",
+      situation:"คุณทำงานร่วมกับซัพพลายเออร์รายเดิมอยู่ คุณพบว่าซัพพลายเออร์อาจกำจัดของเสียไม่ถูกต้อง และได้ยินข้อกังวลเรื่องการปฏิบัติต่อแรงงาน ซัพพลายเออร์ไม่สามารถให้ข้อมูลด้านความยั่งยืนที่ชัดเจนได้",
+      question:"การกระทำใดมีความรับผิดชอบมากที่สุด",
+      options:[
+        "ทำงานร่วมกับซัพพลายเออร์ต่อไป เพราะราคาและสินค้าดี",
+        "ไม่ต้องสนใจ จนกว่าจะมีการร้องเรียนตามกฎหมาย",
+        "แจ้งข้อกังวลกับซัพพลายเออร์ ขอข้อมูลหรือหลักฐานที่เกี่ยวข้อง และประเมินสถานการณ์เทียบกับข้อกำหนดด้านการจัดซื้อจัดหาอย่างยั่งยืนของบริษัท",
+        "หยุดทำงานร่วมกับซัพพลายเออร์ทันที โดยไม่ตรวจสอบข้อเท็จจริงก่อน"
+      ],
+      correct:2,
+      explain:"ต้องแจ้งข้อกังวล ขอหลักฐาน แล้วประเมินเทียบกับข้อกำหนดของบริษัทก่อนตัดสินใจขั้นต่อไป"
+    }
+  ],
+  bonusQ1Question:"ซัพพลายเออร์ 3 รายผ่านเกณฑ์ด้านเทคนิคแล้ว Behn Meyer ควรเลือกรายใด",
+  supplierA:"ราคาต่ำที่สุด แต่ไม่มีนโยบาย ESG หรือข้อมูลด้านความยั่งยืน",
+  supplierB:"ราคาปานกลาง มีใบรับรอง ISO เปิดเผยข้อมูล ESG และปฏิบัติตามกฎหมายแรงงานและสิ่งแวดล้อม",
+  supplierC:"ราคาสูงที่สุด มีผลงานด้านสิ่งแวดล้อมที่ดี แต่เพิ่งถูกสอบสวนเรื่องการติดสินบน",
+  bonusQ1Options:["ซัพพลายเออร์ A","ซัพพลายเออร์ B","ซัพพลายเออร์ C"],
+  bonusQ1Correct:1,
+  bonusQ1Explain:"ซัพพลายเออร์ B สมดุลที่สุดระหว่างราคากับแนวปฏิบัติ ESG ที่ตรวจสอบได้ ใบรับรอง และการปฏิบัติตามกฎหมาย",
+  bonusQ2Question:"จากคำตอบข้างต้น หลักการด้านการจัดซื้อจัดหาอย่างยั่งยืนข้อใดเกี่ยวข้องกับการตัดสินใจเลือกซัพพลายเออร์นี้",
+  bonusQ2Options:["สิ่งแวดล้อม","จริยธรรมทางธุรกิจ","แรงงานและสิทธิมนุษยชน","การพัฒนาชุมชน","ความหลากหลายของซัพพลายเออร์"],
+  bonusQ2Correct:[0,1,2],
+  bonusQ2Explain:"ผลงานด้านสิ่งแวดล้อม จริยธรรมทางธุรกิจ (ความเสี่ยงเรื่องสินบน) และการปฏิบัติตามกฎหมายแรงงานและสิ่งแวดล้อม ล้วนเกี่ยวข้องกับการตัดสินใจนี้ ส่วนการพัฒนาชุมชนและความหลากหลายของซัพพลายเออร์ไม่มีข้อมูลเกี่ยวข้องในโจทย์"
+},
+zh:{
+  weekLabel:"第10周 · 可持续采购",
+  introTitle:"ESG支柱任务",
+  introSubtitle:"将ESG原则与相应支柱配对,然后在两个真实采购场景中做出决策。",
+  formName:"姓名", formEmail:"电子邮箱", formDept:"部门 / 国家",
+  formErrTxt:"请填写所有字段。",
+  startBtn:"开始任务",
+  part1Title:"配对ESG支柱",
+  part1Instructions:"点击一句陈述,再点击一个支柱将它们连接起来。提交前可以随时更改配对,次数不限。只有正确的配对才能得分——五对都连接好后,点击提交查看得分。",
+  pointsLabel:"分", correctPairsLabel:"配对正确数", submitMatchesBtn:"提交配对", assignedCountLabel:"已连接",
+  part1CompleteTitle:"第一部分完成!",
+  part1CompleteSub:"表现不错,接下来看看实际应用。",
+  continueBtn:"继续第二部分",
+  part2Title:"采购场景",
+  nextBtn:"下一步",
+  bonusTitle:"加分挑战",
+  bonusDesc:"再回答两道题,最多可获得30分加分,或直接跳过查看排行榜。",
+  bonusTakeBtn:"挑战加分题 (+30分)",
+  bonusSkipBtn:"跳过并查看排行榜",
+  bonusQ1Tag:"加分 · 选择合适的供应商",
+  supplierCol:"供应商", infoCol:"信息",
+  supplierInfoLabel:"参考信息 · 供应商详情", chooseAnswerLabel:"你的答案",
+  submitAnswerBtn:"提交答案",
+  seeLeaderboardBtn:"查看排行榜",
+  bonusQ2Instruction:"请选择所有相关选项,然后提交。",
+  resultsTitle:"你的结果",
+  viewLeaderboard:"查看排行榜",
+  footerTagline:"负责任地选择,可持续地采购。",
+  leaderboardTitle:"排行榜",
+  rankCol:"#", playerCol:"姓名", deptCol:"部门", scoreCol:"得分",
+  lbEmpty:"暂无数据。", lbNotConnected:"排行榜尚未连接。",
+  you:"你", yourScoreLabel:"你的得分", rankLabel:"排名",
+  showAllBtn:"查看完整排行榜", showLessBtn:"收起",
+  playAgainBtn:"再玩一次",
+  statements:[
+    "遵守环境法规,并采取行动减少排放、废弃物和资源消耗。",
+    "防止贿赂和腐败,推动公平的商业行为,并提供合乎道德的举报渠道。",
+    "尊重员工权利,禁止使用童工和强迫劳动,并防止歧视。",
+    "通过公平雇佣、社区参与、教育或社会公益项目支持当地社区。",
+    "以公平、透明、不歧视的方式选择供应商,并推动包容性采购。"
+  ],
+  categories:["环境","商业道德","劳工与人权","社区发展","供应商多元化"],
+  icons:["🌱","⚖️","🤝","🏘️","🔗"],
+  scenarios:[
+    {
+      tag:"场景1 · 选择合适的供应商",
+      situation:"你的公司需要选择一家新供应商。两家供应商提供相同产品,价格相近。\n\n供应商A的报价略低,但无法提供环境和社会实践方面的信息。\n供应商B提供了环境实践、劳工与人权、商业道德以及社区项目方面的信息。",
+      question:"从可持续采购的角度来看,哪家供应商是更好的选择?",
+      options:[
+        "供应商A,因为价格更低。",
+        "供应商B,因为可持续采购除了价格和质量外,还考虑可持续性和负责任的商业行为。",
+        "供应商A,因为可持续性是供应商自己的责任。",
+        "两家供应商同样合适,因为ESG因素与采购无关。"
+      ],
+      correct:1,
+      explain:"可持续采购除了价格和质量外,还同时考虑可持续性与负责任的商业行为,而不是只看价格。"
+    },
+    {
+      tag:"场景2 · 情况似乎不太对劲",
+      situation:"你正在与一家现有供应商合作。你发现该供应商可能未妥善处理废弃物,也听到了关于员工待遇的担忧,供应商也无法就其可持续实践提供清晰的信息。",
+      question:"最负责任的做法是什么?",
+      options:[
+        "继续与该供应商合作,因为价格和产品都不错。",
+        "除非收到正式投诉,否则不予理会。",
+        "向供应商提出这些担忧,索取相关信息或证据,并对照公司的可持续采购要求评估情况。",
+        "在未核实事实的情况下立即停止合作。"
+      ],
+      correct:2,
+      explain:"应先提出担忧、索取证据,并对照公司要求进行评估,再决定下一步行动。"
+    }
+  ],
+  bonusQ1Question:"三家供应商均符合技术要求。Behn Meyer应选择哪一家?",
+  supplierA:"价格最低,但没有ESG政策或可持续性信息。",
+  supplierB:"价格适中,拥有ISO认证,公开ESG数据,并遵守劳工和环境法规。",
+  supplierC:"价格最高,环境表现良好,但近期因贿赂指控接受调查。",
+  bonusQ1Options:["供应商A","供应商B","供应商C"],
+  bonusQ1Correct:1,
+  bonusQ1Explain:"供应商B在价格与可核实的ESG实践、认证和合规性之间取得了最佳平衡。",
+  bonusQ2Question:"根据你上面的答案,以下哪些可持续采购原则与这次供应商选择决策相关?",
+  bonusQ2Options:["环境","商业道德","劳工与人权","社区发展","供应商多元化"],
+  bonusQ2Correct:[0,1,2],
+  bonusQ2Explain:"环境表现、商业道德(贿赂风险)以及劳工和环境法规合规性都与此决策相关。信息中未提及社区发展和供应商多元化。"
+},
+de:{
+  weekLabel:"Woche 10 · Nachhaltige Beschaffung",
+  introTitle:"Die ESG-Säulen-Mission",
+  introSubtitle:"Ordnen Sie die ESG-Grundsätze der passenden Säule zu und treffen Sie dann Entscheidungen in zwei echten Beschaffungsszenarien.",
+  formName:"Name", formEmail:"E-Mail", formDept:"Abteilung / Land",
+  formErrTxt:"Bitte füllen Sie alle Felder aus.",
+  startBtn:"Mission starten",
+  part1Title:"Ordnen Sie die ESG-Säule zu",
+  part1Instructions:"Tippen Sie auf eine Aussage und dann auf eine Säule, um sie zu verknüpfen. Sie können jede Zuordnung beliebig oft ändern, bevor Sie absenden. Nur richtige Paare zählen Punkte — tippen Sie auf Absenden, sobald alle fünf verknüpft sind.",
+  pointsLabel:"Punkte", correctPairsLabel:"richtige Paare", submitMatchesBtn:"Zuordnung absenden", assignedCountLabel:"verknüpft",
+  part1CompleteTitle:"Teil 1 abgeschlossen!",
+  part1CompleteSub:"Gut gemacht. Jetzt geht es in die Praxis.",
+  continueBtn:"Weiter zu Teil 2",
+  part2Title:"Beschaffungsszenarien",
+  nextBtn:"Weiter",
+  bonusTitle:"Bonusaufgabe",
+  bonusDesc:"Beantworten Sie zwei weitere Fragen für bis zu 30 zusätzliche Punkte, oder überspringen Sie direkt zur Rangliste.",
+  bonusTakeBtn:"Bonusaufgabe starten (+30 Punkte)",
+  bonusSkipBtn:"Überspringen und Rangliste ansehen",
+  bonusQ1Tag:"Bonus · Den passenden Lieferanten wählen",
+  supplierCol:"Lieferant", infoCol:"Angaben",
+  supplierInfoLabel:"Referenz · Lieferantendetails", chooseAnswerLabel:"Ihre Antwort",
+  submitAnswerBtn:"Antwort senden",
+  seeLeaderboardBtn:"Zur Rangliste",
+  bonusQ2Instruction:"Wählen Sie alle zutreffenden Antworten aus und senden Sie sie ab.",
+  resultsTitle:"Ihr Ergebnis",
+  viewLeaderboard:"Rangliste ansehen",
+  footerTagline:"Verantwortungsvoll wählen. Nachhaltig beschaffen.",
+  leaderboardTitle:"Rangliste",
+  rankCol:"#", playerCol:"Name", deptCol:"Abt.", scoreCol:"Punkte",
+  lbEmpty:"Noch keine Einträge.", lbNotConnected:"Rangliste ist noch nicht verbunden.",
+  you:"Sie", yourScoreLabel:"Ihr Ergebnis", rankLabel:"Rang",
+  showAllBtn:"Vollständige Rangliste ansehen", showLessBtn:"Weniger anzeigen",
+  playAgainBtn:"Nochmal spielen",
+  statements:[
+    "Hält Umweltgesetze ein und ergreift Maßnahmen zur Verringerung von Emissionen, Abfall und Ressourcenverbrauch.",
+    "Verhindert Bestechung und Korruption, fördert faires Geschäftsverhalten und bietet einen Meldeweg für ethische Bedenken.",
+    "Respektiert die Rechte der Beschäftigten, verbietet Kinder- und Zwangsarbeit und verhindert Diskriminierung.",
+    "Unterstützt lokale Gemeinschaften durch faire Beschäftigung, Engagement vor Ort, Bildung oder soziale Initiativen.",
+    "Wählt Lieferanten fair, transparent und ohne Diskriminierung aus und fördert eine inklusive Beschaffung."
+  ],
+  categories:["Umwelt","Unternehmensethik","Arbeits- und Menschenrechte","Gemeindeentwicklung","Lieferantenvielfalt"],
+  icons:["🌱","⚖️","🤝","🏘️","🔗"],
+  scenarios:[
+    {
+      tag:"Szenario 1 · Den richtigen Lieferanten wählen",
+      situation:"Ihr Unternehmen muss einen neuen Lieferanten auswählen. Zwei Lieferanten bieten das gleiche Produkt zu einem ähnlichen Preis an.\n\nLieferant A bietet einen etwas niedrigeren Preis, kann aber keine Angaben zu Umwelt- und Sozialpraktiken machen.\nLieferant B legt Informationen zu Umweltpraktiken, Arbeits- und Menschenrechten, ethischem Geschäftsverhalten und Gemeinschaftsinitiativen vor.",
+      question:"Welcher Lieferant ist aus Sicht der nachhaltigen Beschaffung die bessere Wahl?",
+      options:[
+        "Lieferant A, weil der Preis niedriger ist.",
+        "Lieferant B, weil nachhaltige Beschaffung neben Preis und Qualität auch Nachhaltigkeit und verantwortungsvolles Geschäftsverhalten berücksichtigt.",
+        "Lieferant A, weil Nachhaltigkeit die Verantwortung des Lieferanten ist.",
+        "Beide Lieferanten sind gleich geeignet, da ESG-Faktoren nichts mit Beschaffung zu tun haben."
+      ],
+      correct:1,
+      explain:"Nachhaltige Beschaffung berücksichtigt Preis und Qualität zusammen mit Nachhaltigkeit und verantwortungsvollem Geschäftsverhalten — nicht nur den Preis."
+    },
+    {
+      tag:"Szenario 2 · Etwas stimmt nicht",
+      situation:"Sie arbeiten mit einem bestehenden Lieferanten zusammen. Sie stellen fest, dass der Lieferant Abfall möglicherweise unsachgemäß entsorgt. Außerdem gibt es Bedenken bezüglich der Behandlung der Beschäftigten, und der Lieferant kann keine klaren Angaben zu seinen Nachhaltigkeitspraktiken machen.",
+      question:"Was wäre die verantwortungsvollste Vorgehensweise?",
+      options:[
+        "Weiter mit dem Lieferanten zusammenarbeiten, da Preis und Produkt gut sind.",
+        "Die Bedenken ignorieren, solange keine rechtliche Beschwerde vorliegt.",
+        "Die Bedenken beim Lieferanten ansprechen, relevante Informationen oder Nachweise anfordern und die Situation anhand der Anforderungen des Unternehmens an nachhaltige Beschaffung bewerten.",
+        "Die Zusammenarbeit sofort beenden, ohne die Fakten zu prüfen."
+      ],
+      correct:2,
+      explain:"Bedenken ansprechen, Nachweise anfordern und anhand der Unternehmensanforderungen bewerten, bevor eine Entscheidung getroffen wird."
+    }
+  ],
+  bonusQ1Question:"Drei Lieferanten erfüllen die technischen Anforderungen. Welchen Lieferanten sollte Behn Meyer auswählen?",
+  supplierA:"Niedrigster Preis, aber keine ESG-Richtlinien oder Nachhaltigkeitsangaben verfügbar.",
+  supplierB:"Mittlerer Preis, verfügt über ISO-Zertifizierungen, legt ESG-Daten offen und hält Arbeits- und Umweltvorschriften ein.",
+  supplierC:"Höchster Preis, starke Umweltleistung, wurde aber kürzlich wegen Bestechungsvorwürfen untersucht.",
+  bonusQ1Options:["Lieferant A","Lieferant B","Lieferant C"],
+  bonusQ1Correct:1,
+  bonusQ1Explain:"Lieferant B bietet die beste Balance zwischen Preis und überprüfbaren ESG-Praktiken, Zertifizierung und Einhaltung von Vorschriften.",
+  bonusQ2Question:"Welche Grundsätze der nachhaltigen Beschaffung sind basierend auf Ihrer Antwort oben für diese Entscheidung relevant?",
+  bonusQ2Options:["Umwelt","Unternehmensethik","Arbeits- und Menschenrechte","Gemeindeentwicklung","Lieferantenvielfalt"],
+  bonusQ2Correct:[0,1,2],
+  bonusQ2Explain:"Umweltleistung, Unternehmensethik (Bestechungsrisiko) sowie die Einhaltung von Arbeits- und Umweltvorschriften sind für diese Entscheidung relevant. Gemeindeentwicklung und Lieferantenvielfalt werden in den Angaben nicht erwähnt."
+}
+};
+
+/* ======================= BACKEND ======================= */
+const BACKEND = { webhookUrl: "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec" };
+
+/* ======================= STATE ======================= */
+let lang = 'en';
+let player = null;
+let part1Score = 0, correctPairs = 0;
+let selectedSide = null, selectedIdx = null;
+let shuffledRightOrder = [];
+let assignment = [null,null,null,null,null]; // assignment[leftIdx] = rightIdx or null
+let part1Submitted = false;
+let scenarioIdx = 0;
+let part2Score = 0;
+let part2Answered = false;
+let scenarioSelected = null;
+let bonusPlayed = false;
+let bonusQ1Score = 0, bonusQ2Score = 0;
+let bonusQ1Answered = false;
+let bonusQ1Selected = null;
+let bonusQ2Selection = [];
+let bonusQ2Submitted = false;
+let lbShowAll = false;
+
+/* ======================= HELPERS ======================= */
+function tr(){ return T[lang]; }
+function $(id){ return document.getElementById(id); }
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  document.body.classList.toggle('has-intro-bg', id === 'screen-intro');
+  window.scrollTo(0,0);
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ======================= STATIC TEXT RENDER ======================= */
+function renderStatic(){
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const key = el.getAttribute('data-t');
+    if(tr()[key] !== undefined) el.textContent = tr()[key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  $('supplierAText').textContent = tr().supplierA;
+  $('supplierBText').textContent = tr().supplierB;
+  $('supplierCText').textContent = tr().supplierC;
+  $('bonusQ1Question').textContent = tr().bonusQ1Question;
+  $('bonusQ2Question').textContent = tr().bonusQ2Question;
+}
+
+function setLang(l){
+  lang = l;
+  renderStatic();
+  if($('screen-part1').classList.contains('active')) renderPart1Board();
+  if($('screen-part2').classList.contains('active')) renderScenario();
+  if($('screen-bonus-q1').classList.contains('active')) renderBonusQ1();
+  if($('screen-bonus-q2').classList.contains('active')) renderBonusQ2();
+  if($('screen-leaderboard').classList.contains('active')) renderLeaderboard(window.__lbCache || []);
+}
+
+document.querySelectorAll('.lang-btn').forEach(b=>{
+  b.addEventListener('click', ()=> setLang(b.dataset.lang));
+});
+
+/* ======================= INTRO ======================= */
+$('startBtn').addEventListener('click', ()=>{
+  const name = $('inputName').value.trim();
+  const email = $('inputEmail').value.trim();
+  const dept = $('inputDept').value.trim();
+  if(!name || !email || !dept){
+    $('formErr').style.display = 'block';
+    return;
+  }
+  $('formErr').style.display = 'none';
+  player = { name, email, dept, lang };
+  startPart1();
+});
+
+/* ======================= PART 1: MATCHING (free assign, grade on submit) ======================= */
+function startPart1(){
+  part1Score = 0; correctPairs = 0;
+  selectedSide = null; selectedIdx = null;
+  assignment = [null,null,null,null,null];
+  part1Submitted = false;
+  shuffledRightOrder = shuffle([0,1,2,3,4]);
+  renderPart1Board();
+  showScreen('screen-part1');
+}
+
+// find which left index (if any) is currently assigned to a given right index
+function leftAssignedTo(rightIdx){
+  for(let i=0;i<5;i++){ if(assignment[i] === rightIdx) return i; }
+  return -1;
+}
+
+function renderPart1Board(){
+  const t = tr();
+  const colLeft = $('colLeft'), colRight = $('colRight');
+  colLeft.innerHTML = ''; colRight.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+
+  // pre-compute correctness once graded
+  let leftCorrect = [false,false,false,false,false];
+  let rightCorrect = [false,false,false,false,false];
+  if(part1Submitted){
+    for(let i=0;i<5;i++){
+      if(assignment[i] === i){ leftCorrect[i] = true; rightCorrect[i] = true; }
+    }
+  }
+
+  t.statements.forEach((text, i)=>{
+    const div = document.createElement('div');
+    let cls = 'match-card left';
+    if(part1Submitted){
+      cls += leftCorrect[i] ? ' correct' : ' wrong';
+    } else if(selectedSide==='L' && selectedIdx===i){
+      cls += ' selected';
+    } else if(assignment[i] !== null){
+      cls += ' linked';
+    }
+    div.className = cls;
+    div.dataset.side = 'L';
+    div.dataset.idx = i;
+    const linkedRight = assignment[i];
+    const tag = (!part1Submitted && linkedRight !== null) ? `<span class="link-tag">${t.icons[linkedRight]}</span>` : (part1Submitted ? `<span class="link-tag">${leftCorrect[i] ? '✓' : '✕'}</span>` : '');
+    div.innerHTML = `<div class="badge">${letters[i]}</div><div>${text}</div>${tag}`;
+    if(!part1Submitted){
+      div.addEventListener('click', ()=> handlePick('L', i));
+    }
+    colLeft.appendChild(div);
+  });
+
+  shuffledRightOrder.forEach((origIdx)=>{
+    const div = document.createElement('div');
+    let cls = 'match-card right';
+    if(part1Submitted){
+      cls += rightCorrect[origIdx] ? ' correct' : ' wrong';
+    } else if(selectedSide==='R' && selectedIdx===origIdx){
+      cls += ' selected';
+    } else if(leftAssignedTo(origIdx) !== -1){
+      cls += ' linked';
+    }
+    div.className = cls;
+    div.dataset.side = 'R';
+    div.dataset.idx = origIdx;
+    const fromLeft = leftAssignedTo(origIdx);
+    const tag = (!part1Submitted && fromLeft !== -1) ? `<span class="link-tag">${letters[fromLeft]}</span>` : (part1Submitted ? `<span class="link-tag">${rightCorrect[origIdx] ? '✓' : '✕'}</span>` : '');
+    div.innerHTML = `<div class="badge">${t.icons[origIdx]}</div><div>${t.categories[origIdx]}</div>${tag}`;
+    if(!part1Submitted){
+      div.addEventListener('click', ()=> handlePick('R', origIdx));
+    }
+    colRight.appendChild(div);
+  });
+
+  const assignedCount = assignment.filter(v=>v!==null).length;
+  const dotsWrap = $('part1Dots');
+  dotsWrap.innerHTML = '';
+  for(let i=0;i<5;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < (part1Submitted ? correctPairs : assignedCount) ? ' done' : '');
+    dotsWrap.appendChild(d);
+  }
+  $('assignedCount').textContent = part1Submitted ? '' : (assignedCount + '/5 ' + t.assignedCountLabel);
+  $('part1ScoreLine').textContent = part1Submitted ? (part1Score + ' ' + t.pointsLabel) : '';
+
+  const submitBtn = $('submitMatchesBtn');
+  if(part1Submitted){
+    submitBtn.style.display = 'none';
+  } else {
+    submitBtn.style.display = 'block';
+    submitBtn.disabled = assignedCount < 5;
+  }
+}
+
+function handlePick(side, idx){
+  if(selectedSide === null){
+    selectedSide = side; selectedIdx = idx;
+    renderPart1Board();
+    return;
+  }
+  if(selectedSide === side){
+    // re-selecting within the same column just moves the selection
+    selectedIdx = idx;
+    renderPart1Board();
+    return;
+  }
+
+  // one card from each side is now chosen — link them (no correctness check yet)
+  const leftIdx = side==='L' ? idx : selectedIdx;
+  const rightIdx = side==='R' ? idx : selectedIdx;
+
+  // free any other left currently using this right (keep it a clean 1:1 mapping)
+  for(let k=0;k<5;k++){ if(assignment[k] === rightIdx) assignment[k] = null; }
+  assignment[leftIdx] = rightIdx;
+
+  selectedSide = null; selectedIdx = null;
+  renderPart1Board();
+}
+
+$('submitMatchesBtn').addEventListener('click', ()=>{
+  if(assignment.some(v => v === null)) return;
+  part1Submitted = true;
+  correctPairs = 0;
+  for(let i=0;i<5;i++){ if(assignment[i] === i) correctPairs++; }
+  part1Score = correctPairs * 10;
+  renderPart1Board();
+  setTimeout(finishPart1, 900);
+});
+
+function finishPart1(){
+  $('p1FinalScore').textContent = part1Score;
+  $('p1CorrectPairs').textContent = correctPairs + '/5';
+  showScreen('screen-part1-complete');
+}
+
+$('toPart2Btn').addEventListener('click', ()=>{
+  scenarioIdx = 0; part2Score = 0;
+  startPart2();
+});
+
+/* ======================= PART 2: SCENARIOS ======================= */
+function startPart2(){
+  renderScenario();
+  showScreen('screen-part2');
+}
+
+function renderScenario(){
+  const t = tr();
+  const sc = t.scenarios[scenarioIdx];
+  part2Answered = false;
+  scenarioSelected = null;
+  $('scenarioTag').textContent = sc.tag;
+  $('situationText').textContent = sc.situation;
+  $('questionText').textContent = sc.question;
+  const dotsWrap = $('part2Dots');
+  dotsWrap.innerHTML = '';
+  for(let i=0;i<t.scenarios.length;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < scenarioIdx ? ' done' : '');
+    dotsWrap.appendChild(d);
+  }
+  const optWrap = $('optionsList');
+  optWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  sc.options.forEach((opt, i)=>{
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div>${opt}</div>`;
+    div.addEventListener('click', ()=> pickScenarioOption(i));
+    optWrap.appendChild(div);
+  });
+  $('scenarioFeedback').className = 'feedback';
+  $('scenarioFeedback').textContent = '';
+  $('nextScenarioBtn').style.display = 'none';
+  $('part2SubmitBtn').style.display = 'block';
+  $('part2SubmitBtn').disabled = true;
+}
+
+function pickScenarioOption(i){
+  if(part2Answered) return;
+  scenarioSelected = i;
+  const opts = document.querySelectorAll('#optionsList .option');
+  opts.forEach((el, idx)=> el.classList.toggle('picked', idx === i));
+  $('part2SubmitBtn').disabled = false;
+}
+
+$('part2SubmitBtn').addEventListener('click', ()=>{
+  if(scenarioSelected === null || part2Answered) return;
+  $('part2SubmitBtn').style.display = 'none';
+  handleScenarioAnswer(scenarioSelected);
+});
+
+function handleScenarioAnswer(i){
+  if(part2Answered) return;
+  part2Answered = true;
+  const t = tr();
+  const sc = t.scenarios[scenarioIdx];
+  const opts = document.querySelectorAll('#optionsList .option');
+  opts.forEach((el, idx)=>{
+    el.classList.add('disabled');
+    el.classList.remove('picked');
+    if(idx === sc.correct) el.classList.add('correct');
+    if(idx === i && i !== sc.correct) el.classList.add('wrong');
+  });
+  const fb = $('scenarioFeedback');
+  fb.textContent = sc.explain;
+  fb.classList.add('show');
+  if(i === sc.correct){
+    part2Score += 25;
+    fb.classList.add('good');
+  } else {
+    fb.classList.add('bad');
+  }
+  $('nextScenarioBtn').style.display = 'flex';
+}
+
+$('nextScenarioBtn').addEventListener('click', ()=>{
+  scenarioIdx++;
+  const t = tr();
+  if(scenarioIdx >= t.scenarios.length){
+    showScreen('screen-bonus-choice');
+  } else {
+    renderScenario();
+  }
+});
+
+/* ======================= BONUS ROUND ======================= */
+$('bonusTakeBtn').addEventListener('click', ()=>{
+  bonusPlayed = true;
+  bonusQ1Score = 0; bonusQ2Score = 0;
+  bonusQ1Answered = false;
+  bonusQ2Selection = []; bonusQ2Submitted = false;
+  renderBonusQ1();
+  showScreen('screen-bonus-q1');
+});
+
+$('bonusSkipBtn').addEventListener('click', ()=>{
+  bonusPlayed = false;
+  bonusQ1Score = 0; bonusQ2Score = 0;
+  finishGame();
+});
+
+function renderBonusQ1(){
+  const t = tr();
+  bonusQ1Answered = false;
+  bonusQ1Selected = null;
+  const wrap = $('bonusQ1Options');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C'];
+  t.bonusQ1Options.forEach((opt, i)=>{
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div>${opt}</div>`;
+    div.addEventListener('click', ()=> pickBonusQ1Option(i));
+    wrap.appendChild(div);
+  });
+  $('bonusQ1Feedback').className = 'feedback';
+  $('bonusQ1Feedback').textContent = '';
+  $('bonusQ1NextBtn').style.display = 'none';
+  $('bonusQ1SubmitBtn').style.display = 'block';
+  $('bonusQ1SubmitBtn').disabled = true;
+}
+
+function pickBonusQ1Option(i){
+  if(bonusQ1Answered) return;
+  bonusQ1Selected = i;
+  const opts = document.querySelectorAll('#bonusQ1Options .option');
+  opts.forEach((el, idx)=> el.classList.toggle('picked', idx === i));
+  $('bonusQ1SubmitBtn').disabled = false;
+}
+
+$('bonusQ1SubmitBtn').addEventListener('click', ()=>{
+  if(bonusQ1Selected === null || bonusQ1Answered) return;
+  $('bonusQ1SubmitBtn').style.display = 'none';
+  handleBonusQ1Answer(bonusQ1Selected);
+});
+
+function handleBonusQ1Answer(i){
+  if(bonusQ1Answered) return;
+  bonusQ1Answered = true;
+  const t = tr();
+  const opts = document.querySelectorAll('#bonusQ1Options .option');
+  opts.forEach((el, idx)=>{
+    el.classList.add('disabled');
+    el.classList.remove('picked');
+    if(idx === t.bonusQ1Correct) el.classList.add('correct');
+    if(idx === i && i !== t.bonusQ1Correct) el.classList.add('wrong');
+  });
+  const fb = $('bonusQ1Feedback');
+  fb.textContent = t.bonusQ1Explain;
+  fb.classList.add('show');
+  if(i === t.bonusQ1Correct){
+    bonusQ1Score = 15;
+    fb.classList.add('good');
+  } else {
+    bonusQ1Score = 0;
+    fb.classList.add('bad');
+  }
+  $('bonusQ1NextBtn').style.display = 'flex';
+}
+
+$('bonusQ1NextBtn').addEventListener('click', ()=>{
+  renderBonusQ2();
+  showScreen('screen-bonus-q2');
+});
+
+function renderBonusQ2(){
+  const t = tr();
+  bonusQ2Selection = [];
+  bonusQ2Submitted = false;
+  const wrap = $('bonusQ2Options');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+  t.bonusQ2Options.forEach((opt, i)=>{
+    const div = document.createElement('div');
+    div.className = 'option checkbox';
+    div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div>${opt}</div>`;
+    div.addEventListener('click', ()=> toggleBonusQ2(i, div));
+    wrap.appendChild(div);
+  });
+  $('bonusQ2Feedback').className = 'feedback';
+  $('bonusQ2Feedback').textContent = '';
+  $('bonusQ2SubmitBtn').style.display = 'flex';
+  $('bonusQ2SubmitBtn').disabled = true;
+  $('bonusQ2FinishBtn').style.display = 'none';
+}
+
+function toggleBonusQ2(i, el){
+  if(bonusQ2Submitted) return;
+  const pos = bonusQ2Selection.indexOf(i);
+  if(pos === -1){
+    bonusQ2Selection.push(i);
+    el.classList.add('picked');
+  } else {
+    bonusQ2Selection.splice(pos, 1);
+    el.classList.remove('picked');
+  }
+  $('bonusQ2SubmitBtn').disabled = bonusQ2Selection.length === 0;
+}
+
+$('bonusQ2SubmitBtn').addEventListener('click', ()=>{
+  if(bonusQ2Submitted || bonusQ2Selection.length === 0) return;
+  bonusQ2Submitted = true;
+  const t = tr();
+  const correctSet = t.bonusQ2Correct.slice().sort();
+  const pickedSet = bonusQ2Selection.slice().sort();
+  const isExact = correctSet.length === pickedSet.length && correctSet.every((v,i)=> v === pickedSet[i]);
+
+  const opts = document.querySelectorAll('#bonusQ2Options .option');
+  opts.forEach((el, idx)=>{
+    el.classList.add('disabled');
+    const isCorrectAnswer = t.bonusQ2Correct.includes(idx);
+    const wasPicked = bonusQ2Selection.includes(idx);
+    if(isCorrectAnswer) el.classList.add('correct');
+    if(wasPicked && !isCorrectAnswer) el.classList.add('wrong');
+  });
+
+  const fb = $('bonusQ2Feedback');
+  fb.textContent = t.bonusQ2Explain;
+  fb.classList.add('show');
+  if(isExact){
+    bonusQ2Score = 15;
+    fb.classList.add('good');
+  } else {
+    bonusQ2Score = 0;
+    fb.classList.add('bad');
+  }
+  $('bonusQ2SubmitBtn').style.display = 'none';
+  $('bonusQ2FinishBtn').style.display = 'flex';
+});
+
+$('bonusQ2FinishBtn').addEventListener('click', ()=>{
+  finishGame();
+});
+
+/* ======================= RESULTS / SUBMIT ======================= */
+function finishGame(){
+  const bonusScore = bonusPlayed ? (bonusQ1Score + bonusQ2Score) : 0;
+  const total = part1Score + part2Score + bonusScore;
+  submitScore(total, bonusScore);
+  lbShowAll = false;
+  showScreen('screen-leaderboard');
+  loadLeaderboard(total);
+}
+
+function submitScore(total, bonusScore){
+  if(!player) return;
+  player.lastScore = total;
+  if(!BACKEND.webhookUrl) return;
+  const payload = {
+    action: "submitProcurementQuest",
+    name: player.name,
+    email: player.email,
+    dept: player.dept,
+    language: lang,
+    part1Score: part1Score,
+    part2Score: part2Score,
+    bonusScore: bonusScore,
+    bonusPlayed: bonusPlayed,
+    totalScore: total,
+    finishedAt: new Date().toISOString()
+  };
+  fetch(BACKEND.webhookUrl, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  }).catch(()=>{ /* silent — leaderboard fetch is independent */ });
+}
+
+/* ======================= LEADERBOARD ======================= */
+function loadLeaderboard(myScoreJustSubmitted){
+  if(!BACKEND.webhookUrl){
+    renderLeaderboard([]);
+    return;
+  }
+  const url = BACKEND.webhookUrl + (BACKEND.webhookUrl.includes('?') ? '&' : '?') + 'action=getProcurementLeaderboard';
+  fetch(url).then(r=>r.json()).then(data=>{
+    window.__lbCache = data;
+    renderLeaderboard(data);
+  }).catch(()=>{
+    jsonpFallback(url);
+  });
+}
+
+function jsonpFallback(url){
+  const cbName = 'lbCallback_' + Date.now();
+  window[cbName] = function(data){
+    window.__lbCache = data;
+    renderLeaderboard(data);
+    delete window[cbName];
+    script.remove();
+  };
+  const script = document.createElement('script');
+  script.src = url + '&callback=' + cbName;
+  script.onerror = ()=>{ renderLeaderboard([]); };
+  document.body.appendChild(script);
+}
+
+function renderLeaderboard(data){
+  const t = tr();
+  const table = $('lbTable'), body = $('lbBody'), empty = $('lbEmptyMsg');
+  const toggleBtn = $('lbToggleBtn');
+  const youBanner = $('youBanner');
+
+  let rows = Array.isArray(data) ? data.slice() : [];
+  rows.sort((a,b)=> (b.totalScore||b.score||0) - (a.totalScore||a.score||0));
+  rows = rows.map((r,i)=>({ ...r, rank: i+1 }));
+
+  const myEmail = player ? player.email : null;
+  let myRow = null;
+  if(myEmail){
+    for(let i=rows.length-1;i>=0;i--){
+      if(rows[i].email === myEmail){ myRow = rows[i]; break; }
+    }
+  }
+
+  if(myRow && player){
+    youBanner.style.display = 'flex';
+    $('ybScore').textContent = myRow.totalScore !== undefined ? myRow.totalScore : (myRow.score || 0);
+    $('ybRank').textContent = '#' + myRow.rank;
+  } else {
+    youBanner.style.display = 'none';
+  }
+
+  if(!rows.length){
+    table.style.display = 'none';
+    toggleBtn.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = t.lbEmpty;
+    return;
+  }
+
+  const top10 = rows.slice(0, 10);
+  let visibleRows;
+  if(lbShowAll){
+    visibleRows = rows;
+  } else {
+    visibleRows = top10.slice();
+    if(myRow && myRow.rank > 10){
+      visibleRows.push({ ellipsis:true });
+      visibleRows.push(myRow);
+    }
+  }
+
+  body.innerHTML = visibleRows.map((r)=>{
+    if(r.ellipsis) return `<tr class="ellipsis"><td colspan="4">···</td></tr>`;
+    const isMe = myEmail && r.email === myEmail;
+    const sc = r.totalScore !== undefined ? r.totalScore : (r.score || 0);
+    return `<tr class="${isMe ? 'me' : ''}">
+      <td class="rank">${r.rank}</td>
+      <td>${r.name || ''}${isMe ? ' · ' + t.you : ''}</td>
+      <td>${r.dept || ''}</td>
+      <td>${sc}</td>
+    </tr>`;
+  }).join('');
+
+  table.style.display = 'table';
+  empty.style.display = 'none';
+
+  if(rows.length > 10){
+    toggleBtn.style.display = 'block';
+    toggleBtn.textContent = lbShowAll ? t.showLessBtn : t.showAllBtn;
+  } else {
+    toggleBtn.style.display = 'none';
+  }
+}
+
+$('lbToggleBtn').addEventListener('click', ()=>{
+  lbShowAll = !lbShowAll;
+  renderLeaderboard(window.__lbCache || []);
+});
+
+/* ======================= RESTART ======================= */
+function resetGame(){
+  player = null;
+  part1Score = 0; correctPairs = 0;
+  selectedSide = null; selectedIdx = null;
+  assignment = [null,null,null,null,null];
+  part1Submitted = false;
+  scenarioIdx = 0; part2Score = 0; part2Answered = false; scenarioSelected = null;
+  bonusPlayed = false;
+  bonusQ1Score = 0; bonusQ2Score = 0;
+  bonusQ1Answered = false; bonusQ1Selected = null;
+  bonusQ2Selection = []; bonusQ2Submitted = false;
+  lbShowAll = false;
+  window.__lbCache = null;
+
+  $('inputName').value = '';
+  $('inputEmail').value = '';
+  $('inputDept').value = '';
+  $('formErr').style.display = 'none';
+
+  showScreen('screen-intro');
+}
+
+$('restartBtn').addEventListener('click', resetGame);
+
+/* ======================= INIT ======================= */
+renderStatic();
+
+</script>
+</body>
+</html>
