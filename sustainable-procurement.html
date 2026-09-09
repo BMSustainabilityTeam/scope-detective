@@ -1001,15 +1001,22 @@ $('toPart2Btn').addEventListener('click', ()=>{
 
 /* ======================= PART 2: SCENARIOS ======================= */
 function startPart2(){
-  renderScenario();
+  startScenario();
   showScreen('screen-part2');
 }
 
+function startScenario(){
+  part2Answered = false;
+  scenarioSelected = null;
+  renderScenario();
+}
+
+// Rebuilds the scenario UI purely from current state (scenarioIdx, part2Answered,
+// scenarioSelected) — never resets anything, so calling this on a language switch
+// preserves whatever the person already picked or answered.
 function renderScenario(){
   const t = tr();
   const sc = t.scenarios[scenarioIdx];
-  part2Answered = false;
-  scenarioSelected = null;
   $('scenarioTag').textContent = sc.tag;
   $('situationText').textContent = sc.situation;
   $('questionText').textContent = sc.question;
@@ -1025,16 +1032,34 @@ function renderScenario(){
   const letters = ['A','B','C','D'];
   sc.options.forEach((opt, i)=>{
     const div = document.createElement('div');
-    div.className = 'option';
+    let cls = 'option';
+    if(part2Answered){
+      cls += ' disabled';
+      if(i === sc.correct) cls += ' correct';
+      if(i === scenarioSelected && i !== sc.correct) cls += ' wrong';
+    } else if(i === scenarioSelected){
+      cls += ' picked';
+    }
+    div.className = cls;
     div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div>${opt}</div>`;
-    div.addEventListener('click', ()=> pickScenarioOption(i));
+    if(!part2Answered){
+      div.addEventListener('click', ()=> pickScenarioOption(i));
+    }
     optWrap.appendChild(div);
   });
-  $('scenarioFeedback').className = 'feedback';
-  $('scenarioFeedback').textContent = '';
-  $('nextScenarioBtn').style.display = 'none';
-  $('part2SubmitBtn').style.display = 'block';
-  $('part2SubmitBtn').disabled = true;
+
+  const fb = $('scenarioFeedback');
+  if(part2Answered){
+    fb.textContent = sc.explain;
+    fb.className = 'feedback show ' + (scenarioSelected === sc.correct ? 'good' : 'bad');
+  } else {
+    fb.className = 'feedback';
+    fb.textContent = '';
+  }
+
+  $('nextScenarioBtn').style.display = part2Answered ? 'flex' : 'none';
+  $('part2SubmitBtn').style.display = part2Answered ? 'none' : 'block';
+  $('part2SubmitBtn').disabled = scenarioSelected === null;
 }
 
 function pickScenarioOption(i){
@@ -1047,7 +1072,6 @@ function pickScenarioOption(i){
 
 $('part2SubmitBtn').addEventListener('click', ()=>{
   if(scenarioSelected === null || part2Answered) return;
-  $('part2SubmitBtn').style.display = 'none';
   handleScenarioAnswer(scenarioSelected);
 });
 
@@ -1056,23 +1080,10 @@ function handleScenarioAnswer(i){
   part2Answered = true;
   const t = tr();
   const sc = t.scenarios[scenarioIdx];
-  const opts = document.querySelectorAll('#optionsList .option');
-  opts.forEach((el, idx)=>{
-    el.classList.add('disabled');
-    el.classList.remove('picked');
-    if(idx === sc.correct) el.classList.add('correct');
-    if(idx === i && i !== sc.correct) el.classList.add('wrong');
-  });
-  const fb = $('scenarioFeedback');
-  fb.textContent = sc.explain;
-  fb.classList.add('show');
   if(i === sc.correct){
     part2Score += 25;
-    fb.classList.add('good');
-  } else {
-    fb.classList.add('bad');
   }
-  $('nextScenarioBtn').style.display = 'flex';
+  renderScenario();
 }
 
 $('nextScenarioBtn').addEventListener('click', ()=>{
@@ -1081,7 +1092,7 @@ $('nextScenarioBtn').addEventListener('click', ()=>{
   if(scenarioIdx >= t.scenarios.length){
     showScreen('screen-bonus-choice');
   } else {
-    renderScenario();
+    startScenario();
   }
 });
 
@@ -1089,9 +1100,7 @@ $('nextScenarioBtn').addEventListener('click', ()=>{
 $('bonusTakeBtn').addEventListener('click', ()=>{
   bonusPlayed = true;
   bonusQ1Score = 0; bonusQ2Score = 0;
-  bonusQ1Answered = false;
-  bonusQ2Selection = []; bonusQ2Submitted = false;
-  renderBonusQ1();
+  startBonusQ1();
   showScreen('screen-bonus-q1');
 });
 
@@ -1101,25 +1110,49 @@ $('bonusSkipBtn').addEventListener('click', ()=>{
   finishGame();
 });
 
-function renderBonusQ1(){
-  const t = tr();
+function startBonusQ1(){
   bonusQ1Answered = false;
   bonusQ1Selected = null;
+  renderBonusQ1();
+}
+
+// Rebuilds the Bonus Q1 UI purely from current state — never resets anything,
+// so a language switch mid-question preserves the pick/answer.
+function renderBonusQ1(){
+  const t = tr();
   const wrap = $('bonusQ1Options');
   wrap.innerHTML = '';
   const letters = ['A','B','C'];
   t.bonusQ1Options.forEach((opt, i)=>{
     const div = document.createElement('div');
-    div.className = 'option';
+    let cls = 'option';
+    if(bonusQ1Answered){
+      cls += ' disabled';
+      if(i === t.bonusQ1Correct) cls += ' correct';
+      if(i === bonusQ1Selected && i !== t.bonusQ1Correct) cls += ' wrong';
+    } else if(i === bonusQ1Selected){
+      cls += ' picked';
+    }
+    div.className = cls;
     div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div>${opt}</div>`;
-    div.addEventListener('click', ()=> pickBonusQ1Option(i));
+    if(!bonusQ1Answered){
+      div.addEventListener('click', ()=> pickBonusQ1Option(i));
+    }
     wrap.appendChild(div);
   });
-  $('bonusQ1Feedback').className = 'feedback';
-  $('bonusQ1Feedback').textContent = '';
-  $('bonusQ1NextBtn').style.display = 'none';
-  $('bonusQ1SubmitBtn').style.display = 'block';
-  $('bonusQ1SubmitBtn').disabled = true;
+
+  const fb = $('bonusQ1Feedback');
+  if(bonusQ1Answered){
+    fb.textContent = t.bonusQ1Explain;
+    fb.className = 'feedback show ' + (bonusQ1Selected === t.bonusQ1Correct ? 'good' : 'bad');
+  } else {
+    fb.className = 'feedback';
+    fb.textContent = '';
+  }
+
+  $('bonusQ1NextBtn').style.display = bonusQ1Answered ? 'flex' : 'none';
+  $('bonusQ1SubmitBtn').style.display = bonusQ1Answered ? 'none' : 'block';
+  $('bonusQ1SubmitBtn').disabled = bonusQ1Selected === null;
 }
 
 function pickBonusQ1Option(i){
@@ -1132,7 +1165,6 @@ function pickBonusQ1Option(i){
 
 $('bonusQ1SubmitBtn').addEventListener('click', ()=>{
   if(bonusQ1Selected === null || bonusQ1Answered) return;
-  $('bonusQ1SubmitBtn').style.display = 'none';
   handleBonusQ1Answer(bonusQ1Selected);
 });
 
@@ -1140,50 +1172,60 @@ function handleBonusQ1Answer(i){
   if(bonusQ1Answered) return;
   bonusQ1Answered = true;
   const t = tr();
-  const opts = document.querySelectorAll('#bonusQ1Options .option');
-  opts.forEach((el, idx)=>{
-    el.classList.add('disabled');
-    el.classList.remove('picked');
-    if(idx === t.bonusQ1Correct) el.classList.add('correct');
-    if(idx === i && i !== t.bonusQ1Correct) el.classList.add('wrong');
-  });
-  const fb = $('bonusQ1Feedback');
-  fb.textContent = t.bonusQ1Explain;
-  fb.classList.add('show');
-  if(i === t.bonusQ1Correct){
-    bonusQ1Score = 15;
-    fb.classList.add('good');
-  } else {
-    bonusQ1Score = 0;
-    fb.classList.add('bad');
-  }
-  $('bonusQ1NextBtn').style.display = 'flex';
+  bonusQ1Score = (i === t.bonusQ1Correct) ? 15 : 0;
+  renderBonusQ1();
 }
 
 $('bonusQ1NextBtn').addEventListener('click', ()=>{
-  renderBonusQ2();
+  startBonusQ2();
   showScreen('screen-bonus-q2');
 });
 
-function renderBonusQ2(){
-  const t = tr();
+function startBonusQ2(){
   bonusQ2Selection = [];
   bonusQ2Submitted = false;
+  renderBonusQ2();
+}
+
+// Rebuilds the Bonus Q2 UI purely from current state — never resets anything,
+// so a language switch mid-question preserves the selections/answer.
+function renderBonusQ2(){
+  const t = tr();
   const wrap = $('bonusQ2Options');
   wrap.innerHTML = '';
   const letters = ['A','B','C','D','E'];
   t.bonusQ2Options.forEach((opt, i)=>{
     const div = document.createElement('div');
-    div.className = 'option checkbox';
+    let cls = 'option checkbox';
+    if(bonusQ2Submitted){
+      cls += ' disabled';
+      const isCorrectAnswer = t.bonusQ2Correct.includes(i);
+      const wasPicked = bonusQ2Selection.includes(i);
+      if(isCorrectAnswer) cls += ' correct';
+      if(wasPicked && !isCorrectAnswer) cls += ' wrong';
+    } else if(bonusQ2Selection.includes(i)){
+      cls += ' picked';
+    }
+    div.className = cls;
     div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div>${opt}</div>`;
-    div.addEventListener('click', ()=> toggleBonusQ2(i, div));
+    if(!bonusQ2Submitted){
+      div.addEventListener('click', ()=> toggleBonusQ2(i, div));
+    }
     wrap.appendChild(div);
   });
-  $('bonusQ2Feedback').className = 'feedback';
-  $('bonusQ2Feedback').textContent = '';
-  $('bonusQ2SubmitBtn').style.display = 'flex';
-  $('bonusQ2SubmitBtn').disabled = true;
-  $('bonusQ2FinishBtn').style.display = 'none';
+
+  const fb = $('bonusQ2Feedback');
+  if(bonusQ2Submitted){
+    fb.textContent = t.bonusQ2Explain;
+    fb.className = 'feedback show ' + (bonusQ2Score > 0 ? 'good' : 'bad');
+  } else {
+    fb.className = 'feedback';
+    fb.textContent = '';
+  }
+
+  $('bonusQ2SubmitBtn').style.display = bonusQ2Submitted ? 'none' : 'flex';
+  $('bonusQ2SubmitBtn').disabled = bonusQ2Selection.length === 0;
+  $('bonusQ2FinishBtn').style.display = bonusQ2Submitted ? 'flex' : 'none';
 }
 
 function toggleBonusQ2(i, el){
@@ -1206,28 +1248,8 @@ $('bonusQ2SubmitBtn').addEventListener('click', ()=>{
   const correctSet = t.bonusQ2Correct.slice().sort();
   const pickedSet = bonusQ2Selection.slice().sort();
   const isExact = correctSet.length === pickedSet.length && correctSet.every((v,i)=> v === pickedSet[i]);
-
-  const opts = document.querySelectorAll('#bonusQ2Options .option');
-  opts.forEach((el, idx)=>{
-    el.classList.add('disabled');
-    const isCorrectAnswer = t.bonusQ2Correct.includes(idx);
-    const wasPicked = bonusQ2Selection.includes(idx);
-    if(isCorrectAnswer) el.classList.add('correct');
-    if(wasPicked && !isCorrectAnswer) el.classList.add('wrong');
-  });
-
-  const fb = $('bonusQ2Feedback');
-  fb.textContent = t.bonusQ2Explain;
-  fb.classList.add('show');
-  if(isExact){
-    bonusQ2Score = 15;
-    fb.classList.add('good');
-  } else {
-    bonusQ2Score = 0;
-    fb.classList.add('bad');
-  }
-  $('bonusQ2SubmitBtn').style.display = 'none';
-  $('bonusQ2FinishBtn').style.display = 'flex';
+  bonusQ2Score = isExact ? 15 : 0;
+  renderBonusQ2();
 });
 
 $('bonusQ2FinishBtn').addEventListener('click', ()=>{
