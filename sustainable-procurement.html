@@ -1279,10 +1279,10 @@ $('bonusQ2FinishBtn').addEventListener('click', ()=>{
 function finishGame(){
   const bonusScore = bonusPlayed ? (bonusQ1Score + bonusQ2Score) : 0;
   const total = part1Score + part2Score + bonusScore;
-  submitScore(total, bonusScore);
   lbShowAll = false;
   showScreen('screen-leaderboard');
-  loadLeaderboard(total);
+  submitScore(total, bonusScore);   // fire in parallel — no waiting
+  loadLeaderboard(total);           // starts fetching immediately too
 }
 
 function submitScore(total, bonusScore){
@@ -1306,7 +1306,7 @@ function submitScore(total, bonusScore){
     method: "POST",
     headers: {"Content-Type": "text/plain;charset=utf-8"},
     body: JSON.stringify(payload)
-  }).catch(()=>{ /* silent — leaderboard fetch is independent */ });
+  }).catch(()=>{ /* silent — leaderboard render doesn't depend on this resolving */ });
 }
 
 /* ======================= LEADERBOARD ======================= */
@@ -1352,16 +1352,30 @@ function renderLeaderboard(data){
   $('lbLoading').style.display = 'none';
 
   let rows = Array.isArray(data) ? data.slice() : [];
+
+  const myEmail = player ? player.email : null;
+  const myScore = player ? player.lastScore : null;
+
+  // If the play we just finished isn't in this snapshot yet (the GET can resolve
+  // slightly before the write is visible), add it locally so "you" always shows
+  // up immediately and ranks correctly. The real row simply takes over next load.
+  if(myEmail && myScore !== undefined && myScore !== null){
+    const alreadyThere = rows.some(r=>{
+      const sc = r.totalScore !== undefined ? r.totalScore : (r.score || 0);
+      return r.email === myEmail && sc === myScore;
+    });
+    if(!alreadyThere){
+      rows.push({ name: player.name, dept: player.dept, email: myEmail, totalScore: myScore });
+    }
+  }
+
   rows.sort((a,b)=> (b.totalScore||b.score||0) - (a.totalScore||a.score||0));
   rows = rows.map((r,i)=>({ ...r, rank: i+1 }));
 
   // Identify exactly ONE row as "me" — the one matching this session's email AND the
   // score just submitted. Falls back to the latest entry for this email only if no
-  // exact score match is found (e.g. the sheet write hasn't propagated yet). Using
-  // object-reference equality later means only this single row gets tagged, even if
-  // the same email has played multiple times before.
-  const myEmail = player ? player.email : null;
-  const myScore = player ? player.lastScore : null;
+  // exact score match is found. Using object-reference equality later means only
+  // this single row gets tagged, even if the same email has played multiple times.
   let myRow = null;
   if(myEmail && myScore !== undefined && myScore !== null){
     for(let i=rows.length-1;i>=0;i--){
