@@ -527,7 +527,7 @@
 // This is the SHARED Apps Script webhook used by six games. Paste the same
 // /exec URL used by the other games — routing to the "Procurement_Responses"
 // tab happens via the `action` field/param, not a separate URL.
-const SHEET_API_URL = ""; // e.g. "https://script.google.com/macros/s/XXXXX/exec"
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec";
 
 // JSONP loader — the shared backend documents this as the way to sidestep
 // CORS restrictions on cross-origin GET requests to Apps Script (the other
@@ -1108,7 +1108,7 @@ async function ensureLeaderboardLoaded(forceRefresh){
     if(SHEET_API_URL){
       try{
         const sep = SHEET_API_URL.includes('?') ? '&' : '?';
-        const bustUrl = SHEET_API_URL + sep + 'action=getProcurementLeaderboard&_=' + Date.now();
+        const bustUrl = SHEET_API_URL + sep + 'action=getProcurementPracticeLeaderboard&_=' + Date.now();
         const payload = await jsonpFetch(bustUrl);
         rows = Array.isArray(payload) ? payload : payload.data;
       }catch(err){
@@ -1252,7 +1252,7 @@ async function submitScore(){
     const res = await fetch(SHEET_API_URL, {
       method: "POST",
       body: JSON.stringify({
-        action: "submitProcurementQuest",
+        action: "submitProcurementPractice",
         name: player.name,
         email: player.email,
         dept: player.dept,
