@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Sustain Connect — Week 12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&family=Kanit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mint:#EAFBF3;
+    --mint-deep:#D3F3E6;
+    --leaf:#2FAE73;
+    --leaf-dark:#1F7A50;
+    --leaf-light:#7FD9AE;
+    --sun:#FFC94D;
+    --sun-dark:#E8A415;
+    --coral:#FF7A6E;
+    --coral-dark:#E85B4E;
+    --plum:#3A3048;
+    --plum-soft:#6E6478;
+    --white:#FFFFFF;
+    --cloud:#F6FFFB;
+    --line:#DCEFE6;
+    --shadow: 0 10px 30px rgba(58, 48, 72, 0.10);
+    --shadow-sm: 0 4px 12px rgba(58, 48, 72, 0.08);
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+    --font-display: 'Baloo 2','Kanit','Noto Sans SC',sans-serif;
+    --font-body: 'Nunito','Kanit','Noto Sans SC',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: var(--font-body);
+    color: var(--plum);
+    background:
+      radial-gradient(circle at 8% 12%, var(--mint-deep) 0%, transparent 40%),
+      radial-gradient(circle at 92% 85%, #FFF3D9 0%, transparent 42%),
+      radial-gradient(circle at 85% 8%, #FFE1DD 0%, transparent 35%),
+      var(--mint);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .bg-blob{
+    position:fixed; pointer-events:none; z-index:0; opacity:0.55;
+    animation: float 9s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform: translateY(0px) rotate(0deg); }
+    50%{ transform: translateY(-14px) rotate(4deg); }
+  }
+  .blob-1{ top:6%; left:-40px; width:120px; animation-delay:0s;}
+  .blob-2{ bottom:8%; right:-30px; width:100px; animation-delay:2s;}
+  .blob-3{ top:45%; right:4%; width:60px; animation-delay:1s; opacity:0.4;}
+
+  .wrap{
+    position:relative; z-index:1;
+    max-width:640px; margin:0 auto;
+    padding: 20px 18px 60px;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px; gap:10px; flex-wrap:wrap;
+  }
+  .brand{
+    display:flex; align-items:center; gap:8px;
+    font-family: var(--font-display); font-weight:700; color:var(--leaf-dark);
+    font-size:15px;
+  }
+  .brand .leaf-icon{ font-size:20px; }
+
+  .lang-switch{ display:flex; gap:6px; background:var(--white); padding:4px; border-radius:999px; box-shadow: var(--shadow-sm); }
+  .lang-btn{
+    border:none; background:transparent; padding:6px 11px; border-radius:999px;
+    font-family:var(--font-body); font-weight:800; font-size:12.5px; cursor:pointer;
+    color:var(--plum-soft); transition: all .15s ease;
+  }
+  .lang-btn.active{ background:var(--leaf); color:#fff; }
+
+  .progress-track{
+    display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:22px;
+  }
+  .progress-stage{
+    display:flex; flex-direction:column; align-items:center; gap:4px; opacity:0.38; transition:opacity .25s ease;
+  }
+  .progress-stage.active,.progress-stage.done{ opacity:1; }
+  .progress-emoji{ font-size:22px; }
+  .progress-label{ font-size:10px; font-weight:700; color:var(--plum-soft); font-family:var(--font-body); }
+  .progress-dash{ width:20px; height:3px; border-radius:3px; background:var(--line); margin:0 2px; }
+  .progress-dash.done{ background:var(--leaf); }
+
+  .card{
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    flex:1;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; top:-40px; right:-40px; width:120px; height:120px;
+    background: radial-gradient(circle, var(--sun) 0%, transparent 70%);
+    opacity:0.35; border-radius:50%;
+  }
+
+  h1.screen-title{
+    font-family: var(--font-display); font-weight:800; font-size:24px;
+    color: var(--leaf-dark); margin:0 0 6px; line-height:1.25; position:relative;
+  }
+  p.screen-sub{
+    font-size:14.5px; color: var(--plum-soft); margin:0 0 20px; line-height:1.55; position:relative;
+  }
+
+  .field{ margin-bottom:16px; position:relative; }
+  .field label{ display:block; font-weight:800; font-size:13.5px; margin-bottom:6px; color:var(--plum); }
+  .field input[type=text], .field input[type=email], .field select, .field textarea{
+    width:100%; border:2px solid var(--line); border-radius: var(--radius-sm);
+    padding:12px 14px; font-family:var(--font-body); font-size:15px; color:var(--plum);
+    background:var(--cloud); transition:border-color .15s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none; border-color:var(--leaf);
+  }
+  .field textarea{ min-height:120px; resize:vertical; line-height:1.5; }
+  .word-count{ font-size:12px; color:var(--plum-soft); text-align:right; margin-top:4px; font-weight:700; }
+  .word-count.over{ color:var(--coral-dark); }
+
+  .radio-group{ display:flex; flex-direction:column; gap:8px; }
+  .radio-card{
+    display:flex; align-items:center; gap:10px; border:2px solid var(--line); border-radius:var(--radius-sm);
+    padding:11px 14px; cursor:pointer; background:var(--cloud); transition: all .15s ease;
+  }
+  .radio-card:hover{ border-color:var(--leaf-light); }
+  .radio-card.selected{ border-color:var(--leaf); background:#EAFBF3; }
+  .radio-card input{ accent-color:var(--leaf); width:18px; height:18px; flex-shrink:0; }
+  .radio-card span{ font-size:14.5px; font-weight:700; }
+
+  .btn{
+    font-family: var(--font-display); font-weight:700; font-size:15.5px;
+    border:none; border-radius:999px; padding:14px 26px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    transition: transform .12s ease, box-shadow .12s ease; width:100%;
+  }
+  .btn:active{ transform: scale(0.98); }
+  .btn-primary{ background: var(--leaf); color:#fff; box-shadow: 0 6px 0 var(--leaf-dark); }
+  .btn-primary:hover{ background:#33bd7d; }
+  .btn-primary:disabled{ background:#B9DDCB; box-shadow:0 6px 0 #9FCBB6; cursor:not-allowed; }
+  .btn-secondary{ background: var(--white); color:var(--leaf-dark); border:2px solid var(--leaf-light); box-shadow:none; }
+  .btn-coral{ background: var(--coral); color:#fff; box-shadow: 0 6px 0 var(--coral-dark); }
+  .btn-sun{ background: var(--sun); color:#4A3200; box-shadow: 0 6px 0 var(--sun-dark); }
+  .btn-ghost{ background:transparent; color:var(--plum-soft); box-shadow:none; text-decoration:underline; font-size:13px; font-weight:700; padding:8px; }
+
+  .btn-row{ display:flex; gap:10px; margin-top:22px; }
+  .btn-row .btn{ flex:1; }
+
+  .error-msg{ color:var(--coral-dark); font-size:13px; font-weight:700; margin-top:10px; }
+
+  .center-emoji{ font-size:52px; text-align:center; margin-bottom:6px; }
+
+  /* Bonus prompt */
+  .prompt-choice{ display:flex; gap:12px; margin-top:24px; }
+  .prompt-choice .btn{ flex:1; }
+
+  /* MCQ */
+  .mcq-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:6px; }
+
+  /* Crossword */
+  .cw-stats{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-weight:800; font-size:13.5px; color:var(--leaf-dark); }
+  .cw-grid-wrap{ overflow-x:auto; padding-bottom:6px; }
+  .cw-grid{ display:grid; gap:3px; width:max-content; margin:0 auto 14px; user-select:none; }
+  .cw-cell{
+    width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    background:var(--cloud); border-radius:6px; font-weight:800; font-size:13px; cursor:pointer;
+    border:2px solid transparent; color:var(--plum); transition: all .1s ease;
+    touch-action:none;
+  }
+  .cw-cell.selected{ border-color:var(--sun); background:#FFF4D6; }
+  .cw-cell.found{ background:var(--leaf); color:#fff; }
+  .cw-cell.wrong{ background:var(--coral); color:#fff; }
+  .cw-word-bank{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+  .cw-word-chip{
+    font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:999px;
+    background:var(--cloud); color:var(--plum-soft); border:2px solid var(--line);
+  }
+  .cw-word-chip.found{ background:var(--leaf); color:#fff; border-color:var(--leaf); text-decoration:line-through; opacity:0.85; }
+
+  /* Report */
+  .upload-box{
+    border:2px dashed var(--leaf-light); border-radius:var(--radius-sm); padding:18px; text-align:center;
+    background:var(--cloud); cursor:pointer; font-weight:700; font-size:13.5px; color:var(--leaf-dark);
+  }
+  .upload-preview{ max-width:100%; border-radius:var(--radius-sm); margin-top:10px; }
+
+  /* Finish */
+  .score-breakdown{ background:var(--cloud); border-radius:var(--radius-md); padding:16px 18px; margin:18px 0; }
+  .score-row{ display:flex; justify-content:space-between; font-size:14.5px; font-weight:700; padding:6px 0; color:var(--plum-soft); }
+  .score-row.total{ border-top:2px dashed var(--line); margin-top:6px; padding-top:12px; font-size:18px; color:var(--leaf-dark); font-family:var(--font-display); }
+
+  /* Leaderboard */
+  .lb-banner{ text-align:center; margin-bottom:16px; }
+  .lb-table{ width:100%; border-collapse:collapse; }
+  .lb-table th{ text-align:left; font-size:11px; text-transform:none; color:var(--plum-soft); padding:6px 8px; font-weight:800; }
+  .lb-table td{ padding:10px 8px; font-size:14px; font-weight:700; border-top:1px solid var(--line); }
+  .lb-table tr.you td{ background:#FFF4D6; }
+  .lb-rank{ font-family:var(--font-display); font-weight:800; color:var(--leaf-dark); width:34px; }
+  .lb-medal{ font-size:16px; }
+  .lb-you-row-note{ text-align:center; font-size:12.5px; color:var(--plum-soft); margin-top:10px; font-weight:700; }
+
+  .footer-note{ text-align:center; font-size:11.5px; color:var(--plum-soft); margin-top:18px; opacity:0.75; }
+
+  @media (max-width:400px){
+    .cw-cell{ width:22px; height:22px; font-size:11.5px; }
+    h1.screen-title{ font-size:21px; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="bg-blob blob-1" viewBox="0 0 100 100"><path fill="#7FD9AE" d="M50 5C70 5 92 25 92 50C92 75 70 95 48 92C26 89 8 70 8 48C8 26 30 5 50 5Z"/></svg>
+<svg class="bg-blob blob-2" viewBox="0 0 100 100"><path fill="#FFC94D" d="M50 8C75 12 90 30 88 52C86 74 65 90 44 90C23 90 6 72 8 50C10 28 25 4 50 8Z"/></svg>
+<svg class="bg-blob blob-3" viewBox="0 0 100 100"><path fill="#FF7A6E" d="M50 10C68 10 90 28 90 50C90 72 68 90 50 90C32 90 10 72 10 50C10 28 32 10 50 10Z"/></svg>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><span class="leaf-icon">🌿</span><span id="brandText">Sustain Connect · Week 12</span></div>
+    <div class="lang-switch" id="langSwitch"></div>
+  </div>
+  <div class="progress-track" id="progressTrack"></div>
+  <div class="card" id="app"></div>
+  <div class="footer-note" id="footerNote"></div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — update these two lines to match your deployment
+   ============================================================ */
+const SHEET_API_URL = "https://script.google.com/macros/s/PASTE_YOUR_DEPLOYMENT_ID/exec"; // same shared /exec URL as the other Sustain Connect games
+const ACTION_SUBMIT = "submitWeek12";
+const ACTION_LEADERBOARD = "getWeek12Leaderboard";
+
+/* ============================================================
+   I18N
+   ============================================================ */
+const LANGS = ["en","th","zh","de"];
+const LANG_LABEL = { en:"EN", th:"ไทย", zh:"中文", de:"DE" };
+
+const AREA_KEYS = ["ghg","human_rights","welfare","dei","ethics","procurement","other"];
+const MCQ_KEYS = ["sustainability","carbon_footprint","reduce_ghg","eco_weekend","working_conditions","work_life","move_health","business_ethics","sensitive_data","procurement_principle","procurement_practice"];
+const CW_WORDS = ["ETHICS","INTEGRITY","CARBON","HUMANRIGHTS","LIVINGWAGE","SAFETY","DIVERSITY","TRANSPARENCY","COMPLIANCE","WELLBEING"];
+const CW_DISPLAY = { ETHICS:"Ethics", INTEGRITY:"Integrity", CARBON:"Carbon", HUMANRIGHTS:"Human Rights", LIVINGWAGE:"Living Wage", SAFETY:"Safety", DIVERSITY:"Diversity", TRANSPARENCY:"Transparency", COMPLIANCE:"Compliance", WELLBEING:"Wellbeing" };
+
+const I18N = {
+en: {
+  brand: "Sustain Connect · Week 12",
+  stageReg:"Sign in", stageMain:"Reflect", stageBonus:"Bonus", stageDone:"Done",
+  reg_title:"Welcome to the final week! 🌱",
+  reg_sub:"Week 12 wraps up our Sustain Connect journey. Tell us a bit about yourself to get started.",
+  reg_name:"Full name", reg_name_ph:"e.g. Somsri Jaidee",
+  reg_email:"Work email", reg_email_ph:"you@behnmeyer.com",
+  reg_dept:"Department", reg_dept_ph:"e.g. Procurement, Finance, HR",
+  reg_country:"Country", reg_country_ph:"e.g. Thailand, Germany, Singapore",
+  reg_start:"Start the game 🚀",
+  reg_err_required:"Please fill in every field before continuing.",
+  reg_err_email:"That doesn't look like a valid email address.",
+  q1_title:"One positive change",
+  q1_sub:"If you could make ONE positive change at Behn Meyer, what would it be? (50 points)",
+  q1_area_label:"Choose one area where you think we can make a difference:",
+  q1_other_ph:"Please specify",
+  q1_reason_label:"Why is this important to you, and what is ONE idea you would suggest to make it better?",
+  q1_reason_ph:"Share your thoughts here (max 250 words)…",
+  q1_submit:"Submit & continue",
+  q1_err_area:"Please choose an area first.",
+  q1_err_text:"Please share your thoughts before continuing.",
+  q1_err_limit:"Please keep your answer to 250 words or fewer.",
+  q2_title:"One thing you'll practice",
+  q2_sub:"What is ONE thing you learned from Sustain Connect that you would like to put into practice? (50 points)",
+  q2_ph:"Share your thoughts here (max 250 words)…",
+  q2_submit:"Submit & continue",
+  bp_title:"Nice work! 🎉 That's 100 points banked.",
+  bp_sub:"Want to keep going for up to 50 bonus points? It's completely optional.",
+  bp_yes:"Yes, let's go! 🌟",
+  bp_no:"No thanks, finish now",
+  mcq_title:"Bonus 1 · Your favourite topic",
+  mcq_sub:"Which topic did you enjoy the most during ESG Connect? (10 points)",
+  mcq_next:"Next: word search →",
+  cw_title:"Bonus 2 · ESG word search",
+  cw_sub:"Find the hidden ESG words. Tap the first letter, then the last letter of a word. Each word is worth 2 points — find as many as you can, then finish whenever you like.",
+  cw_found:"Found",
+  cw_finish:"Finish word search →",
+  cw_skip:"Can't find more? Skip to the next round →",
+  br_title:"Bonus 3 · Investigate the sustainability report",
+  br_sub:"Take a look at Behn Meyer's sustainability report and share one finding. Paste a link, or attach a screenshot. (20 points)",
+  br_link_label:"Link or reference (report page, quote, or your note)",
+  br_link_ph:"Paste a link or write what you found…",
+  br_upload_label:"Or attach a screenshot (optional)",
+  br_submit:"Submit bonus round",
+  br_err:"Please paste a link/note or attach a screenshot.",
+  skip_to_finish:"Skip remaining bonus & finish game →",
+  fin_title:"You've completed Week 12! 🏆",
+  fin_sub:"That's the whole Sustain Connect journey — thank you for playing all 12 weeks!",
+  fin_main:"Main questions",
+  fin_bonus:"Bonus round",
+  fin_total:"Total score",
+  fin_submit:"Finish game & see leaderboard",
+  fin_submitting:"Submitting your score…",
+  fin_error:"Couldn't submit right now — please check your connection and try again.",
+  lb_title:"Week 12 Leaderboard 🏅",
+  lb_sub:"Thanks for completing the Sustain Connect series!",
+  lb_rank:"#", lb_name:"Name", lb_dept:"Dept", lb_score:"Score",
+  lb_you:"You're on the board!",
+  lb_loading:"Loading leaderboard…",
+  lb_play_again:"Play again",
+  footer:"Behn Meyer Sustainability Team · Sustain Connect Week 12",
+  countries:["Singapore","Malaysia","Thailand","Indonesia","Philippines","Vietnam","China","Hong Kong","Taiwan","India","Germany","Other"]
+},
+th: {
+  brand: "Sustain Connect · สัปดาห์ที่ 12",
+  stageReg:"ลงทะเบียน", stageMain:"ตอบคำถาม", stageBonus:"โบนัส", stageDone:"เสร็จสิ้น",
+  reg_title:"ยินดีต้อนรับสู่สัปดาห์สุดท้าย! 🌱",
+  reg_sub:"สัปดาห์ที่ 12 คือบทสรุปของการเดินทาง Sustain Connect ของเรา กรอกข้อมูลสั้น ๆ เพื่อเริ่มเกมกันเลย",
+  reg_name:"ชื่อ-นามสกุล", reg_name_ph:"เช่น สมศรี ใจดี",
+  reg_email:"อีเมลที่ใช้ทำงาน", reg_email_ph:"you@behnmeyer.com",
+  reg_dept:"แผนก", reg_dept_ph:"เช่น จัดซื้อ, การเงิน, บุคคล",
+  reg_country:"ประเทศ", reg_country_ph:"เช่น ไทย, เยอรมนี, สิงคโปร์",
+  reg_start:"เริ่มเล่นเกม 🚀",
+  reg_err_required:"กรุณากรอกข้อมูลให้ครบทุกช่องก่อนดำเนินการต่อ",
+  reg_err_email:"รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง",
+  q1_title:"หนึ่งการเปลี่ยนแปลงที่ดีขึ้น",
+  q1_sub:"ถ้าคุณสามารถสร้างการเปลี่ยนแปลงเชิงบวกให้กับ Behn Meyer ได้ 1 เรื่อง คุณอยากเปลี่ยนเรื่องอะไร? (50 คะแนน)",
+  q1_area_label:"เลือกด้านที่คุณคิดว่าเราสามารถสร้างความแตกต่างได้:",
+  q1_other_ph:"โปรดระบุ",
+  q1_reason_label:"เรื่องนี้สำคัญกับคุณอย่างไร และคุณมีไอเดียอะไร 1 อย่างที่อยากแนะนำเพื่อทำให้ดีขึ้น?",
+  q1_reason_ph:"เขียนความคิดเห็นของคุณที่นี่ (ไม่เกิน 250 คำ)…",
+  q1_submit:"ส่งคำตอบและไปต่อ",
+  q1_err_area:"กรุณาเลือกด้านที่ต้องการก่อน",
+  q1_err_text:"กรุณาเขียนความคิดเห็นก่อนดำเนินการต่อ",
+  q1_err_limit:"กรุณาเขียนคำตอบไม่เกิน 250 คำ",
+  q2_title:"สิ่งที่จะนำไปปฏิบัติจริง",
+  q2_sub:"อะไรคือ 1 สิ่งที่คุณได้เรียนรู้จาก Sustain Connect และอยากนำไปใช้จริง? (50 คะแนน)",
+  q2_ph:"เขียนความคิดเห็นของคุณที่นี่ (ไม่เกิน 250 คำ)…",
+  q2_submit:"ส่งคำตอบและไปต่อ",
+  bp_title:"เก่งมาก! 🎉 คุณได้คะแนนไปแล้ว 100 คะแนน",
+  bp_sub:"อยากเล่นต่อเพื่อสะสมคะแนนโบนัสสูงสุด 50 คะแนนไหม? ไม่บังคับเล่นก็ได้",
+  bp_yes:"เอาสิ ไปกันต่อ! 🌟",
+  bp_no:"ไม่เล่นต่อ ขอจบเกมเลย",
+  mcq_title:"โบนัสข้อ 1 · หัวข้อที่คุณชอบที่สุด",
+  mcq_sub:"หัวข้อไหนที่คุณชอบมากที่สุดในกิจกรรม ESG Connect? (10 คะแนน)",
+  mcq_next:"ถัดไป: เกมหาคำศัพท์ →",
+  cw_title:"โบนัสข้อ 2 · หาคำศัพท์ ESG",
+  cw_sub:"ค้นหาคำศัพท์ ESG ที่ซ่อนอยู่ในตาราง แตะตัวอักษรแรก แล้วแตะตัวอักษรสุดท้ายของคำนั้น แต่ละคำมีค่า 2 คะแนน หาได้เท่าไหร่ก็เท่านั้น แล้วกดจบเมื่อพร้อม",
+  cw_found:"หาเจอแล้ว",
+  cw_finish:"จบเกมหาคำศัพท์ →",
+  cw_skip:"หาไม่เจอแล้วใช่ไหม? ข้ามไปข้อถัดไป →",
+  br_title:"โบนัสข้อ 3 · สำรวจรายงานความยั่งยืน",
+  br_sub:"ลองเปิดดูรายงานความยั่งยืนของ Behn Meyer แล้วแชร์สิ่งที่คุณพบ 1 อย่าง จะวางลิงก์ หรือแนบภาพหน้าจอก็ได้ (20 คะแนน)",
+  br_link_label:"ลิงก์หรือข้อมูลอ้างอิง (หน้ารายงาน, ข้อความ, หรือบันทึกของคุณ)",
+  br_link_ph:"วางลิงก์ หรือเขียนสิ่งที่คุณพบ…",
+  br_upload_label:"หรือแนบภาพหน้าจอ (ไม่บังคับ)",
+  br_submit:"ส่งคำตอบโบนัส",
+  br_err:"กรุณาวางลิงก์/เขียนบันทึก หรือแนบภาพหน้าจอ",
+  skip_to_finish:"ข้ามโบนัสที่เหลือแล้วจบเกม →",
+  fin_title:"คุณผ่านสัปดาห์ที่ 12 แล้ว! 🏆",
+  fin_sub:"นี่คือการเดินทางครบทั้งหมดของ Sustain Connect — ขอบคุณที่ร่วมเล่นครบทั้ง 12 สัปดาห์!",
+  fin_main:"คำถามหลัก",
+  fin_bonus:"รอบโบนัส",
+  fin_total:"คะแนนรวม",
+  fin_submit:"จบเกมและดูตารางคะแนน",
+  fin_submitting:"กำลังส่งคะแนนของคุณ…",
+  fin_error:"ส่งคะแนนไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่อีกครั้ง",
+  lb_title:"ตารางคะแนนสัปดาห์ที่ 12 🏅",
+  lb_sub:"ขอบคุณที่ร่วมเล่นซีรีส์ Sustain Connect จนจบ!",
+  lb_rank:"อันดับ", lb_name:"ชื่อ", lb_dept:"แผนก", lb_score:"คะแนน",
+  lb_you:"คุณอยู่ในตารางคะแนนแล้ว!",
+  lb_loading:"กำลังโหลดตารางคะแนน…",
+  lb_play_again:"เล่นอีกครั้ง",
+  footer:"ทีมความยั่งยืน Behn Meyer · Sustain Connect สัปดาห์ที่ 12",
+  countries:["สิงคโปร์","มาเลเซีย","ไทย","อินโดนีเซีย","ฟิลิปปินส์","เวียดนาม","จีน","ฮ่องกง","ไต้หวัน","อินเดีย","เยอรมนี","อื่น ๆ"]
+},
+zh: {
+  brand: "Sustain Connect · 第12周",
+  stageReg:"注册", stageMain:"作答", stageBonus:"加分题", stageDone:"完成",
+  reg_title:"欢迎来到最后一周！🌱",
+  reg_sub:"第12周是我们 Sustain Connect 旅程的收官周。请先填写一些基本信息开始游戏。",
+  reg_name:"姓名", reg_name_ph:"例如：王小明",
+  reg_email:"工作邮箱", reg_email_ph:"you@behnmeyer.com",
+  reg_dept:"部门", reg_dept_ph:"例如：采购部、财务部、人力资源部",
+  reg_country:"国家", reg_country_ph:"例如：泰国、德国、新加坡",
+  reg_start:"开始游戏 🚀",
+  reg_err_required:"请填写完所有字段后再继续。",
+  reg_err_email:"邮箱格式看起来不正确，请检查后重试。",
+  q1_title:"一个积极的改变",
+  q1_sub:"如果可以为 Behn Meyer 带来一个积极的改变，你希望是什么？（50分）",
+  q1_area_label:"请选择一个你认为我们可以有所作为的领域：",
+  q1_other_ph:"请说明",
+  q1_reason_label:"这件事对你来说为什么重要？你有什么建议可以让它变得更好？",
+  q1_reason_ph:"在这里写下你的想法（不超过250字）…",
+  q1_submit:"提交并继续",
+  q1_err_area:"请先选择一个领域。",
+  q1_err_text:"请先写下你的想法再继续。",
+  q1_err_limit:"请将答案控制在250字以内。",
+  q2_title:"一件你想实践的事",
+  q2_sub:"通过 Sustain Connect，你学到了什么，希望在实际工作/生活中运用？（50分）",
+  q2_ph:"在这里写下你的想法（不超过250字）…",
+  q2_submit:"提交并继续",
+  bp_title:"太棒了！🎉 你已获得100分。",
+  bp_sub:"要不要继续挑战，最多可再获得50分加分题？完全自愿参加。",
+  bp_yes:"好，继续！🌟",
+  bp_no:"不了，直接结束游戏",
+  mcq_title:"加分题1 · 你最喜欢的主题",
+  mcq_sub:"在 ESG Connect 活动中，你最喜欢哪个主题？（10分）",
+  mcq_next:"下一步：单词搜索 →",
+  cw_title:"加分题2 · ESG 单词搜索",
+  cw_sub:"在字母表中找出隐藏的 ESG 单词。先点第一个字母，再点最后一个字母。每找到一个单词得2分，找到多少算多少，完成后可随时结束。",
+  cw_found:"已找到",
+  cw_finish:"结束单词搜索 →",
+  cw_skip:"找不到更多了？跳到下一题 →",
+  br_title:"加分题3 · 探索可持续发展报告",
+  br_sub:"看一看 Behn Meyer 的可持续发展报告，分享你发现的一点内容。可以粘贴链接，也可以上传截图。（20分）",
+  br_link_label:"链接或参考内容（报告页面、引用或你的笔记）",
+  br_link_ph:"粘贴链接，或写下你发现的内容…",
+  br_upload_label:"或上传截图（可选）",
+  br_submit:"提交加分题",
+  br_err:"请粘贴链接/笔记，或上传截图。",
+  skip_to_finish:"跳过剩余加分题并结束游戏 →",
+  fin_title:"你已完成第12周！🏆",
+  fin_sub:"这是 Sustain Connect 的完整旅程 — 感谢你参与全部12周！",
+  fin_main:"主问题得分",
+  fin_bonus:"加分题得分",
+  fin_total:"总分",
+  fin_submit:"结束游戏并查看排行榜",
+  fin_submitting:"正在提交你的得分…",
+  fin_error:"暂时无法提交，请检查网络连接后重试。",
+  lb_title:"第12周排行榜 🏅",
+  lb_sub:"感谢你完成整个 Sustain Connect 系列！",
+  lb_rank:"名次", lb_name:"姓名", lb_dept:"部门", lb_score:"分数",
+  lb_you:"你已上榜！",
+  lb_loading:"正在加载排行榜…",
+  lb_play_again:"再玩一次",
+  footer:"Behn Meyer 可持续发展团队 · Sustain Connect 第12周",
+  countries:["新加坡","马来西亚","泰国","印度尼西亚","菲律宾","越南","中国","中国香港","中国台湾","印度","德国","其他"]
+},
+de: {
+  brand: "Sustain Connect · Woche 12",
+  stageReg:"Anmeldung", stageMain:"Reflexion", stageBonus:"Bonus", stageDone:"Fertig",
+  reg_title:"Willkommen in der letzten Woche! 🌱",
+  reg_sub:"Woche 12 schließt unsere Sustain-Connect-Reise ab. Erzähl uns kurz etwas über dich, um zu starten.",
+  reg_name:"Vollständiger Name", reg_name_ph:"z. B. Max Mustermann",
+  reg_email:"Geschäftliche E-Mail", reg_email_ph:"you@behnmeyer.com",
+  reg_dept:"Abteilung", reg_dept_ph:"z. B. Einkauf, Finanzen, HR",
+  reg_country:"Land", reg_country_ph:"z. B. Thailand, Deutschland, Singapur",
+  reg_start:"Spiel starten 🚀",
+  reg_err_required:"Bitte fülle alle Felder aus, bevor du fortfährst.",
+  reg_err_email:"Das sieht nicht nach einer gültigen E-Mail-Adresse aus.",
+  q1_title:"Eine positive Veränderung",
+  q1_sub:"Wenn du EINE positive Veränderung bei Behn Meyer bewirken könntest, welche wäre das? (50 Punkte)",
+  q1_area_label:"Wähle einen Bereich, in dem wir deiner Meinung nach etwas bewirken können:",
+  q1_other_ph:"Bitte angeben",
+  q1_reason_label:"Warum ist dir das wichtig, und welche EINE Idee würdest du vorschlagen, um es zu verbessern?",
+  q1_reason_ph:"Teile hier deine Gedanken (max. 250 Wörter)…",
+  q1_submit:"Absenden & weiter",
+  q1_err_area:"Bitte wähle zuerst einen Bereich aus.",
+  q1_err_text:"Bitte teile deine Gedanken, bevor du fortfährst.",
+  q1_err_limit:"Bitte halte deine Antwort auf maximal 250 Wörter.",
+  q2_title:"Eine Sache, die du umsetzen willst",
+  q2_sub:"Was ist EINE Sache, die du bei Sustain Connect gelernt hast und in die Praxis umsetzen möchtest? (50 Punkte)",
+  q2_ph:"Teile hier deine Gedanken (max. 250 Wörter)…",
+  q2_submit:"Absenden & weiter",
+  bp_title:"Gut gemacht! 🎉 Das sind 100 Punkte im Kasten.",
+  bp_sub:"Möchtest du weitermachen und bis zu 50 Bonuspunkte sammeln? Völlig freiwillig.",
+  bp_yes:"Ja, auf geht's! 🌟",
+  bp_no:"Nein danke, jetzt beenden",
+  mcq_title:"Bonus 1 · Dein Lieblingsthema",
+  mcq_sub:"Welches Thema hat dir bei ESG Connect am meisten Spaß gemacht? (10 Punkte)",
+  mcq_next:"Weiter: Wortsuche →",
+  cw_title:"Bonus 2 · ESG-Wortsuche",
+  cw_sub:"Finde die versteckten ESG-Begriffe. Tippe auf den ersten Buchstaben, dann auf den letzten Buchstaben eines Wortes. Jedes Wort ist 2 Punkte wert — finde so viele wie du kannst und beende jederzeit.",
+  cw_found:"Gefunden",
+  cw_finish:"Wortsuche beenden →",
+  cw_skip:"Findest du keine weiteren? Weiter zur nächsten Runde →",
+  br_title:"Bonus 3 · Den Nachhaltigkeitsbericht erkunden",
+  br_sub:"Schau dir den Nachhaltigkeitsbericht von Behn Meyer an und teile einen Fund. Füge einen Link ein oder lade einen Screenshot hoch. (20 Punkte)",
+  br_link_label:"Link oder Referenz (Berichtsseite, Zitat oder deine Notiz)",
+  br_link_ph:"Link einfügen oder schreiben, was du gefunden hast…",
+  br_upload_label:"Oder Screenshot anhängen (optional)",
+  br_submit:"Bonusrunde absenden",
+  br_err:"Bitte füge einen Link/eine Notiz ein oder lade einen Screenshot hoch.",
+  skip_to_finish:"Restliche Bonusrunden überspringen & Spiel beenden →",
+  fin_title:"Du hast Woche 12 abgeschlossen! 🏆",
+  fin_sub:"Das ist die gesamte Sustain-Connect-Reise — danke, dass du alle 12 Wochen dabei warst!",
+  fin_main:"Hauptfragen",
+  fin_bonus:"Bonusrunde",
+  fin_total:"Gesamtpunktzahl",
+  fin_submit:"Spiel beenden & Bestenliste ansehen",
+  fin_submitting:"Deine Punktzahl wird übermittelt…",
+  fin_error:"Konnte gerade nicht übermitteln — bitte Verbindung prüfen und erneut versuchen.",
+  lb_title:"Bestenliste Woche 12 🏅",
+  lb_sub:"Danke, dass du die Sustain-Connect-Serie abgeschlossen hast!",
+  lb_rank:"#", lb_name:"Name", lb_dept:"Abt.", lb_score:"Punkte",
+  lb_you:"Du stehst auf der Liste!",
+  lb_loading:"Bestenliste wird geladen…",
+  lb_play_again:"Nochmal spielen",
+  footer:"Behn Meyer Sustainability Team · Sustain Connect Woche 12",
+  countries:["Singapur","Malaysia","Thailand","Indonesien","Philippinen","Vietnam","China","Hongkong","Taiwan","Indien","Deutschland","Andere"]
+}
+};
+
+const AREA_TEXT = {
+  ghg: { en:"Greenhouse Gas Emission and Reduction", th:"การปล่อยและลดก๊าซเรือนกระจก", zh:"温室气体排放与减排", de:"Treibhausgasemissionen und -reduktion" },
+  human_rights: { en:"Human Rights", th:"สิทธิมนุษยชน", zh:"人权", de:"Menschenrechte" },
+  welfare: { en:"Welfare Benefit", th:"สวัสดิการพนักงาน", zh:"福利待遇", de:"Sozialleistungen" },
+  dei: { en:"Diversity & Inclusion", th:"ความหลากหลายและการยอมรับความแตกต่าง", zh:"多元与包容", de:"Vielfalt & Inklusion" },
+  ethics: { en:"Ethics & Compliance", th:"จริยธรรมและการปฏิบัติตามกฎระเบียบ", zh:"道德与合规", de:"Ethik & Compliance" },
+  procurement: { en:"Sustainable Procurement", th:"การจัดซื้อจัดจ้างอย่างยั่งยืน", zh:"可持续采购", de:"Nachhaltige Beschaffung" },
+  other: { en:"Others… please specify", th:"อื่น ๆ … โปรดระบุ", zh:"其他……请说明", de:"Sonstiges … bitte angeben" }
+};
+
+const MCQ_TEXT = {
+  sustainability: { en:"What is sustainability?", th:"ความยั่งยืนคืออะไร", zh:"什么是可持续发展？", de:"Was ist Nachhaltigkeit?" },
+  carbon_footprint: { en:"Carbon footprint", th:"คาร์บอนฟุตพรินต์", zh:"碳足迹", de:"CO2-Fußabdruck" },
+  reduce_ghg: { en:"How to reduce GHG emission", th:"วิธีลดการปล่อยก๊าซเรือนกระจก", zh:"如何减少温室气体排放", de:"Wie man Treibhausgasemissionen reduziert" },
+  eco_weekend: { en:"ECO life on weekend", th:"ชีวิตรักษ์โลกในวันหยุด", zh:"周末环保生活", de:"Ökologisches Leben am Wochenende" },
+  working_conditions: { en:"Working Conditions and Labour Practices", th:"สภาพการทำงานและแนวปฏิบัติด้านแรงงาน", zh:"工作条件与劳工实践", de:"Arbeitsbedingungen und Arbeitspraktiken" },
+  work_life: { en:"Work-Life Balance", th:"สมดุลชีวิตและการทำงาน", zh:"工作与生活平衡", de:"Work-Life-Balance" },
+  move_health: { en:"Move for Health", th:"ขยับร่างกายเพื่อสุขภาพ", zh:"为健康而动", de:"Bewegung für die Gesundheit" },
+  business_ethics: { en:"Business Ethics", th:"จริยธรรมทางธุรกิจ", zh:"商业道德", de:"Unternehmensethik" },
+  sensitive_data: { en:"Sensitive data", th:"ข้อมูลที่ละเอียดอ่อน", zh:"敏感数据", de:"Sensible Daten" },
+  procurement_principle: { en:"Sustainable procurement principle", th:"หลักการจัดซื้อจัดจ้างอย่างยั่งยืน", zh:"可持续采购原则", de:"Grundsätze nachhaltiger Beschaffung" },
+  procurement_practice: { en:"Sustainable Procurement in Practice", th:"การจัดซื้อจัดจ้างอย่างยั่งยืนในทางปฏิบัติ", zh:"可持续采购实践", de:"Nachhaltige Beschaffung in der Praxis" }
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  lang: "en",
+  screen: "register",
+  player: { name:"", email:"", dept:"", country:"" },
+  q1: { area:"", areaOther:"", text:"" },
+  q2: { text:"" },
+  mainScore: 0,
+  bonusPlayed: false,
+  mcqAnswer: "",
+  cwFound: [],
+  cwScore: 0,
+  cwSelection: null,
+  cwGrid: null,
+  report: { note:"", imageData:"" },
+  bonusScore: 0,
+  totalScore: 0,
+  leaderboard: [],
+  lbLoading: false,
+  submitting: false,
+  submitError: false
+};
+
+function t(key){
+  const dict = I18N[state.lang] || I18N.en;
+  return (dict && dict[key] !== undefined) ? dict[key] : I18N.en[key];
+}
+function areaText(key){ return (AREA_TEXT[key] && (AREA_TEXT[key][state.lang] || AREA_TEXT[key].en)) || key; }
+function mcqText(key){ return (MCQ_TEXT[key] && (MCQ_TEXT[key][state.lang] || MCQ_TEXT[key].en)) || key; }
+function wordCount(str){ const s = str.trim(); return s.length === 0 ? 0 : s.trim().split(/\s+/).length; }
+
+/* ============================================================
+   RENDER SHELL: topbar lang switch + progress + footer
+   ============================================================ */
+function renderShell(){
+  document.getElementById("brandText").textContent = t("brand");
+  document.getElementById("footerNote").textContent = t("footer");
+
+  const langSwitch = document.getElementById("langSwitch");
+  langSwitch.innerHTML = "";
+  LANGS.forEach(l=>{
+    const b = document.createElement("button");
+    b.className = "lang-btn" + (state.lang===l ? " active":"");
+    b.textContent = LANG_LABEL[l];
+    b.onclick = ()=>{ state.lang = l; render(); };
+    langSwitch.appendChild(b);
+  });
+
+  const stages = [
+    {key:"register", emoji:"🌱", label:t("stageReg")},
+    {key:"main", emoji:"🌿", label:t("stageMain")},
+    {key:"bonus", emoji:"🌳", label:t("stageBonus")},
+    {key:"done", emoji:"🎉", label:t("stageDone")}
+  ];
+  const order = ["register","q1","q2","bonusPrompt","mcq","crossword","report","finish","leaderboard"];
+  const stageOf = (screen)=>{
+    if(screen==="register") return 0;
+    if(screen==="q1"||screen==="q2") return 1;
+    if(screen==="bonusPrompt"||screen==="mcq"||screen==="crossword"||screen==="report") return 2;
+    return 3;
+  };
+  const current = stageOf(state.screen);
+  const track = document.getElementById("progressTrack");
+  track.innerHTML = "";
+  stages.forEach((s,i)=>{
+    if(i>0){
+      const dash = document.createElement("div");
+      dash.className = "progress-dash" + (i<=current ? " done":"");
+      track.appendChild(dash);
+    }
+    const el = document.createElement("div");
+    el.className = "progress-stage" + (i===current ? " active": i<current ? " done":"");
+    el.innerHTML = `<div class="progress-emoji">${s.emoji}</div><div class="progress-label">${s.label}</div>`;
+    track.appendChild(el);
+  });
+}
+
+/* ============================================================
+   MAIN RENDER DISPATCH
+   ============================================================ */
+function render(){
+  renderShell();
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  switch(state.screen){
+    case "register": renderRegister(app); break;
+    case "q1": renderQ1(app); break;
+    case "q2": renderQ2(app); break;
+    case "bonusPrompt": renderBonusPrompt(app); break;
+    case "mcq": renderMcq(app); break;
+    case "crossword": renderCrossword(app); break;
+    case "report": renderReport(app); break;
+    case "finish": renderFinish(app); break;
+    case "leaderboard": renderLeaderboard(app); break;
+  }
+}
+
+/* ============================================================
+   SCREEN: REGISTER
+   ============================================================ */
+function renderRegister(app){
+  app.innerHTML = `
+    <div class="center-emoji">🌱</div>
+    <h1 class="screen-title">${t("reg_title")}</h1>
+    <p class="screen-sub">${t("reg_sub")}</p>
+    <div class="field">
+      <label>${t("reg_name")}</label>
+      <input type="text" id="f_name" placeholder="${t("reg_name_ph")}" value="${escapeAttr(state.player.name)}">
+    </div>
+    <div class="field">
+      <label>${t("reg_email")}</label>
+      <input type="email" id="f_email" placeholder="${t("reg_email_ph")}" value="${escapeAttr(state.player.email)}">
+    </div>
+    <div class="field">
+      <label>${t("reg_dept")}</label>
+      <input type="text" id="f_dept" placeholder="${t("reg_dept_ph")}" value="${escapeAttr(state.player.dept)}">
+    </div>
+    <div class="field">
+      <label>${t("reg_country")}</label>
+      <input type="text" id="f_country" placeholder="${t("reg_country_ph")}" value="${escapeAttr(state.player.country)}">
+    </div>
+    <div id="regError"></div>
+    <div class="btn-row"><button class="btn btn-primary" id="regStartBtn">${t("reg_start")}</button></div>
+  `;
+  document.getElementById("regStartBtn").onclick = ()=>{
+    const name = document.getElementById("f_name").value.trim();
+    const email = document.getElementById("f_email").value.trim();
+    const dept = document.getElementById("f_dept").value.trim();
+    const country = document.getElementById("f_country").value;
+    const errBox = document.getElementById("regError");
+    if(!name || !email || !dept || !country){
+      errBox.innerHTML = `<div class="error-msg">${t("reg_err_required")}</div>`;
+      return;
+    }
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!emailOk){
+      errBox.innerHTML = `<div class="error-msg">${t("reg_err_email")}</div>`;
+      return;
+    }
+    state.player = { name, email, dept, country };
+    state.screen = "q1";
+    render();
+  };
+}
+
+/* ============================================================
+   SCREEN: Q1
+   ============================================================ */
+function renderQ1(app){
+  const wc = wordCount(state.q1.text);
+  const over = wc > 250;
+  app.innerHTML = `
+    <h1 class="screen-title">${t("q1_title")}</h1>
+    <p class="screen-sub">${t("q1_sub")}</p>
+    <div class="field">
+      <label>${t("q1_area_label")}</label>
+      <div class="radio-group" id="areaGroup">
+        ${AREA_KEYS.map(k=>`
+          <label class="radio-card ${state.q1.area===k?"selected":""}" data-key="${k}">
+            <input type="radio" name="area" value="${k}" ${state.q1.area===k?"checked":""}>
+            <span>${areaText(k)}</span>
+          </label>
+        `).join("")}
+      </div>
+      ${state.q1.area==="other" ? `
+        <div class="field" style="margin-top:10px;">
+          <input type="text" id="areaOtherInput" placeholder="${t("q1_other_ph")}" value="${escapeAttr(state.q1.areaOther)}">
+        </div>` : ``}
+    </div>
+    <div class="field">
+      <label>${t("q1_reason_label")}</label>
+      <textarea id="q1Text" placeholder="${t("q1_reason_ph")}">${escapeHtml(state.q1.text)}</textarea>
+      <div class="word-count ${over?"over":""}" id="q1WordCount">${wc} / 250</div>
+    </div>
+    <div id="q1Error"></div>
+    <div class="btn-row"><button class="btn btn-primary" id="q1SubmitBtn">${t("q1_submit")}</button></div>
+  `;
+
+  app.querySelectorAll('#areaGroup .radio-card').forEach(card=>{
+    card.onclick = ()=>{
+      state.q1.area = card.getAttribute('data-key');
+      render();
+      focusEnd('q1Text');
+    };
+  });
+  if(state.q1.area==="other"){
+    const otherInput = document.getElementById("areaOtherInput");
+    otherInput.oninput = ()=>{ state.q1.areaOther = otherInput.value; };
+  }
+  const ta = document.getElementById("q1Text");
+  ta.oninput = ()=>{
+    state.q1.text = ta.value;
+    const c = wordCount(ta.value);
+    const wcEl = document.getElementById("q1WordCount");
+    wcEl.textContent = c + " / 250";
+    wcEl.className = "word-count" + (c>250 ? " over":"");
+  };
+  document.getElementById("q1SubmitBtn").onclick = ()=>{
+    const errBox = document.getElementById("q1Error");
+    if(!state.q1.area){ errBox.innerHTML = `<div class="error-msg">${t("q1_err_area")}</div>`; return; }
+    if(state.q1.area==="other" && !state.q1.areaOther.trim()){ errBox.innerHTML = `<div class="error-msg">${t("q1_err_area")}</div>`; return; }
+    if(!state.q1.text.trim()){ errBox.innerHTML = `<div class="error-msg">${t("q1_err_text")}</div>`; return; }
+    if(wordCount(state.q1.text) > 250){ errBox.innerHTML = `<div class="error-msg">${t("q1_err_limit")}</div>`; return; }
+    state.mainScore += 50;
+    state.screen = "q2";
+    render();
+  };
+}
+
+/* ============================================================
+   SCREEN: Q2
+   ============================================================ */
+function renderQ2(app){
+  const wc = wordCount(state.q2.text);
+  const over = wc > 250;
+  app.innerHTML = `
+    <h1 class="screen-title">${t("q2_title")}</h1>
+    <p class="screen-sub">${t("q2_sub")}</p>
+    <div class="field">
+      <textarea id="q2Text" placeholder="${t("q2_ph")}">${escapeHtml(state.q2.text)}</textarea>
+      <div class="word-count ${over?"over":""}" id="q2WordCount">${wc} / 250</div>
+    </div>
+    <div id="q2Error"></div>
+    <div class="btn-row"><button class="btn btn-primary" id="q2SubmitBtn">${t("q2_submit")}</button></div>
+  `;
+  const ta = document.getElementById("q2Text");
+  ta.oninput = ()=>{
+    state.q2.text = ta.value;
+    const c = wordCount(ta.value);
+    const wcEl = document.getElementById("q2WordCount");
+    wcEl.textContent = c + " / 250";
+    wcEl.className = "word-count" + (c>250 ? " over":"");
+  };
+  document.getElementById("q2SubmitBtn").onclick = ()=>{
+    const errBox = document.getElementById("q2Error");
+    if(!state.q2.text.trim()){ errBox.innerHTML = `<div class="error-msg">${t("q1_err_text")}</div>`; return; }
+    if(wordCount(state.q2.text) > 250){ errBox.innerHTML = `<div class="error-msg">${t("q1_err_limit")}</div>`; return; }
+    state.mainScore += 50;
+    state.screen = "bonusPrompt";
+    render();
+  };
+}
+
+/* ============================================================
+   SCREEN: BONUS PROMPT
+   ============================================================ */
+function renderBonusPrompt(app){
+  app.innerHTML = `
+    <div class="center-emoji">🎉</div>
+    <h1 class="screen-title" style="text-align:center;">${t("bp_title")}</h1>
+    <p class="screen-sub" style="text-align:center;">${t("bp_sub")}</p>
+    <div class="prompt-choice">
+      <button class="btn btn-sun" id="bpYes">${t("bp_yes")}</button>
+      <button class="btn btn-secondary" id="bpNo">${t("bp_no")}</button>
+    </div>
+  `;
+  document.getElementById("bpYes").onclick = ()=>{
+    state.bonusPlayed = true;
+    state.screen = "mcq";
+    render();
+  };
+  document.getElementById("bpNo").onclick = ()=>{
+    state.bonusPlayed = false;
+    state.screen = "finish";
+    render();
+  };
+}
+
+/* ============================================================
+   SCREEN: BONUS 1 — MCQ
+   ============================================================ */
+function renderMcq(app){
+  app.innerHTML = `
+    <h1 class="screen-title">${t("mcq_title")}</h1>
+    <p class="screen-sub">${t("mcq_sub")}</p>
+    <div class="mcq-list" id="mcqList">
+      ${MCQ_KEYS.map(k=>`
+        <label class="radio-card ${state.mcqAnswer===k?"selected":""}" data-key="${k}">
+          <input type="radio" name="mcq" value="${k}" ${state.mcqAnswer===k?"checked":""}>
+          <span>${mcqText(k)}</span>
+        </label>
+      `).join("")}
+    </div>
+    <div id="mcqError"></div>
+    <div class="btn-row"><button class="btn btn-primary" id="mcqNextBtn">${t("mcq_next")}</button></div>
+    <button class="btn btn-ghost" id="skipBtn" style="width:100%;">${t("skip_to_finish")}</button>
+  `;
+  app.querySelectorAll('#mcqList .radio-card').forEach(card=>{
+    card.onclick = ()=>{ state.mcqAnswer = card.getAttribute('data-key'); render(); };
+  });
+  document.getElementById("mcqNextBtn").onclick = ()=>{
+    if(!state.mcqAnswer){
+      document.getElementById("mcqError").innerHTML = `<div class="error-msg">${t("q1_err_area")}</div>`;
+      return;
+    }
+    if(state.bonusScore < 10) state.bonusScore += 10; // award once
+    state.screen = "crossword";
+    render();
+  };
+  document.getElementById("skipBtn").onclick = ()=>{ state.screen = "finish"; render(); };
+}
+
+/* ============================================================
+   SCREEN: BONUS 2 — WORD SEARCH (crossword)
+   ============================================================ */
+function buildWordSearchGrid(words, size){
+  const grid = Array.from({length:size}, ()=>Array(size).fill(null));
+  const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+  const placed = [];
+  const sorted = [...words].sort((a,b)=>b.length-a.length);
+  sorted.forEach(word=>{
+    let ok = false;
+    for(let attempt=0; attempt<400 && !ok; attempt++){
+      const dir = dirs[Math.floor(Math.random()*dirs.length)];
+      const row0 = Math.floor(Math.random()*size);
+      const col0 = Math.floor(Math.random()*size);
+      const endRow = row0 + dir[0]*(word.length-1);
+      const endCol = col0 + dir[1]*(word.length-1);
+      if(endRow<0||endRow>=size||endCol<0||endCol>=size) continue;
+      let fits = true;
+      for(let i=0;i<word.length;i++){
+        const r = row0+dir[0]*i, c = col0+dir[1]*i;
+        const cell = grid[r][c];
+        if(cell !== null && cell !== word[i]){ fits=false; break; }
+      }
+      if(!fits) continue;
+      for(let i=0;i<word.length;i++){
+        const r = row0+dir[0]*i, c=col0+dir[1]*i;
+        grid[r][c]=word[i];
+      }
+      placed.push({word,row0,col0,dir});
+      ok = true;
+    }
+  });
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(grid[r][c]===null) grid[r][c] = letters[Math.floor(Math.random()*26)];
+  return { grid, placed, size };
+}
+
+function cellsForWord(word){
+  const entry = state.cwGrid.placed.find(p=>p.word===word);
+  if(!entry) return [];
+  const cells = [];
+  for(let i=0;i<word.length;i++){
+    cells.push([entry.row0 + entry.dir[0]*i, entry.col0 + entry.dir[1]*i]);
+  }
+  return cells;
+}
+
+function renderCrossword(app){
+  if(!state.cwGrid){
+    state.cwGrid = buildWordSearchGrid(CW_WORDS, 14);
+  }
+  const { grid, size } = state.cwGrid;
+  app.innerHTML = `
+    <h1 class="screen-title">${t("cw_title")}</h1>
+    <p class="screen-sub">${t("cw_sub")}</p>
+    <div class="cw-stats"><span>${t("cw_found")}: ${state.cwFound.length} / ${CW_WORDS.length}</span><span>+${state.cwScore} pts</span></div>
+    <div class="cw-word-bank">
+      ${CW_WORDS.map(w=>`<span class="cw-word-chip ${state.cwFound.includes(w)?"found":""}">${CW_DISPLAY[w]}</span>`).join("")}
+    </div>
+    <div class="cw-grid-wrap">
+      <div class="cw-grid" id="cwGrid" style="grid-template-columns:repeat(${size},1fr);"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" id="cwFinishBtn">${t("cw_finish")}</button></div>
+    <button class="btn btn-ghost" id="skipBtn" style="width:100%;">${t("cw_skip")}</button>
+    <button class="btn btn-ghost" id="globalSkipBtn" style="width:100%;">${t("skip_to_finish")}</button>
+  `;
+  const gridEl = document.getElementById("cwGrid");
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      const cell = document.createElement("div");
+      cell.className = "cw-cell";
+      cell.textContent = grid[r][c];
+      cell.dataset.r = r; cell.dataset.c = c;
+      gridEl.appendChild(cell);
+    }
+  }
+  // paint already-found words as permanently solid, so they can't be mistaken for unfound ones
+  state.cwFound.forEach(w=>{
+    cellsForWord(w).forEach(([r,c])=> markCwCell(gridEl,r,c,"found"));
+  });
+
+  document.getElementById("cwFinishBtn").onclick = ()=>{ state.screen = "report"; render(); };
+  document.getElementById("skipBtn").onclick = ()=>{ state.screen = "report"; render(); };
+  document.getElementById("globalSkipBtn").onclick = ()=>{
+    state.bonusScore += state.cwScore;
+    state.screen = "finish";
+    render();
+  };
+}
+
+/* Drag-to-select (mouse + touch, via Pointer Events). Handlers are attached once,
+   globally, and no-op unless the crossword screen is active — this avoids piling
+   up duplicate listeners across re-renders since #cwGrid is recreated each time. */
+let cwDragStart = null;
+
+function cellFromPoint(x,y){
+  const el = document.elementFromPoint(x,y);
+  const cell = el && el.closest ? el.closest('.cw-cell') : null;
+  return cell ? { el: cell, r:+cell.dataset.r, c:+cell.dataset.c } : null;
+}
+
+function straightPath(start,end){
+  const dr = end.r - start.r, dc = end.c - start.c;
+  const straight = (dr===0) || (dc===0) || (Math.abs(dr)===Math.abs(dc));
+  if(!straight) return null;
+  const steps = Math.max(Math.abs(dr), Math.abs(dc));
+  const stepR = dr===0?0:dr/Math.abs(dr);
+  const stepC = dc===0?0:dc/Math.abs(dc);
+  const path = [];
+  for(let i=0;i<=steps;i++) path.push([start.r+stepR*i, start.c+stepC*i]);
+  return path;
+}
+
+function previewCwSelection(gridEl, start, end){
+  clearCwSelectionStyles(gridEl);
+  const path = straightPath(start,end) || [[start.r,start.c]];
+  path.forEach(([r,c])=> highlightCwCell(gridEl,r,c,"selected"));
+}
+
+function finalizeCwSelection(gridEl, start, end){
+  clearCwSelectionStyles(gridEl);
+  const path = straightPath(start,end);
+  if(!path || path.length<2) return; // tap with no real drag — silently ignore
+  let word = "";
+  path.forEach(([r,c])=>{ word += state.cwGrid.grid[r][c]; });
+  const rev = word.split("").reverse().join("");
+  const match = CW_WORDS.find(w=> (w===word || w===rev) && !state.cwFound.includes(w));
+  if(match){
+    state.cwFound.push(match);
+    state.cwScore += 2;
+    setTimeout(()=>render(), 200);
+  } else {
+    path.forEach(([r,c])=> markCwCell(gridEl,r,c,"wrong"));
+    setTimeout(()=>{ const g = document.getElementById("cwGrid"); if(g) clearCwSelectionStyles(g); }, 350);
+  }
+}
+
+function highlightCwCell(gridEl,r,c,cls){
+  const el = gridEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  if(el) el.classList.add(cls);
+}
+function markCwCell(gridEl,r,c,cls){
+  const el = gridEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  if(el){ el.classList.remove("selected","wrong"); el.classList.add(cls); }
+}
+function clearCwSelectionStyles(gridEl){
+  gridEl.querySelectorAll(".cw-cell").forEach(el=>{
+    if(!el.classList.contains("found")) el.classList.remove("selected","wrong");
+  });
+}
+
+document.addEventListener('pointerdown', (e)=>{
+  if(state.screen !== "crossword") return;
+  const hit = cellFromPoint(e.clientX, e.clientY);
+  if(!hit) return;
+  e.preventDefault();
+  cwDragStart = { r:hit.r, c:hit.c };
+  const gridEl = document.getElementById("cwGrid");
+  if(gridEl){ clearCwSelectionStyles(gridEl); highlightCwCell(gridEl, hit.r, hit.c, "selected"); }
+});
+document.addEventListener('pointermove', (e)=>{
+  if(state.screen !== "crossword" || !cwDragStart) return;
+  const hit = cellFromPoint(e.clientX, e.clientY);
+  if(!hit) return;
+  const gridEl = document.getElementById("cwGrid");
+  if(gridEl) previewCwSelection(gridEl, cwDragStart, hit);
+});
+document.addEventListener('pointerup', (e)=>{
+  if(state.screen !== "crossword" || !cwDragStart) return;
+  const hit = cellFromPoint(e.clientX, e.clientY) || cwDragStart;
+  const gridEl = document.getElementById("cwGrid");
+  if(gridEl) finalizeCwSelection(gridEl, cwDragStart, hit);
+  cwDragStart = null;
+});
+
+/* ============================================================
+   SCREEN: BONUS 3 — REPORT INVESTIGATION
+   ============================================================ */
+function renderReport(app){
+  app.innerHTML = `
+    <h1 class="screen-title">${t("br_title")}</h1>
+    <p class="screen-sub">${t("br_sub")}</p>
+    <div class="field">
+      <label>${t("br_link_label")}</label>
+      <textarea id="brNote" placeholder="${t("br_link_ph")}" style="min-height:80px;">${escapeHtml(state.report.note)}</textarea>
+    </div>
+    <div class="field">
+      <label>${t("br_upload_label")}</label>
+      <div class="upload-box" id="uploadBox">📎 ${state.report.imageData ? "✓" : ""}</div>
+      <input type="file" id="brFile" accept="image/*" style="display:none;">
+      ${state.report.imageData ? `<img class="upload-preview" src="${state.report.imageData}">` : ""}
+    </div>
+    <div id="brError"></div>
+    <div class="btn-row"><button class="btn btn-primary" id="brSubmitBtn">${t("br_submit")}</button></div>
+    <button class="btn btn-ghost" id="skipBtn" style="width:100%;">${t("skip_to_finish")}</button>
+  `;
+  const noteEl = document.getElementById("brNote");
+  noteEl.oninput = ()=>{ state.report.note = noteEl.value; };
+  const uploadBox = document.getElementById("uploadBox");
+  const fileInput = document.getElementById("brFile");
+  uploadBox.onclick = ()=> fileInput.click();
+  fileInput.onchange = (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{ state.report.imageData = reader.result; render(); };
+    reader.readAsDataURL(file);
+  };
+  document.getElementById("brSubmitBtn").onclick = ()=>{
+    if(!state.report.note.trim() && !state.report.imageData){
+      document.getElementById("brError").innerHTML = `<div class="error-msg">${t("br_err")}</div>`;
+      return;
+    }
+    state.bonusScore += 20; // report investigation points
+    state.bonusScore += state.cwScore; // fold in whatever the word search earned
+    state.screen = "finish";
+    render();
+  };
+  document.getElementById("skipBtn").onclick = ()=>{
+    state.bonusScore += state.cwScore;
+    state.screen = "finish";
+    render();
+  };
+}
+
+/* ============================================================
+   SCREEN: FINISH
+   ============================================================ */
+function renderFinish(app){
+  state.totalScore = state.mainScore + state.bonusScore;
+  app.innerHTML = `
+    <div class="center-emoji">🏆</div>
+    <h1 class="screen-title" style="text-align:center;">${t("fin_title")}</h1>
+    <p class="screen-sub" style="text-align:center;">${t("fin_sub")}</p>
+    <div class="score-breakdown">
+      <div class="score-row"><span>${t("fin_main")}</span><span>${state.mainScore} / 100</span></div>
+      ${state.bonusPlayed ? `<div class="score-row"><span>${t("fin_bonus")}</span><span>${state.bonusScore} / 50</span></div>` : ``}
+      <div class="score-row total"><span>${t("fin_total")}</span><span>${state.totalScore}</span></div>
+    </div>
+    <div id="finError"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="finSubmitBtn" ${state.submitting?"disabled":""}>${state.submitting ? t("fin_submitting") : t("fin_submit")}</button>
+    </div>
+  `;
+  document.getElementById("finSubmitBtn").onclick = submitScore;
+}
+
+/* ============================================================
+   BACKEND: SUBMIT + LEADERBOARD (fetch-first, JSONP fallback)
+   ============================================================ */
+function jsonpRequest(url, params){
+  return new Promise((resolve,reject)=>{
+    const cbName = "cb_" + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+    const query = new URLSearchParams({...params, callback: cbName}).toString();
+    window[cbName] = (data)=>{
+      resolve(data);
+      delete window[cbName];
+      script.remove();
+    };
+    script.onerror = ()=>{ reject(new Error("JSONP request failed")); delete window[cbName]; script.remove(); };
+    script.src = url + "?" + query;
+    document.body.appendChild(script);
+  });
+}
+
+function submitScore(){
+  state.submitting = true;
+  state.submitError = false;
+  render();
+
+  const payload = {
+    action: ACTION_SUBMIT,
+    name: state.player.name,
+    email: state.player.email,
+    dept: state.player.dept,
+    country: state.player.country,
+    language: state.lang,
+    q1Area: state.q1.area==="other" ? state.q1.areaOther : areaText(state.q1.area),
+    q1Text: state.q1.text,
+    q2Text: state.q2.text,
+    mainScore: state.mainScore,
+    bonusPlayed: state.bonusPlayed,
+    mcqAnswer: state.mcqAnswer ? mcqText(state.mcqAnswer) : "",
+    crosswordFound: state.cwFound.join(","),
+    crosswordScore: state.cwScore,
+    reportNote: state.report.note,
+    reportImage: state.report.imageData || "", // data URL; backend uploads it to Drive and stores the link
+    bonusScore: state.bonusScore,
+    totalScore: state.totalScore,
+    finishedAt: new Date().toISOString()
+  };
+
+  // IMPORTANT: no explicit Content-Type header — leaving it unset makes the browser
+  // send "text/plain;charset=UTF-8", which Apps Script accepts without a CORS
+  // preflight. Adding a "Content-Type: application/json" header here will break
+  // this request against Apps Script's default CORS behaviour.
+  fetch(SHEET_API_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(res=>{ if(!res.ok) throw new Error("bad status"); return res.json().catch(()=>({})); })
+  .then(()=> loadLeaderboardThenShow())
+  .catch(()=>{
+    state.submitting = false;
+    state.submitError = true;
+    render();
+    const errBox = document.getElementById("finError");
+    if(errBox) errBox.innerHTML = `<div class="error-msg">${t("fin_error")}</div>`;
+  });
+}
+
+function loadLeaderboardThenShow(){
+  state.lbLoading = true;
+  state.screen = "leaderboard";
+  state.submitting = false;
+  render();
+  fetch(`${SHEET_API_URL}?action=${ACTION_LEADERBOARD}&email=${encodeURIComponent(state.player.email)}`)
+    .then(res=>res.json())
+    .then(data=>{ state.leaderboard = data.rows || data || []; state.lbLoading = false; render(); })
+    .catch(()=>{
+      jsonpRequest(SHEET_API_URL, { action: ACTION_LEADERBOARD, email: state.player.email })
+        .then(data=>{ state.leaderboard = data.rows || data || []; state.lbLoading = false; render(); })
+        .catch(()=>{ state.leaderboard = []; state.lbLoading = false; render(); });
+    });
+}
+
+/* ============================================================
+   SCREEN: LEADERBOARD
+   ============================================================ */
+function renderLeaderboard(app){
+  const rawRows = Array.isArray(state.leaderboard) ? state.leaderboard : [];
+  const medal = (i)=> i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+
+  // normalize field names and sort by total score, highest first
+  let ranked = rawRows.map(r=>({
+    email: r.email || r.Email || "",
+    name: r.name || r.Name || "",
+    dept: r.dept || r.Dept || "",
+    score: Number(r.totalScore || r.TotalScore || r.score || 0)
+  })).sort((a,b)=> b.score - a.score);
+
+  let myIndex = ranked.findIndex(r=> r.email && r.email === state.player.email);
+  // if the backend hasn't returned our own row yet (e.g. sheet read lags the write),
+  // estimate our position locally so the player still sees where they'd land
+  if(myIndex === -1 && !state.lbLoading){
+    ranked.push({ email: state.player.email, name: state.player.name, dept: state.player.dept, score: state.totalScore });
+    ranked.sort((a,b)=> b.score - a.score);
+    myIndex = ranked.findIndex(r=> r.email === state.player.email);
+  }
+
+  const top10 = ranked.slice(0,10);
+  const youInTop = myIndex > -1 && myIndex < 10;
+
+  const rowHtml = (r,i,isYou)=> `<tr class="${isYou?"you":""}"><td class="lb-rank"><span class="lb-medal">${medal(i)}</span> ${i+1}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.dept)}</td><td style="text-align:right;">${r.score}</td></tr>`;
+
+  app.innerHTML = `
+    <div class="lb-banner">
+      <div class="center-emoji">🏅</div>
+      <h1 class="screen-title" style="text-align:center;">${t("lb_title")}</h1>
+      <p class="screen-sub" style="text-align:center;">${t("lb_sub")}</p>
+    </div>
+    ${state.lbLoading ? `<p style="text-align:center;color:var(--plum-soft);font-weight:700;">${t("lb_loading")}</p>` : `
+      <table class="lb-table">
+        <thead><tr><th>${t("lb_rank")}</th><th>${t("lb_name")}</th><th>${t("lb_dept")}</th><th style="text-align:right;">${t("lb_score")}</th></tr></thead>
+        <tbody>
+          ${top10.map((r,i)=> rowHtml(r,i, i===myIndex)).join("")}
+          ${(!youInTop && myIndex>-1) ? `<tr><td colspan="4" style="text-align:center;color:var(--plum-soft);font-weight:800;padding:4px;">⋯</td></tr>${rowHtml(ranked[myIndex], myIndex, true)}` : ``}
+        </tbody>
+      </table>
+      ${myIndex>-1 ? `<div class="lb-you-row-note">🙌 ${t("lb_you")}</div>` : ``}
+    `}
+    <div class="btn-row" style="margin-top:20px;"><button class="btn btn-secondary" id="playAgainBtn">${t("lb_play_again")}</button></div>
+  `;
+  document.getElementById("playAgainBtn").onclick = ()=>{
+    const lang = state.lang;
+    state = {
+      lang, screen:"register",
+      player:{name:"",email:"",dept:"",country:""},
+      q1:{area:"",areaOther:"",text:""}, q2:{text:""},
+      mainScore:0, bonusPlayed:false, mcqAnswer:"", cwFound:[], cwScore:0, cwSelection:null, cwGrid:null,
+      report:{note:"",imageData:""}, bonusScore:0, totalScore:0, leaderboard:[], lbLoading:false, submitting:false, submitError:false
+    };
+    render();
+  };
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function escapeHtml(str){
+  return (str||"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+function focusEnd(id){
+  const el = document.getElementById(id);
+  if(el){ el.focus(); const v = el.value; el.value=""; el.value=v; }
+}
+
+render();
+</script>
+</body>
+</html>
