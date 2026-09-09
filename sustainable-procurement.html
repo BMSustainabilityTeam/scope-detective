@@ -246,8 +246,23 @@
   table.lb{width:100%; border-collapse:collapse; margin-top:4px;}
   table.lb th{text-align:left; font-size:11px; color:var(--ink-soft); font-weight:700; padding:8px 6px; border-bottom:1.5px solid var(--line);}
   table.lb td{font-size:13px; padding:9px 6px; border-bottom:1px solid var(--line);}
-  table.lb tr.me td{background:#EEF6EF; font-weight:700;}
+  table.lb tr.me td{background:#CFEAD9; font-weight:700; box-shadow:inset 3px 0 0 var(--green);}
   table.lb tr.ellipsis td{text-align:center; color:var(--ink-soft); font-weight:400; padding:4px;}
+  .you-badge{
+    display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:0.03em;
+    color:#fff; background:var(--green-dark); border-radius:5px; padding:1px 5px; margin-left:6px;
+    vertical-align:middle;
+  }
+  .lb-loading{
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    padding:36px 0; color:var(--ink-soft); font-size:13.5px; font-weight:600;
+  }
+  .lb-spinner{
+    width:26px; height:26px; border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--green);
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
   .rank{width:26px; font-weight:800; color:var(--navy);}
   .lb-empty{text-align:center; color:var(--ink-soft); font-size:13.5px; padding:24px 0;}
 
@@ -405,6 +420,10 @@
       <h1 class="headline" data-t="leaderboardTitle"></h1>
     </div>
     <div class="card">
+      <div class="lb-loading" id="lbLoading">
+        <div class="lb-spinner"></div>
+        <div data-t="loadingLabel"></div>
+      </div>
       <div class="you-banner" id="youBanner" style="display:none;">
         <div>
           <div class="yb-score" id="ybScore">0</div>
@@ -469,7 +488,7 @@ en:{
   leaderboardTitle:"Leaderboard",
   rankCol:"#", playerCol:"Name", deptCol:"Dept", scoreCol:"Score",
   lbEmpty:"No entries yet.", lbNotConnected:"Leaderboard is not connected yet.",
-  you:"you", yourScoreLabel:"Your score", rankLabel:"Rank",
+  you:"you", yourScoreLabel:"Your score", rankLabel:"Rank", loadingLabel:"Loading leaderboard...",
   showAllBtn:"Show full leaderboard", showLessBtn:"Show less",
   playAgainBtn:"Play again",
   statements:[
@@ -552,7 +571,7 @@ th:{
   leaderboardTitle:"กระดานผู้นำ",
   rankCol:"#", playerCol:"ชื่อ", deptCol:"แผนก", scoreCol:"คะแนน",
   lbEmpty:"ยังไม่มีข้อมูล", lbNotConnected:"ยังไม่เชื่อมต่อกับระบบเก็บคะแนน",
-  you:"คุณ", yourScoreLabel:"คะแนนของคุณ", rankLabel:"อันดับ",
+  you:"คุณ", yourScoreLabel:"คะแนนของคุณ", rankLabel:"อันดับ", loadingLabel:"กำลังโหลดกระดานผู้นำ...",
   showAllBtn:"ดูกระดานผู้นำทั้งหมด", showLessBtn:"ย่อกลับ",
   playAgainBtn:"เล่นอีกครั้ง",
   statements:[
@@ -635,7 +654,7 @@ zh:{
   leaderboardTitle:"排行榜",
   rankCol:"#", playerCol:"姓名", deptCol:"部门", scoreCol:"得分",
   lbEmpty:"暂无数据。", lbNotConnected:"排行榜尚未连接。",
-  you:"你", yourScoreLabel:"你的得分", rankLabel:"排名",
+  you:"你", yourScoreLabel:"你的得分", rankLabel:"排名", loadingLabel:"排行榜加载中...",
   showAllBtn:"查看完整排行榜", showLessBtn:"收起",
   playAgainBtn:"再玩一次",
   statements:[
@@ -718,7 +737,7 @@ de:{
   leaderboardTitle:"Rangliste",
   rankCol:"#", playerCol:"Name", deptCol:"Abt.", scoreCol:"Punkte",
   lbEmpty:"Noch keine Einträge.", lbNotConnected:"Rangliste ist noch nicht verbunden.",
-  you:"Sie", yourScoreLabel:"Ihr Ergebnis", rankLabel:"Rang",
+  you:"Sie", yourScoreLabel:"Ihr Ergebnis", rankLabel:"Rang", loadingLabel:"Rangliste wird geladen...",
   showAllBtn:"Vollständige Rangliste ansehen", showLessBtn:"Weniger anzeigen",
   playAgainBtn:"Nochmal spielen",
   statements:[
@@ -1292,6 +1311,12 @@ function submitScore(total, bonusScore){
 
 /* ======================= LEADERBOARD ======================= */
 function loadLeaderboard(myScoreJustSubmitted){
+  $('lbLoading').style.display = 'flex';
+  $('youBanner').style.display = 'none';
+  $('lbTable').style.display = 'none';
+  $('lbEmptyMsg').style.display = 'none';
+  $('lbToggleBtn').style.display = 'none';
+
   if(!BACKEND.webhookUrl){
     renderLeaderboard([]);
     return;
@@ -1324,14 +1349,27 @@ function renderLeaderboard(data){
   const table = $('lbTable'), body = $('lbBody'), empty = $('lbEmptyMsg');
   const toggleBtn = $('lbToggleBtn');
   const youBanner = $('youBanner');
+  $('lbLoading').style.display = 'none';
 
   let rows = Array.isArray(data) ? data.slice() : [];
   rows.sort((a,b)=> (b.totalScore||b.score||0) - (a.totalScore||a.score||0));
   rows = rows.map((r,i)=>({ ...r, rank: i+1 }));
 
+  // Identify exactly ONE row as "me" — the one matching this session's email AND the
+  // score just submitted. Falls back to the latest entry for this email only if no
+  // exact score match is found (e.g. the sheet write hasn't propagated yet). Using
+  // object-reference equality later means only this single row gets tagged, even if
+  // the same email has played multiple times before.
   const myEmail = player ? player.email : null;
+  const myScore = player ? player.lastScore : null;
   let myRow = null;
-  if(myEmail){
+  if(myEmail && myScore !== undefined && myScore !== null){
+    for(let i=rows.length-1;i>=0;i--){
+      const sc = rows[i].totalScore !== undefined ? rows[i].totalScore : (rows[i].score || 0);
+      if(rows[i].email === myEmail && sc === myScore){ myRow = rows[i]; break; }
+    }
+  }
+  if(!myRow && myEmail){
     for(let i=rows.length-1;i>=0;i--){
       if(rows[i].email === myEmail){ myRow = rows[i]; break; }
     }
@@ -1367,11 +1405,11 @@ function renderLeaderboard(data){
 
   body.innerHTML = visibleRows.map((r)=>{
     if(r.ellipsis) return `<tr class="ellipsis"><td colspan="4">···</td></tr>`;
-    const isMe = myEmail && r.email === myEmail;
+    const isMe = myRow && r === myRow;
     const sc = r.totalScore !== undefined ? r.totalScore : (r.score || 0);
     return `<tr class="${isMe ? 'me' : ''}">
       <td class="rank">${r.rank}</td>
-      <td>${r.name || ''}${isMe ? ' · ' + t.you : ''}</td>
+      <td>${r.name || ''}${isMe ? '<span class="you-badge">' + t.you + '</span>' : ''}</td>
       <td>${r.dept || ''}</td>
       <td>${sc}</td>
     </tr>`;
