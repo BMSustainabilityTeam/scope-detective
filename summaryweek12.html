@@ -319,6 +319,8 @@ en: {
   lb_you:"You're on the board!",
   lb_loading:"Loading leaderboard…",
   lb_play_again:"Play again",
+  lb_show_all:"Show all players",
+  lb_show_top10:"Show top 10 only",
   footer:"Behn Meyer Sustainability Team · Sustain Connect Week 12",
   countries:["Singapore","Malaysia","Thailand","Indonesia","Philippines","Vietnam","China","Hong Kong","Taiwan","India","Germany","Other"]
 },
@@ -382,6 +384,8 @@ th: {
   lb_you:"คุณอยู่ในตารางคะแนนแล้ว!",
   lb_loading:"กำลังโหลดตารางคะแนน…",
   lb_play_again:"เล่นอีกครั้ง",
+  lb_show_all:"แสดงผู้เล่นทั้งหมด",
+  lb_show_top10:"แสดงแค่ 10 อันดับแรก",
   footer:"ทีมความยั่งยืน Behn Meyer · Sustain Connect สัปดาห์ที่ 12",
   countries:["สิงคโปร์","มาเลเซีย","ไทย","อินโดนีเซีย","ฟิลิปปินส์","เวียดนาม","จีน","ฮ่องกง","ไต้หวัน","อินเดีย","เยอรมนี","อื่น ๆ"]
 },
@@ -445,6 +449,8 @@ zh: {
   lb_you:"你已上榜！",
   lb_loading:"正在加载排行榜…",
   lb_play_again:"再玩一次",
+  lb_show_all:"显示所有玩家",
+  lb_show_top10:"只显示前10名",
   footer:"Behn Meyer 可持续发展团队 · Sustain Connect 第12周",
   countries:["新加坡","马来西亚","泰国","印度尼西亚","菲律宾","越南","中国","中国香港","中国台湾","印度","德国","其他"]
 },
@@ -508,6 +514,8 @@ de: {
   lb_you:"Du stehst auf der Liste!",
   lb_loading:"Bestenliste wird geladen…",
   lb_play_again:"Nochmal spielen",
+  lb_show_all:"Alle Spieler anzeigen",
+  lb_show_top10:"Nur Top 10 anzeigen",
   footer:"Behn Meyer Sustainability Team · Sustain Connect Woche 12",
   countries:["Singapur","Malaysia","Thailand","Indonesien","Philippinen","Vietnam","China","Hongkong","Taiwan","Indien","Deutschland","Andere"]
 }
@@ -558,6 +566,7 @@ let state = {
   totalScore: 0,
   leaderboard: [],
   lbLoading: false,
+  lbShowAll: false,
   submitting: false,
   submitError: false
 };
@@ -1194,6 +1203,8 @@ function renderLeaderboard(app){
 
   const top10 = ranked.slice(0,10);
   const youInTop = myIndex > -1 && myIndex < 10;
+  const canExpand = ranked.length > 10;
+  const displayRows = state.lbShowAll ? ranked : top10;
 
   const rowHtml = (r,i,isYou)=> `<tr class="${isYou?"you":""}"><td class="lb-rank"><span class="lb-medal">${medal(i)}</span> ${i+1}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.dept)}</td><td style="text-align:right;">${r.score}</td></tr>`;
 
@@ -1207,14 +1218,18 @@ function renderLeaderboard(app){
       <table class="lb-table">
         <thead><tr><th>${t("lb_rank")}</th><th>${t("lb_name")}</th><th>${t("lb_dept")}</th><th style="text-align:right;">${t("lb_score")}</th></tr></thead>
         <tbody>
-          ${top10.map((r,i)=> rowHtml(r,i, i===myIndex)).join("")}
-          ${(!youInTop && myIndex>-1) ? `<tr><td colspan="4" style="text-align:center;color:var(--plum-soft);font-weight:800;padding:4px;">⋯</td></tr>${rowHtml(ranked[myIndex], myIndex, true)}` : ``}
+          ${displayRows.map((r,i)=> rowHtml(r,i, i===myIndex)).join("")}
+          ${(!state.lbShowAll && !youInTop && myIndex>-1) ? `<tr><td colspan="4" style="text-align:center;color:var(--plum-soft);font-weight:800;padding:4px;">⋯</td></tr>${rowHtml(ranked[myIndex], myIndex, true)}` : ``}
         </tbody>
       </table>
       ${myIndex>-1 ? `<div class="lb-you-row-note">🙌 ${t("lb_you")}</div>` : ``}
+      ${canExpand ? `<button class="btn btn-ghost" id="lbToggleBtn" style="width:100%;">${state.lbShowAll ? t("lb_show_top10") : t("lb_show_all")}</button>` : ``}
     `}
     <div class="btn-row" style="margin-top:20px;"><button class="btn btn-secondary" id="playAgainBtn">${t("lb_play_again")}</button></div>
   `;
+  if(canExpand){
+    document.getElementById("lbToggleBtn").onclick = ()=>{ state.lbShowAll = !state.lbShowAll; render(); };
+  }
   document.getElementById("playAgainBtn").onclick = ()=>{
     const lang = state.lang;
     state = {
@@ -1222,7 +1237,7 @@ function renderLeaderboard(app){
       player:{name:"",email:"",dept:"",country:""},
       q1:{area:"",areaOther:"",text:""}, q2:{text:""},
       mainScore:0, bonusPlayed:false, mcqAnswer:"", cwFound:[], cwScore:0, cwSelection:null, cwGrid:null,
-      report:{note:"",imageData:""}, bonusScore:0, totalScore:0, leaderboard:[], lbLoading:false, submitting:false, submitError:false
+      report:{note:"",imageData:""}, bonusScore:0, totalScore:0, leaderboard:[], lbLoading:false, lbShowAll:false, submitting:false, submitError:false
     };
     render();
   };
