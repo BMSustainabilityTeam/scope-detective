@@ -433,7 +433,16 @@
   .scale .y{background:rgba(198,134,43,0.32);color:#F7E9CC;}
   .scale .r{background:rgba(184,69,59,0.32);color:#F6DFDB;}
 
-  .submitnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:12px;}
+  .submitnote{
+    display:table;
+    margin:14px auto 0;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--forest);
+    background:var(--sage-light);
+    padding:7px 16px;
+    border-radius:999px;
+  }
 
   /* Leaderboard */
   .lbrow{
@@ -447,17 +456,17 @@
   .lbrow.me .lbscore{color:#fff;}
   .youBadge{
     display:inline-block;
-    background:var(--gold);
-    color:#fff;
-    font-size:10px;
-    font-weight:700;
-    padding:2px 7px;
+    background:var(--gold-light);
+    color:var(--forest-deep);
+    font-size:10.5px;
+    font-weight:600;
+    padding:2px 8px;
     border-radius:999px;
     margin-left:6px;
     vertical-align:middle;
-    letter-spacing:0.3px;
+    letter-spacing:0.2px;
   }
-  .lbloading{display:flex;align-items:center;color:var(--ink-soft);font-size:14.5px;}
+  .lbloading{display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:15px;padding:26px 0;}
   .spinner{
     display:inline-block;
     width:15px;height:15px;
@@ -469,7 +478,7 @@
     flex-shrink:0;
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
-  .submitwarn{color:var(--red);}
+  .submitwarn{color:var(--red);background:var(--red-light);}
   .lbrank{
     width:26px;height:26px;border-radius:7px;
     background:var(--paper);color:var(--forest-deep);
@@ -1166,12 +1175,11 @@ function lbRowHTML(r){
 
 function renderLeaderboard(){
   const app = document.getElementById('app');
-  const alreadyLoaded = lbLoaded;
   app.innerHTML = `
     <div class="card">
       <h1 style="font-size:20px;">${t().lbTitle}</h1>
       <div id="lbList" style="margin-top:16px;">
-        ${alreadyLoaded ? '' : `<div class="lbloading"><span class="spinner"></span>${t().loadingLB}</div>`}
+        <div class="lbloading"><span class="spinner"></span>${t().loadingLB}</div>
       </div>
       <div class="nextrow" style="justify-content:space-between;">
         <button class="btn ghost" onclick="screen='results';render();">${t().resultsBtn}</button>
@@ -1179,11 +1187,7 @@ function renderLeaderboard(){
       </div>
     </div>
   `;
-  if(alreadyLoaded){
-    renderTop10Into(document.getElementById('lbList'));
-  } else {
-    loadTop10();
-  }
+  loadTop10();
 }
 
 function renderTop10Into(listEl){
@@ -1198,7 +1202,14 @@ function renderTop10Into(listEl){
 }
 
 async function loadTop10(){
+  // Always keep the loading state visible for a short minimum stretch — even
+  // when the data is already cached and resolves instantly — so entering the
+  // leaderboard always reads clearly as "loading/syncing", not a jump-cut.
+  const startedAt = Date.now();
+  const MIN_VISIBLE_MS = 500;
   await ensureLeaderboardLoaded();
+  const remaining = MIN_VISIBLE_MS - (Date.now() - startedAt);
+  if(remaining > 0) await new Promise(r => setTimeout(r, remaining));
   renderTop10Into(document.getElementById('lbList')); // returns quietly if the user navigated away
 }
 
@@ -1271,7 +1282,11 @@ async function submitScore(){
       if(payload && payload.ok === false) ok = false;
       if(payload && payload.result && payload.result !== "success") ok = false;
     }catch(parseErr){
-      // Non-JSON response from a working endpoint is fine — don't treat as a failure.
+      // A working endpoint always returns JSON. Non-JSON usually means the
+      // deployment's access permissions are wrong (e.g. Google is serving an
+      // HTML sign-in page instead of running the script) — treat as failure
+      // rather than silently assuming success.
+      ok = false;
     }
     if(!ok) throw new Error("submit reported failure");
     if(note){ note.classList.remove('submitwarn'); note.textContent = t().submitted; }
