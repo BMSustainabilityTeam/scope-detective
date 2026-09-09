@@ -1296,8 +1296,8 @@ function loadLeaderboard(myScoreJustSubmitted){
     renderLeaderboard([]);
     return;
   }
-  const url = BACKEND.webhookUrl + (BACKEND.webhookUrl.includes('?') ? '&' : '?') + 'action=getProcurementLeaderboard';
-  fetch(url).then(r=>r.json()).then(data=>{
+  const url = BACKEND.webhookUrl + (BACKEND.webhookUrl.includes('?') ? '&' : '?') + 'action=getProcurementLeaderboard&_=' + Date.now();
+  fetch(url, { cache: 'no-store' }).then(r=>r.json()).then(data=>{
     window.__lbCache = data;
     renderLeaderboard(data);
   }).catch(()=>{
@@ -1314,7 +1314,7 @@ function jsonpFallback(url){
     script.remove();
   };
   const script = document.createElement('script');
-  script.src = url + '&callback=' + cbName;
+  script.src = url + '&callback=' + cbName + '&_jsonp=' + Date.now();
   script.onerror = ()=>{ renderLeaderboard([]); };
   document.body.appendChild(script);
 }
