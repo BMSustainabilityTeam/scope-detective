@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sustain Connect · Week 11</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+  :root{
+    --forest:#6E1B29;
+    --forest-deep:#3F0F18;
+    --sage:#D66C87;
+    --sage-light:#F8DEE6;
+    --gold:#C99A3D;
+    --gold-light:#F3E6C6;
+    --red:#B8453B;
+    --red-light:#F3DEDB;
+    --amber:#C6862B;
+    --amber-light:#F5E4C9;
+    --paper:#FBF1F2;
+    --card:#FFFFFF;
+    --ink:#2B141A;
+    --ink-soft:#7C5A62;
+    --line:#EAD7DB;
+    --ok:#5E8C6A;
+    --ok-light:#E2EEE1;
+    --radius:16px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter','Noto Sans Thai','Noto Sans SC',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* Playful layered background */
+  .bg{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(600px 600px at 8% -5%, rgba(214,108,135,0.28), transparent 60%),
+      radial-gradient(700px 700px at 105% 15%, rgba(201,154,61,0.20), transparent 60%),
+      radial-gradient(600px 600px at 20% 115%, rgba(110,27,41,0.14), transparent 55%),
+      linear-gradient(180deg,#FDF3F4 0%, #FBF1F2 100%);
+  }
+  .bg-pattern{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMjAiIGhlaWdodD0iMzIwIiB2aWV3Qm94PSIwIDAgMzIwIDMyMCI+CiAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkUxQjI5IiBzdHJva2Utd2lkdGg9IjIuNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIwLjA2Ij4KICAgIDxwYXRoIGQ9Ik00NiA3MCBDMjQgMTA0IDM0IDE0OCA2NiAxNjAgQzk4IDE0OCAxMDggMTA0IDg2IDcwIEM3NSA4NiA1OCA4NiA0NiA3MCBaIi8+CiAgICA8cGF0aCBkPSJNNTAgODAgTDgyIDE1MCIvPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTkwLDQwKSI+CiAgICAgIDxwYXRoIGQ9Ik0wIDIyIEwzNCA2IEw2OCAyMiBMNjggNjAgTDM0IDc2IEwwIDYwIFoiLz4KICAgICAgPHBhdGggZD0iTTAgMjIgTDM0IDM4IEw2OCAyMiIvPgogICAgICA8cGF0aCBkPSJNMzQgMzggTDM0IDc2Ii8+CiAgICA8L2c+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3MCwxOTApIj4KICAgICAgPHBhdGggZD0iTTM0IDAgTDY4IDE0IFY1MCBDNjggNzggNTEgOTQgMzQgMTA2IEMxNyA5NCAwIDc4IDAgNTAgVjE0IFoiLz4KICAgICAgPHBhdGggZD0iTTE3IDU0IEwyOSA2NyBMNTIgMzgiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIxMCwxOTApIj4KICAgICAgPGNpcmNsZSBjeD0iMTciIGN5PSIxNyIgcj0iMTYiLz4KICAgICAgPGNpcmNsZSBjeD0iNTEiIGN5PSIxNyIgcj0iMTYiLz4KICAgICAgPHBhdGggZD0iTTE3IDMzIEMxNyA1MCAzNCA1MCAzNCAzMyIvPgogICAgICA8cGF0aCBkPSJNNTEgMzMgQzUxIDUwIDM0IDUwIDM0IDMzIi8+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4K");
+    background-size:320px 320px;
+    background-repeat:repeat;
+  }
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(2px);
+    opacity:0.5;
+    z-index:-1;
+    animation:drift 16s ease-in-out infinite;
+  }
+  .blob1{width:14px;height:14px;background:var(--sage);top:12%;left:8%;animation-delay:0s;}
+  .blob2{width:10px;height:10px;background:var(--gold);top:22%;right:12%;animation-delay:2s;}
+  .blob3{width:8px;height:8px;background:var(--forest);bottom:18%;left:14%;animation-delay:4s;}
+  .blob4{width:12px;height:12px;background:var(--sage);bottom:10%;right:8%;animation-delay:6s;}
+  @keyframes drift{
+    0%,100%{transform:translateY(0px) translateX(0px);}
+    50%{transform:translateY(-16px) translateX(10px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .blob{animation:none;}
+  }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:24px 20px 60px;
+    position:relative;
+  }
+
+  /* Header */
+  .brandrow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand-mark{
+    width:32px;height:32px;border-radius:9px;
+    background:linear-gradient(135deg,var(--sage),var(--forest));
+    flex-shrink:0;
+    box-shadow:0 3px 8px rgba(110,27,41,0.25);
+  }
+  .brand-text{
+    font-size:13px;
+    font-weight:600;
+    color:var(--forest);
+  }
+  .brand-text span{color:var(--ink-soft);font-weight:500;}
+
+  .headerctrls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .langswitch{
+    display:flex;
+    gap:3px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+  }
+  .langbtn{
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .langbtn.active{
+    background:var(--forest);
+    color:#fff;
+  }
+  .score-pill{
+    background:var(--forest);
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    padding:7px 14px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .score-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:26px;
+    line-height:1.25;
+    color:var(--forest-deep);
+    margin:4px 0 6px;
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    line-height:1.5;
+    margin:0 0 22px;
+  }
+
+  /* Progress */
+  .progress{
+    display:flex;
+    gap:5px;
+    margin-bottom:22px;
+  }
+  .seg{
+    flex:1;
+    height:6px;
+    border-radius:4px;
+    background:var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .seg.done{background:var(--ok);}
+  .seg.wrong{background:var(--red);}
+
+  /* Cards */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 26px 22px;
+    box-shadow:0 8px 24px rgba(110,27,41,0.07);
+  }
+
+  .qmeta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .qnum{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--sage);
+  }
+  .qpts{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--gold);
+    background:var(--gold-light);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+
+  .qtext{
+    font-size:17px;
+    line-height:1.55;
+    color:var(--ink);
+    margin:0 0 18px;
+  }
+
+  .suppliers{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .supplier{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:13px 15px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .supplier .tag{
+    flex-shrink:0;
+    width:30px;height:30px;
+    border-radius:8px;
+    background:var(--forest);
+    color:#fff;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .supplier .desc{
+    font-size:14px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+
+  .comparegrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .comparecol{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px;
+  }
+  .comparecol .colhead{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--forest-deep);
+    margin-bottom:8px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .comparecol ul{
+    margin:0;padding:0;list-style:none;
+    display:flex;flex-direction:column;gap:7px;
+  }
+  .comparecol li{
+    font-size:12.5px;
+    line-height:1.45;
+    color:var(--ink-soft);
+    padding-left:14px;
+    position:relative;
+  }
+  .comparecol li::before{
+    content:'';
+    position:absolute;left:0;top:6px;
+    width:5px;height:5px;border-radius:50%;
+    background:var(--sage);
+  }
+  @media (max-width:560px){
+    .comparegrid{grid-template-columns:1fr;}
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .opt{
+    border:1.5px solid var(--line);
+    background:var(--card);
+    border-radius:10px;
+    padding:13px 15px;
+    font-size:14.5px;
+    line-height:1.5;
+    color:var(--ink);
+    cursor:pointer;
+    text-align:left;
+    display:flex;
+    gap:11px;
+    align-items:flex-start;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    font-family:inherit;
+  }
+  .opt:hover:not(.locked){
+    border-color:var(--sage);
+    background:var(--sage-light);
+    transform:translateY(-1px);
+  }
+  .opt .letter{
+    flex-shrink:0;
+    width:22px;height:22px;
+    border-radius:6px;
+    border:1.5px solid var(--line);
+    font-size:12px;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);
+  }
+  .opt.selected{
+    border-color:var(--forest);
+    background:rgba(110,27,41,0.06);
+  }
+  .opt.selected .letter{background:var(--forest);border-color:var(--forest);color:#fff;}
+  .opt.correct{border-color:var(--ok);background:var(--ok-light);}
+  .opt.correct .letter{background:var(--ok);border-color:var(--ok);color:#fff;}
+  .opt.incorrect{border-color:var(--red);background:var(--red-light);}
+  .opt.incorrect .letter{background:var(--red);border-color:var(--red);color:#fff;}
+  .opt.locked{cursor:default;}
+  .opt.dim{opacity:0.5;}
+
+  .lockNote{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:10px;
+  }
+
+  .feedback{
+    margin-top:18px;
+    padding:15px 16px;
+    border-radius:10px;
+    font-size:13.5px;
+    line-height:1.6;
+  }
+  .feedback.good{background:var(--ok-light);color:var(--forest-deep);}
+  .feedback.bad{background:var(--red-light);color:#7A2A22;}
+  .feedback .fhead{
+    font-weight:700;
+    font-size:13.5px;
+    margin-bottom:5px;
+  }
+
+  .nextrow{margin-top:20px;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
+  .btn{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    padding:11px 22px;
+    border-radius:9px;
+    border:none;
+    cursor:pointer;
+    background:var(--forest);
+    color:#fff;
+  }
+  .btn:hover{background:var(--forest-deep);}
+  .btn.ghost{background:transparent;color:var(--forest);border:1.5px solid var(--forest);}
+  .btn.ghost:hover{background:var(--sage-light);}
+  .btn:disabled{opacity:0.5;cursor:default;}
+
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--forest-deep);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:9px;
+    border:1.5px solid var(--line);
+    font-family:inherit;
+    font-size:14.5px;
+    background:#fff;
+  }
+  .field input:focus{outline:none;border-color:var(--sage);}
+
+  .startgrid{display:flex;flex-direction:column;gap:9px;margin:18px 0 4px;}
+  .startrow{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--ink-soft);}
+  .startrow .ico{
+    width:26px;height:26px;border-radius:7px;
+    background:var(--sage-light);color:var(--forest);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;flex-shrink:0;
+  }
+
+  .resulthero{text-align:center;padding:8px 0 6px;}
+  .resultscore{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:52px;
+    color:var(--forest-deep);
+    line-height:1;
+  }
+  .resultscore span{font-size:22px;color:var(--ink-soft);font-weight:500;}
+  .resultlabel{font-size:14px;color:var(--sage);font-weight:600;margin-top:6px;}
+  .breakdown{display:flex;gap:10px;margin:22px 0;}
+  .bkcard{flex:1;border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;}
+  .bkcard .bknum{font-family:'Fraunces',serif;font-weight:600;font-size:22px;color:var(--forest-deep);}
+  .bkcard .bklabel{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .takeaway{
+    background:var(--forest);color:#fff;border-radius:10px;
+    padding:18px 20px;font-size:14px;line-height:1.65;margin-top:6px;
+  }
+  .scale{display:flex;gap:8px;margin-top:14px;}
+  .scale div{flex:1;border-radius:8px;padding:9px 8px;font-size:11px;font-weight:600;text-align:center;}
+  .scale .g{background:rgba(94,140,106,0.28);color:#E6F0E5;}
+  .scale .y{background:rgba(198,134,43,0.32);color:#F7E9CC;}
+  .scale .r{background:rgba(184,69,59,0.32);color:#F6DFDB;}
+
+  .submitnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:12px;}
+
+  /* Leaderboard */
+  .lbrow{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 12px;border-radius:10px;
+    border:1px solid var(--line);margin-bottom:8px;
+  }
+  .lbrow.me{border-color:var(--forest);background:var(--forest);}
+  .lbrow.me .lbname{color:#fff;}
+  .lbrow.me .lbdept{color:rgba(255,255,255,0.75);}
+  .lbrow.me .lbscore{color:#fff;}
+  .youBadge{
+    display:inline-block;
+    background:var(--gold);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    padding:2px 7px;
+    border-radius:999px;
+    margin-left:6px;
+    vertical-align:middle;
+    letter-spacing:0.3px;
+  }
+  .lbloading{display:flex;align-items:center;color:var(--ink-soft);font-size:14.5px;}
+  .spinner{
+    display:inline-block;
+    width:15px;height:15px;
+    border:2px solid var(--line);
+    border-top-color:var(--forest);
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+    margin-right:9px;
+    flex-shrink:0;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .submitwarn{color:var(--red);}
+  .lbrank{
+    width:26px;height:26px;border-radius:7px;
+    background:var(--paper);color:var(--forest-deep);
+    font-weight:700;font-size:12.5px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .lbrow:nth-child(1) .lbrank{background:var(--gold);color:#fff;}
+  .lbrow:nth-child(2) .lbrank{background:#B8C4BE;color:#fff;}
+  .lbrow:nth-child(3) .lbrank{background:#C99A6E;color:#fff;}
+  .lbinfo{flex:1;min-width:0;}
+  .lbname{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .lbdept{font-size:11.5px;color:var(--ink-soft);}
+  .lbscore{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--forest-deep);}
+
+  .footnote{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:24px;}
+
+  /* Confetti */
+  .confetti{
+    position:fixed;top:-10px;width:8px;height:14px;z-index:50;
+    animation:fall linear forwards;
+    border-radius:2px;
+  }
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(360deg);opacity:0.9;}
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="bg-pattern"></div>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+<div class="blob blob4"></div>
+
+<div class="wrap">
+  <div class="brandrow">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text"><span id="brandName">Sustain Connect</span> · <span id="weekTag">Week 11</span></div>
+    </div>
+    <div class="headerctrls">
+      <div class="langswitch" id="langswitch"></div>
+      <div class="score-pill" id="scorePill" style="display:none;"><span class="dot"></span><span id="scoreLive">0 / 100</span></div>
+    </div>
+  </div>
+
+  <div id="progressBar" class="progress" style="display:none;"></div>
+  <div id="app"></div>
+  <div class="footnote" id="footnote"></div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+// This is the SHARED Apps Script webhook used by six games. Paste the same
+// /exec URL used by the other games — routing to the "Procurement_Responses"
+// tab happens via the `action` field/param, not a separate URL.
+const SHEET_API_URL = ""; // e.g. "https://script.google.com/macros/s/XXXXX/exec"
+
+// JSONP loader — the shared backend documents this as the way to sidestep
+// CORS restrictions on cross-origin GET requests to Apps Script (the other
+// five games on this webhook already rely on it for their leaderboards).
+function jsonpFetch(url, timeoutMs){
+  return new Promise((resolve, reject)=>{
+    const cbName = 'jsonp_cb_' + Date.now() + '_' + Math.floor(Math.random()*1e6);
+    const script = document.createElement('script');
+    let done = false;
+    const cleanup = () => {
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    };
+    const timer = setTimeout(()=>{
+      if(!done){ done = true; cleanup(); reject(new Error('JSONP request timed out')); }
+    }, timeoutMs || 10000);
+    window[cbName] = function(data){
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
+    script.onerror = function(){
+      if(!done){ done = true; clearTimeout(timer); cleanup(); reject(new Error('JSONP script failed to load')); }
+    };
+    const sep = url.includes('?') ? '&' : '?';
+    script.src = url + sep + 'callback=' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
+/* ============ CONTENT ============ */
+const UI = {
+en:{brand:"Sustain Connect",week:"Week 11",title:"Sustainable Procurement in Practice",
+  subtitle:"Test your judgment on real supplier scenarios — then see where you land on the leaderboard.",
+  nameLabel:"Name",emailLabel:"Email",deptLabel:"Department",namePh:"Enter your name",emailPh:"Enter your email",deptPh:"Enter your department",
+  startBtn:"Start playing",nextBtn:"Next question",resultsBtn:"See my score",lbBtn:"View leaderboard",againBtn:"Play again",
+  lbTitle:"Leaderboard — Week 11",rank:"Rank",name:"Name",dept:"Department",score:"Score",
+  viewAllBtn:"View all players",backTop10Btn:"Back to top 10",pageOf:"Page {n} of {t}",prevPageBtn:"Previous",nextPageBtn:"Next",jumpToMeBtn:"Jump to my rank",
+  loadingLB:"Loading the leaderboard…",errorLB:"Couldn't load the leaderboard right now — showing sample data.",
+  emptyLB:"No scores yet — be the first!",
+  part1:"Part 1 · Decisions",part2:"Part 2 · Risk check",pts:"pts",questionOf:"Question {n} of {t}",
+  lockNote:"Choose an answer, then confirm to lock it in.",confirmBtn:"Confirm answer",submitting:"Saving your score…",submitted:"Score saved ✓",submitError:"⚠️ There may have been a problem saving your score.",youBadge:"YOU",
+  high:"Strong grasp of the framework",mid:"Good start — a few gaps worth a second look",low:"Worth a re-read of the framework",
+  scaleG:"Can still be fixed",scaleY:"Worth checking first",scaleR:"No exceptions — stop",
+  footnote:"Sustainable Procurement in Practice — Part 1"},
+th:{brand:"Sustain Connect",week:"สัปดาห์ที่ 11",title:"การจัดซื้อจัดจ้างอย่างยั่งยืนในทางปฏิบัติ",
+  subtitle:"ทดสอบการตัดสินใจของคุณผ่านสถานการณ์ซัพพลายเออร์จริง แล้วไปดูอันดับของคุณในกระดานคะแนน",
+  nameLabel:"ชื่อ",emailLabel:"อีเมล",deptLabel:"แผนก",namePh:"กรอกชื่อของคุณ",emailPh:"กรอกอีเมลของคุณ",deptPh:"กรอกแผนกของคุณ",
+  startBtn:"เริ่มเล่น",nextBtn:"ข้อถัดไป",resultsBtn:"ดูคะแนนของฉัน",lbBtn:"ดูกระดานคะแนน",againBtn:"เล่นอีกครั้ง",
+  lbTitle:"กระดานคะแนน — สัปดาห์ที่ 11",rank:"อันดับ",name:"ชื่อ",dept:"แผนก",score:"คะแนน",
+  viewAllBtn:"ดูผู้เล่นทั้งหมด",backTop10Btn:"กลับไปดู 10 อันดับแรก",pageOf:"หน้า {n} จาก {t}",prevPageBtn:"ก่อนหน้า",nextPageBtn:"ถัดไป",jumpToMeBtn:"ไปที่อันดับของฉัน",
+  loadingLB:"กำลังโหลดกระดานคะแนน…",errorLB:"ตอนนี้โหลดกระดานคะแนนไม่ได้ — แสดงข้อมูลตัวอย่างแทน",
+  emptyLB:"ยังไม่มีใครทำคะแนน — เป็นคนแรกเลย!",
+  part1:"ส่วนที่ 1 · การตัดสินใจ",part2:"ส่วนที่ 2 · ตรวจสอบความเสี่ยง",pts:"คะแนน",questionOf:"ข้อ {n} จาก {t}",
+  lockNote:"เลือกคำตอบแล้วกดยืนยันเพื่อล็อกคำตอบ",confirmBtn:"ยืนยันคำตอบ",submitting:"กำลังบันทึกคะแนน…",submitted:"บันทึกคะแนนแล้ว ✓",submitError:"⚠️ อาจมีปัญหาการบันทึกคะแนน",youBadge:"คุณ",
+  high:"เข้าใจหลักการนี้ดีมาก",mid:"เริ่มต้นได้ดี ยังมีบางจุดให้ทบทวน",low:"ลองทบทวนหลักการอีกครั้ง",
+  scaleG:"ยังแก้ไขได้",scaleY:"ควรตรวจสอบก่อน",scaleR:"ห้ามข้าม หยุดทันที",
+  footnote:"การจัดซื้อจัดจ้างอย่างยั่งยืนในทางปฏิบัติ — ส่วนที่ 1"},
+zh:{brand:"Sustain Connect",week:"第11周",title:"可持续采购实务",
+  subtitle:"通过真实供应商情境，测试你的判断力——然后看看你在排行榜上的位置。",
+  nameLabel:"姓名",emailLabel:"电子邮箱",deptLabel:"部门",namePh:"请输入您的姓名",emailPh:"请输入您的电子邮箱",deptPh:"请输入您的部门",
+  startBtn:"开始游戏",nextBtn:"下一题",resultsBtn:"查看我的分数",lbBtn:"查看排行榜",againBtn:"再玩一次",
+  lbTitle:"排行榜 — 第11周",rank:"排名",name:"姓名",dept:"部门",score:"分数",
+  viewAllBtn:"查看全部玩家",backTop10Btn:"返回前10名",pageOf:"第{n}页，共{t}页",prevPageBtn:"上一页",nextPageBtn:"下一页",jumpToMeBtn:"跳转到我的排名",
+  loadingLB:"正在加载排行榜…",errorLB:"暂时无法加载排行榜 — 显示示例数据",
+  emptyLB:"还没有人得分 — 快来当第一个！",
+  part1:"第一部分 · 判断题",part2:"第二部分 · 风险评估",pts:"分",questionOf:"第{n}题，共{t}题",
+  lockNote:"选择答案后点击确认以锁定",confirmBtn:"确认答案",submitting:"正在保存分数…",submitted:"分数已保存 ✓",submitError:"⚠️ 保存分数时可能出现问题。",youBadge:"你",
+  high:"对这个原则掌握得很好",mid:"开始得不错，还有一些地方可以再复习",low:"建议再复习一下这个原则",
+  scaleG:"还能补救",scaleY:"先核实再说",scaleR:"没有例外，立即停止",
+  footnote:"可持续采购实务 — 第一部分"},
+de:{brand:"Sustain Connect",week:"Woche 11",title:"Nachhaltige Beschaffung in der Praxis",
+  subtitle:"Testen Sie Ihr Urteilsvermögen anhand realer Lieferantenszenarien — und sehen Sie, wo Sie in der Bestenliste stehen.",
+  nameLabel:"Name",emailLabel:"E-Mail",deptLabel:"Abteilung",namePh:"Ihren Namen eingeben",emailPh:"Ihre E-Mail-Adresse eingeben",deptPh:"Ihre Abteilung eingeben",
+  startBtn:"Spiel starten",nextBtn:"Nächste Frage",resultsBtn:"Mein Ergebnis ansehen",lbBtn:"Bestenliste ansehen",againBtn:"Nochmal spielen",
+  lbTitle:"Bestenliste — Woche 11",rank:"Platz",name:"Name",dept:"Abteilung",score:"Punkte",
+  viewAllBtn:"Alle Spieler ansehen",backTop10Btn:"Zurück zu den Top 10",pageOf:"Seite {n} von {t}",prevPageBtn:"Zurück",nextPageBtn:"Weiter",jumpToMeBtn:"Zu meinem Platz springen",
+  loadingLB:"Bestenliste wird geladen…",errorLB:"Bestenliste konnte gerade nicht geladen werden — Beispieldaten werden angezeigt.",
+  emptyLB:"Noch keine Ergebnisse — seien Sie die/der Erste!",
+  part1:"Teil 1 · Entscheidungen",part2:"Teil 2 · Risikobewertung",pts:"Punkte",questionOf:"Frage {n} von {t}",
+  lockNote:"Antwort auswählen und dann bestätigen, um sie zu sperren.",confirmBtn:"Antwort bestätigen",submitting:"Ergebnis wird gespeichert…",submitted:"Ergebnis gespeichert ✓",submitError:"⚠️ Beim Speichern Ihres Ergebnisses ist möglicherweise ein Fehler aufgetreten.",youBadge:"DU",
+  high:"Sehr gutes Verständnis dieses Prinzips",mid:"Guter Start — ein paar Punkte lohnt es sich, noch einmal anzuschauen",low:"Es lohnt sich, das Prinzip noch einmal durchzugehen",
+  scaleG:"Lässt sich noch beheben",scaleY:"Erst prüfen",scaleR:"Keine Ausnahme — sofort stoppen",
+  footnote:"Nachhaltige Beschaffung in der Praxis — Teil 1"}
+};
+
+const QUESTIONS = {
+en:[
+ {part:"p1",pts:10,text:"One of your long-time suppliers makes great products and always delivers on time. But during a review, you find out they don't have a written sustainability policy. What do you do?",
+  options:["Stop buying from them right away.","Ignore it — they've always been a good supplier.","Ask them more questions and find out what they're already doing.","Make them get several certificates immediately."],correct:2,
+  good:"Right — not having a policy on paper doesn't mean they're doing something wrong. Find out what's really happening before you act.",
+  bad:"Not quite — no written policy isn't proof of a real problem. The right move is to ask questions first, not stop working with them or ignore it."},
+ {part:"p1",pts:10,text:"A supplier offers a great price and good quality. But you've heard from a reliable source that they may be mistreating their workers. What do you do?",
+  options:["Keep buying from them — the price and quality are good.","Cut them off immediately, without checking the facts.","Look into it, see how serious it is, and report it the right way.","Ask them to lower the price even more, to make up for the risk."],correct:2,
+  good:"Right — a serious claim like this needs checking and reporting properly. You shouldn't just believe it blindly or ignore it because of price.",
+  bad:"Not quite — serious claims about worker mistreatment need to be checked and reported the right way, not assumed true or false."},
+ {part:"p1",pts:10,text:"A supplier doesn't meet one of your sustainability requirements yet. They admit it, but say they're willing to fix it and can give you a plan. What do you do?",
+  options:["End the relationship immediately, since the requirement isn't met.","Overlook it, since they're willing to improve.","Understand the issue, agree on a plan to fix it, and check their progress.","Tell them to fix everything before you place any order."],correct:2,
+  good:"Right — a supplier who's honest and willing to improve deserves a real plan and follow-up, not an automatic yes or no.",
+  bad:"Not quite — willingness to improve deserves a proper plan and follow-up, not being dropped outright or let off the hook."},
+ {part:"p1",pts:10,text:"A supplier's form says their product has 50% recycled material. But their technical document says 30%. What do you do?",
+  options:["Go with 50%, since it's the higher number.","Go with 30%, since it's from the technical document.","Ask them to explain the difference and show proof, before you use either number.","Ignore it — it's only a small difference."],correct:2,
+  good:"Right — when two numbers from the same supplier don't match, you ask for proof before using either one, not just pick one.",
+  bad:"Not quite — with two different numbers, the right move is to ask for an explanation and proof, not guess or ignore it."},
+ {part:"p2",pts:10,text:"Three suppliers below have very different track records. Which one requires you to end the relationship immediately — no negotiation, no improvement plan?",
+  suppliers:[{name:"Fortis Safety Supplies",desc:"Sells safety gear and follows environmental laws, but has no rule against bribery."},
+    {name:"ChemSecure Industries",desc:"Has rules against bribery and for human rights, but won't share safety data sheets for their chemicals."},
+    {name:"Briarwood Textiles",desc:"Follows every rule on paper — but an outside audit found they were using child workers."}],
+  options:["Fortis Safety Supplies","ChemSecure Industries","Briarwood Textiles","Fortis Safety Supplies and ChemSecure Industries"],correct:2,
+  good:"Right — Fortis is missing a policy, and ChemSecure is refusing to share something important — both are worth pushing on. But Briarwood has a proven case of child labour. That's not something you wait and fix — you end the relationship immediately.",
+  bad:"Not quite — think about what's actually confirmed, not just how many problems each supplier has. Child labour at Briarwood Textiles, confirmed by an outside audit, is the one issue you can't wait on."},
+ {part:"p2",pts:20,text:"Which supplier is the safest one to work with?",
+  compare:[{name:"Supplier A",items:["Has an environmental policy","Won't share their sustainability numbers","No rule against bribery"]},
+    {name:"Supplier B",items:["Has rules against bribery and for human rights","Shares its sustainability numbers every year","Trains staff on safety regularly","Lets customers come check their practices"]},
+    {name:"Supplier C",items:["Offers the cheapest price","No written sustainability rules at all","Says following the rules \"isn't required\""]}],
+  options:["Supplier A","Supplier B","Supplier C","Can't tell from this"],correct:1,
+  good:"Right — B is the only one with real rules in place, shares real numbers, trains its people, and lets you check for yourself. That mix of doing the right things and proving it is what makes them the safest bet.",
+  bad:"Not quite — look for the one with rules in place AND proof (numbers, training, letting you check). B is the only one with all three; A gives no proof, and C openly refuses to follow the rules."},
+ {part:"p2",pts:30,text:"Look at these three supplier profiles. Rank them — from the one you'd most want to work with, to the one you'd least want to work with.",
+  suppliers:[{name:"GreenLeaf Chemicals",desc:"Shares its ESG data, follows environmental laws, and trains staff on safety regularly — but won't sign our Supplier Code of Conduct."},
+    {name:"Anchor Supply Co.",desc:"Signed our Supplier Code of Conduct, meets every legal requirement, provides all requested documents, and has no issues from audits."},
+    {name:"Lumen Materials",desc:"Has an excellent sustainability record and certifications — but recently offered expensive gifts to try to influence a purchase decision."}],
+  options:["GreenLeaf Chemicals → Anchor Supply Co. → Lumen Materials","Anchor Supply Co. → GreenLeaf Chemicals → Lumen Materials","Lumen Materials → Anchor Supply Co. → GreenLeaf Chemicals","GreenLeaf Chemicals → Lumen Materials → Anchor Supply Co."],correct:1,
+  good:"Right — Anchor Supply Co. first, GreenLeaf Chemicals second, Lumen Materials last. Anchor does everything right AND has it in writing — the safest choice. GreenLeaf performs well but won't put its commitment in writing, which is a risk worth watching. Lumen looks excellent on paper, but offering gifts to influence a purchase decision is something no certification can offset — that's why it ranks last.",
+  bad:"Not quite — the right order is Anchor Supply Co., then GreenLeaf Chemicals, then Lumen Materials. Strong performance backed by a signed commitment (Anchor) beats strong performance without one (GreenLeaf). And no certification outweighs an actual attempt to influence a decision with gifts (Lumen) — that always ranks last."}
+],
+th:[
+ {part:"p1",pts:10,text:"ซัพพลายเออร์รายหนึ่งที่คุณทำงานด้วยมานาน สินค้าดี ส่งของตรงเวลาตลอด แต่พอมาตรวจสอบกลับพบว่าเขาไม่มีนโยบายด้านความยั่งยืนเป็นลายลักษณ์อักษรเลย คุณจะทำอย่างไร?",
+  options:["หยุดซื้อจากเขาทันที","ปล่อยผ่าน เพราะที่ผ่านมาเขาทำงานดีมาตลอด","สอบถามเพิ่มเติม เพื่อดูว่าจริงๆ แล้วเขาทำอะไรอยู่บ้าง","บังคับให้เขาไปขอใบรับรองหลายใบทันที"],correct:2,
+  good:"ถูกต้อง — การไม่มีนโยบายเป็นลายลักษณ์อักษร ไม่ได้แปลว่าเขาทำผิดอะไร ต้องสอบถามให้เข้าใจก่อนว่าเขาทำอะไรอยู่จริงๆ",
+  bad:"ยังไม่ใช่ — การไม่มีนโยบายเป็นลายลักษณ์อักษรไม่ใช่หลักฐานว่ามีปัญหาจริง สิ่งที่ควรทำคือถามให้เข้าใจก่อน ไม่ใช่หยุดซื้อหรือปล่อยผ่าน"},
+ {part:"p1",pts:10,text:"ซัพพลายเออร์รายหนึ่งเสนอราคาดีและคุณภาพดี แต่คุณได้ยินจากแหล่งที่น่าเชื่อถือว่าเขาอาจปฏิบัติต่อแรงงานไม่เป็นธรรม คุณจะทำอย่างไร?",
+  options:["ซื้อต่อไป เพราะราคาและคุณภาพดี","ตัดสัมพันธ์ทันที โดยไม่ตรวจสอบข้อมูลก่อน","ตรวจสอบข้อมูล ดูว่าร้ายแรงแค่ไหน แล้วแจ้งเรื่องผ่านช่องทางที่ถูกต้อง","ขอให้เขาลดราคาลงอีก เพื่อชดเชยความเสี่ยง"],correct:2,
+  good:"ถูกต้อง — ข้อมูลร้ายแรงแบบนี้ต้องตรวจสอบและแจ้งผ่านช่องทางที่ถูกต้อง ไม่ใช่เชื่อทันทีหรือมองข้ามเพราะราคาดี",
+  bad:"ยังไม่ใช่ — ข้อมูลเรื่องการปฏิบัติต่อแรงงานไม่เป็นธรรมต้องตรวจสอบและแจ้งผ่านช่องทางที่ถูกต้องก่อน ไม่ใช่เชื่อทันทีหรือปล่อยผ่าน"},
+ {part:"p1",pts:10,text:"ซัพพลายเออร์รายหนึ่งยังไม่ผ่านข้อกำหนดด้านความยั่งยืนข้อหนึ่ง เขายอมรับตรงๆ แต่บอกว่าพร้อมจะปรับปรุงและมีแผนพัฒนาให้ดู คุณจะทำอย่างไร?",
+  options:["เลิกใช้ทันที เพราะยังไม่ผ่านข้อกำหนด","ปล่อยผ่าน เพราะเขาเต็มใจจะปรับปรุง","ทำความเข้าใจปัญหา ตกลงแผนปรับปรุงร่วมกัน แล้วติดตามผล","บอกให้เขาแก้ปัญหาทุกอย่างให้เสร็จก่อนถึงจะสั่งซื้อได้"],correct:2,
+  good:"ถูกต้อง — ซัพพลายเออร์ที่ยอมรับตรงๆ และพร้อมปรับปรุง ควรได้แผนงานจริงพร้อมการติดตามผล ไม่ใช่ตัดสินใจแบบสุดโต่งไปทางใดทางหนึ่ง",
+  bad:"ยังไม่ใช่ — ซัพพลายเออร์ที่เต็มใจปรับปรุงควรได้รับแผนงานจริงและการติดตามผล ไม่ใช่ถูกเลิกใช้ทันที หรือถูกปล่อยผ่านไปเฉยๆ"},
+ {part:"p1",pts:10,text:"แบบฟอร์มของซัพพลายเออร์ระบุว่าสินค้ามีวัสดุรีไซเคิล 50% แต่เอกสารทางเทคนิคของเขาเองระบุว่า 30% คุณจะทำอย่างไร?",
+  options:["ใช้ตัวเลข 50% เพราะเป็นตัวเลขที่สูงกว่า","ใช้ตัวเลข 30% เพราะมาจากเอกสารทางเทคนิค","ขอให้เขาอธิบายความต่าง และแสดงหลักฐาน ก่อนจะใช้ตัวเลขไหน","ปล่อยผ่าน เพราะต่างกันไม่มาก"],correct:2,
+  good:"ถูกต้อง — เมื่อตัวเลขจากซัพพลายเออร์รายเดียวกันไม่ตรงกัน ต้องขอหลักฐานก่อนนำไปใช้ ไม่ใช่เลือกเอาตัวใดตัวหนึ่งเอง",
+  bad:"ยังไม่ใช่ — เมื่อตัวเลขไม่ตรงกัน สิ่งที่ควรทำคือขอคำอธิบายและหลักฐานก่อน ไม่ใช่เดาเอาหรือปล่อยผ่าน"},
+ {part:"p2",pts:10,text:"ซัพพลายเออร์ 3 รายด้านล่างมีประวัติต่างกันมาก รายไหนที่คุณต้องยุติความร่วมมือทันที ไม่มีการต่อรอง ไม่มีแผนปรับปรุง?",
+  suppliers:[{name:"บริษัท Fortis Safety Supplies",desc:"ขายอุปกรณ์ป้องกันภัย ปฏิบัติตามกฎหมายสิ่งแวดล้อม แต่ไม่มีกฎห้ามการติดสินบน"},
+    {name:"บริษัท ChemSecure Industries",desc:"มีกฎห้ามติดสินบนและเรื่องสิทธิมนุษยชน แต่ไม่ยอมให้เอกสารความปลอดภัยสารเคมี (SDS)"},
+    {name:"บริษัท Briarwood Textiles",desc:"ทำตามกฎทุกอย่างในเอกสาร แต่การตรวจสอบจากบุคคลภายนอกพบว่าใช้แรงงานเด็ก"}],
+  options:["บริษัท Fortis Safety Supplies","บริษัท ChemSecure Industries","บริษัท Briarwood Textiles","บริษัท Fortis Safety Supplies และ บริษัท ChemSecure Industries"],correct:2,
+  good:"ถูกต้อง — Fortis ยังขาดกฎบางข้อ และ ChemSecure ปฏิเสธให้ข้อมูลสำคัญ ทั้งคู่ควรผลักดันให้แก้ไข แต่ Briarwood มีหลักฐานยืนยันแล้วว่าใช้แรงงานเด็ก นี่ไม่ใช่เรื่องที่รอแก้ไขได้ ต้องยุติความร่วมมือทันที",
+  bad:"ยังไม่ใช่ — ให้ดูว่าอะไรมีหลักฐานยืนยันแล้วจริงๆ ไม่ใช่แค่ใครมีปัญหาเยอะกว่ากัน ปัญหาแรงงานเด็กที่ บริษัท Briarwood Textiles ซึ่งมีการตรวจสอบจากภายนอกยืนยันแล้ว คือเรื่องเดียวที่รอไม่ได้"},
+ {part:"p2",pts:20,text:"ซัพพลายเออร์รายไหนที่ปลอดภัยที่สุดในการร่วมงานด้วย?",
+  compare:[{name:"ซัพพลายเออร์ A",items:["มีนโยบายด้านสิ่งแวดล้อม","ไม่ยอมเปิดเผยตัวเลขความยั่งยืน","ไม่มีกฎห้ามติดสินบน"]},
+    {name:"ซัพพลายเออร์ B",items:["มีกฎห้ามติดสินบนและเรื่องสิทธิมนุษยชน","เปิดเผยตัวเลขความยั่งยืนทุกปี","อบรมพนักงานเรื่องความปลอดภัยสม่ำเสมอ","ให้ลูกค้าเข้ามาตรวจสอบได้"]},
+    {name:"ซัพพลายเออร์ C",items:["เสนอราคาถูกที่สุด","ไม่มีกฎด้านความยั่งยืนเป็นลายลักษณ์อักษรเลย","บอกว่าการทำตามกฎ \"ไม่จำเป็น\""]}],
+  options:["ซัพพลายเออร์ A","ซัพพลายเออร์ B","ซัพพลายเออร์ C","บอกไม่ได้จากข้อมูลนี้"],correct:1,
+  good:"ถูกต้อง — B เป็นรายเดียวที่มีกฎจริง เปิดเผยตัวเลขจริง อบรมพนักงานจริง และให้ตรวจสอบได้จริง การทำถูกต้องพร้อมพิสูจน์ได้แบบนี้ คือสิ่งที่ทำให้ปลอดภัยที่สุด",
+  bad:"ยังไม่ใช่ — ให้มองหารายที่มีทั้งกฎ และหลักฐานพิสูจน์ (ตัวเลข การอบรม การให้ตรวจสอบ) B เป็นรายเดียวที่มีครบทั้งสามอย่าง ส่วน A ไม่มีหลักฐานยืนยัน และ C บอกตรงๆ ว่าไม่ทำตามกฎ"},
+ {part:"p2",pts:30,text:"ดูโปรไฟล์ซัพพลายเออร์ 3 รายด้านล่าง แล้วเรียงลำดับจากรายที่อยากร่วมงานด้วยที่สุด ไปจนถึงรายที่อยากร่วมงานด้วยน้อยที่สุด",
+  suppliers:[{name:"บริษัท GreenLeaf Chemicals",desc:"เปิดเผยข้อมูล ESG ปฏิบัติตามกฎหมายสิ่งแวดล้อม และอบรมพนักงานเรื่องความปลอดภัยสม่ำเสมอ แต่ไม่ยอมเซ็นจรรยาบรรณซัพพลายเออร์ของเรา"},
+    {name:"บริษัท Anchor Supply Co.",desc:"เซ็นจรรยาบรรณซัพพลายเออร์ของเราแล้ว ทำตามข้อกำหนดทางกฎหมายทุกข้อ ให้เอกสารทุกอย่างที่ขอ และไม่เคยมีปัญหาจากการตรวจสอบเลย"},
+    {name:"บริษัท Lumen Materials",desc:"มีผลงานและใบรับรองด้านความยั่งยืนยอดเยี่ยม แต่เพิ่งเสนอของขวัญราคาแพงเพื่อพยายามโน้มน้าวการตัดสินใจซื้อ"}],
+  options:["บริษัท GreenLeaf Chemicals → บริษัท Anchor Supply Co. → บริษัท Lumen Materials","บริษัท Anchor Supply Co. → บริษัท GreenLeaf Chemicals → บริษัท Lumen Materials","บริษัท Lumen Materials → บริษัท Anchor Supply Co. → บริษัท GreenLeaf Chemicals","บริษัท GreenLeaf Chemicals → บริษัท Lumen Materials → บริษัท Anchor Supply Co."],correct:1,
+  good:"ถูกต้อง — ลำดับที่ถูกต้องคือ บริษัท Anchor Supply Co. เป็นอันดับแรก ตามด้วย บริษัท GreenLeaf Chemicals และ บริษัท Lumen Materials อยู่ท้ายสุด Anchor ทำถูกทุกอย่างและมีลายเซ็นยืนยันเป็นทางการ จึงปลอดภัยที่สุด GreenLeaf ทำงานดีแต่ไม่ยอมเซ็นยืนยัน ถือเป็นความเสี่ยงที่ต้องจับตา ส่วน Lumen แม้ผลงานจะดูดีแค่ไหน แต่การพยายามใช้ของขวัญราคาแพงเพื่อโน้มน้าวการตัดสินใจซื้อ คือสิ่งที่ใบรับรองใดก็ชดเชยไม่ได้ จึงต้องอยู่อันดับสุดท้าย",
+  bad:"ยังไม่ใช่ — ลำดับที่ถูกต้องคือ บริษัท Anchor Supply Co., บริษัท GreenLeaf Chemicals, บริษัท Lumen Materials ตามลำดับ ผลงานที่ดีพร้อมลายเซ็นยืนยันเป็นทางการ (Anchor) ย่อมดีกว่าผลงานที่ดีแต่ไม่ยอมยืนยัน (GreenLeaf) และไม่มีใบรับรองไหนสำคัญกว่าการพยายามติดสินบนด้วยของขวัญ (Lumen) ซึ่งต้องอยู่ท้ายสุดเสมอ"}
+],
+zh:[
+ {part:"p1",pts:10,text:"你有一家合作多年的供应商，产品质量好，交货也一直很准时。但在一次审查中，你发现他们没有书面的可持续发展政策。你会怎么做？",
+  options:["立即停止向他们采购。","不理会——他们一直表现很好。","多了解一下情况，看看他们实际上已经在做些什么。","要求他们立刻拿到多项认证。"],correct:2,
+  good:"正确——没有书面政策并不代表他们真的做错了什么。先了解实际情况，再决定下一步。",
+  bad:"还不对——没有书面政策并不能证明有真正的问题。正确的做法是先了解情况，而不是立即停止合作或不理会。"},
+ {part:"p1",pts:10,text:"一家供应商价格实惠、质量也不错。但你从可靠渠道听说，他们可能存在虐待员工的情况。你会怎么做？",
+  options:["继续采购——价格和质量都不错。","不核实情况，直接终止合作。","调查核实情况的严重程度，并通过正规渠道上报。","要求他们进一步降价，作为承担风险的补偿。"],correct:2,
+  good:"正确——这种严重的情况需要核实并通过正规渠道上报，不能因为价格好就视而不见，也不能不经核实就下结论。",
+  bad:"还不对——关于虐待员工的严重信息需要先核实并正规上报，而不是直接相信或直接忽略。"},
+ {part:"p1",pts:10,text:"一家供应商目前还未达到你们的某项可持续发展要求。他们坦诚承认，并表示愿意改进，还能提供改善计划。你会怎么做？",
+  options:["因为未达标就立即终止合作。","既然他们愿意改进，就不追究了。","了解具体问题，共同商定改善计划，并跟踪进展。","要求他们在下单前解决所有问题。"],correct:2,
+  good:"正确——对于坦诚且愿意改进的供应商，应该给出实际的改善计划并持续跟进，而不是走极端。",
+  bad:"还不对——愿意改进的供应商应该得到具体的改善计划和跟进，而不是被直接终止合作，也不是被完全放任不管。"},
+ {part:"p1",pts:10,text:"供应商的表格上写着产品含50%的再生材料，但他们自己的技术文件却写着30%。你会怎么做？",
+  options:["采用50%，因为数字更高。","采用30%，因为它来自技术文件。","在使用任何数字之前，要求供应商说明差异并提供证明。","不管它——差别不大。"],correct:2,
+  good:"正确——同一家供应商给出的数字不一致时，应该先要求证明，再决定使用哪个数字，而不是自己随意选一个。",
+  bad:"还不对——数字不一致时，正确做法是要求解释并提供证明，而不是猜测或不予理会。"},
+ {part:"p2",pts:10,text:"以下三家供应商的记录截然不同。哪一家你必须立即终止合作——不谈判，不给改善计划？",
+  suppliers:[{name:"「Fortis Safety Supplies」",desc:"销售安全防护用品，遵守环保法规，但没有反贿赂制度。"},
+    {name:"「ChemSecure Industries」",desc:"有反贿赂和人权相关制度，但拒绝提供化学品的安全数据表（SDS）。"},
+    {name:"「Briarwood Textiles」",desc:"书面上符合所有规定，但第三方审核发现他们使用童工。"}],
+  options:["「Fortis Safety Supplies」","「ChemSecure Industries」","「Briarwood Textiles」","「Fortis Safety Supplies」 和 「ChemSecure Industries」"],correct:2,
+  good:"正确——Fortis缺少一项制度，ChemSecure拒绝提供重要资料，这两点都值得跟进督促。但Briarwood已经被证实存在使用童工的情况，这不是等待改善的问题，必须立即终止合作。",
+  bad:"还不对——要看的是哪项问题已经被证实，而不是谁的问题看起来更多。经审核确认「Briarwood Textiles」存在童工问题，这是不能再等的。"},
+ {part:"p2",pts:20,text:"哪家供应商最安全可靠？",
+  compare:[{name:"供应商 A",items:["有环保政策","不愿公开可持续发展数据","没有反贿赂制度"]},
+    {name:"供应商 B",items:["有反贿赂和人权相关制度","每年公开可持续发展数据","定期开展安全培训","允许客户进行核查"]},
+    {name:"供应商 C",items:["价格最低","完全没有书面的可持续发展制度","声称遵守规定\"不是必须的\""]}],
+  options:["供应商 A","供应商 B","供应商 C","无法从这些信息判断"],correct:1,
+  good:"正确——B是唯一一家真正有制度、真正公开数据、真正开展培训、并且允许核查的供应商。做得对并且能证明，正是最安全的关键。",
+  bad:"还不对——应该找既有制度又有证据（数据、培训、允许核查）的供应商。B是唯一同时具备这三项的供应商；A没有提供证据，C则直接拒绝遵守规定。"},
+ {part:"p2",pts:30,text:"请看以下三家供应商的资料，按你最愿意合作到最不愿意合作的顺序排列。",
+  suppliers:[{name:"「GreenLeaf Chemicals」",desc:"公开其ESG数据，遵守环保法规，并定期开展安全培训——但不愿签署我们的《供应商行为准则》。"},
+    {name:"「Anchor Supply Co.」",desc:"已签署我们的《供应商行为准则》，满足所有法律要求，提供所有要求的文件，审核中从未发现问题。"},
+    {name:"「Lumen Materials」",desc:"拥有出色的可持续发展记录和认证——但最近提供了昂贵的礼物，试图影响采购决策。"}],
+  options:["「GreenLeaf Chemicals」 → 「Anchor Supply Co.」 → 「Lumen Materials」","「Anchor Supply Co.」 → 「GreenLeaf Chemicals」 → 「Lumen Materials」","「Lumen Materials」 → 「Anchor Supply Co.」 → 「GreenLeaf Chemicals」","「GreenLeaf Chemicals」 → 「Lumen Materials」 → 「Anchor Supply Co.」"],correct:1,
+  good:"正确——顺序是「Anchor Supply Co.」、「GreenLeaf Chemicals」、「Lumen Materials」。Anchor各方面都做得对，并且有正式的书面承诺，是最安全的选择。GreenLeaf表现不错，但不愿做出书面承诺，这是一个值得关注的风险。至于Lumen，无论表现多好，试图用贵重礼物影响采购决策，都是任何认证都无法弥补的问题，所以排在最后。",
+  bad:"还不对——正确顺序是「Anchor Supply Co.」、「GreenLeaf Chemicals」、「Lumen Materials」。既表现好又有正式书面承诺的供应商（Anchor）胜过表现好但不愿承诺的供应商（GreenLeaf）；而任何认证都抵不过用礼物贿赂的行为（Lumen），这种情况永远排在最后。"}
+],
+de:[
+ {part:"p1",pts:10,text:"Ein langjähriger Lieferant liefert gute Produkte und immer pünktlich. Bei einer Überprüfung stellen Sie fest, dass er keine schriftliche Nachhaltigkeitsrichtlinie hat. Was tun Sie?",
+  options:["Sofort aufhören, bei ihm einzukaufen.","Nichts tun — er war bisher immer zuverlässig.","Nachfragen und herausfinden, was er bereits tatsächlich umsetzt.","Sofort mehrere Zertifikate von ihm verlangen."],correct:2,
+  good:"Richtig — eine fehlende schriftliche Richtlinie bedeutet nicht automatisch ein echtes Problem. Erst nachfragen, dann entscheiden.",
+  bad:"Nicht ganz — eine fehlende Richtlinie ist kein Beweis für ein echtes Problem. Der richtige erste Schritt ist nachzufragen, nicht sofort zu stoppen oder es zu ignorieren."},
+ {part:"p1",pts:10,text:"Ein Lieferant bietet einen guten Preis und gute Qualität. Sie haben jedoch aus zuverlässiger Quelle gehört, dass er möglicherweise Arbeiter*innen schlecht behandelt. Was tun Sie?",
+  options:["Weiter bei ihm einkaufen — Preis und Qualität stimmen.","Sofort die Zusammenarbeit beenden, ohne die Fakten zu prüfen.","Die Sache prüfen, den Ernst der Lage einschätzen und über den richtigen Weg melden.","Ihn bitten, den Preis wegen des Risikos noch weiter zu senken."],correct:2,
+  good:"Richtig — ein so ernster Hinweis muss geprüft und richtig gemeldet werden, nicht einfach geglaubt oder wegen des guten Preises ignoriert.",
+  bad:"Nicht ganz — Hinweise auf schlechte Behandlung von Arbeiter*innen müssen erst geprüft und dann richtig gemeldet werden, nicht einfach angenommen oder ignoriert."},
+ {part:"p1",pts:10,text:"Ein Lieferant erfüllt eine Ihrer Nachhaltigkeitsanforderungen noch nicht. Er gibt das offen zu, ist aber bereit, sich zu verbessern, und legt einen Verbesserungsplan vor. Was tun Sie?",
+  options:["Sofort beenden, weil die Anforderung nicht erfüllt ist.","Es einfach durchgehen lassen, weil er sich verbessern will.","Die Lücke verstehen, einen Verbesserungsplan vereinbaren und den Fortschritt verfolgen.","Verlangen, dass er alles löst, bevor Sie überhaupt bestellen."],correct:2,
+  good:"Richtig — ein Lieferant, der ehrlich ist und sich verbessern will, verdient einen echten Plan mit Nachverfolgung, keine Alles-oder-nichts-Entscheidung.",
+  bad:"Nicht ganz — Verbesserungsbereitschaft verdient einen echten Plan mit Nachverfolgung, nicht ein sofortiges Aus oder einfach ein Durchwinken."},
+ {part:"p1",pts:10,text:"Im Fragebogen eines Lieferanten steht, das Produkt enthalte 50 % Recyclingmaterial. Im technischen Datenblatt desselben Lieferanten stehen jedoch 30 %. Was tun Sie?",
+  options:["Die 50 % verwenden, weil es die höhere Zahl ist.","Die 30 % verwenden, weil sie aus dem technischen Dokument stammen.","Den Lieferanten bitten, den Unterschied zu erklären und Nachweise vorzulegen, bevor Sie eine der Zahlen verwenden.","Es ignorieren — der Unterschied ist gering."],correct:2,
+  good:"Richtig — wenn zwei Zahlen vom selben Lieferanten nicht übereinstimmen, fordern Sie erst einen Nachweis an, statt einfach eine der Zahlen zu übernehmen.",
+  bad:"Nicht ganz — bei widersprüchlichen Zahlen ist der richtige Schritt, eine Erklärung und Nachweise anzufordern, nicht zu raten oder es zu ignorieren."},
+ {part:"p2",pts:10,text:"Die drei Lieferanten unten haben sehr unterschiedliche Vorgeschichten. Bei welchem müssen Sie die Zusammenarbeit sofort beenden — ohne Verhandlung, ohne Verbesserungsplan?",
+  suppliers:[{name:"Fortis Safety Supplies",desc:"Verkauft Schutzausrüstung, hält Umweltgesetze ein, hat aber keine Antikorruptionsrichtlinie."},
+    {name:"ChemSecure Industries",desc:"Hat Richtlinien gegen Korruption und für Menschenrechte, verweigert aber die Herausgabe von Sicherheitsdatenblättern für Chemikalien."},
+    {name:"Briarwood Textiles",desc:"Erfüllt auf dem Papier alle Vorgaben — ein externes Audit hat jedoch Kinderarbeit festgestellt."}],
+  options:["Fortis Safety Supplies","ChemSecure Industries","Briarwood Textiles","Fortis Safety Supplies und ChemSecure Industries"],correct:2,
+  good:"Richtig — Fortis fehlt eine Richtlinie, und ChemSecure verweigert wichtige Informationen — beides sollte man nachdrücklich ansprechen. Aber bei Briarwood liegt ein bestätigter Fall von Kinderarbeit vor. Das ist kein Punkt, den man abwarten kann — die Zusammenarbeit muss sofort beendet werden.",
+  bad:"Nicht ganz — entscheidend ist, was tatsächlich bestätigt ist, nicht wer die meisten Probleme hat. Durch ein Audit bestätigte Kinderarbeit bei Briarwood Textiles ist der eine Punkt, bei dem es keinen Aufschub gibt."},
+ {part:"p2",pts:20,text:"Welcher Lieferant ist am sichersten für eine Zusammenarbeit?",
+  compare:[{name:"Lieferant A",items:["Hat eine Umweltrichtlinie","Gibt keine Nachhaltigkeitszahlen bekannt","Keine Antikorruptionsrichtlinie"]},
+    {name:"Lieferant B",items:["Hat Richtlinien gegen Korruption und für Menschenrechte","Veröffentlicht jährlich Nachhaltigkeitszahlen","Schult Mitarbeitende regelmäßig zu Sicherheit","Erlaubt Kund*innen, Audits durchzuführen"]},
+    {name:"Lieferant C",items:["Bietet den niedrigsten Preis","Hat keinerlei schriftliche Nachhaltigkeitsrichtlinien","Sagt, Regelkonformität sei \"nicht erforderlich\""]}],
+  options:["Lieferant A","Lieferant B","Lieferant C","Lässt sich nicht sagen"],correct:1,
+  good:"Richtig — B ist der einzige Lieferant mit echten Richtlinien, echten Zahlen, echten Schulungen und der Bereitschaft zu Audits. Diese Kombination aus richtigem Handeln und Nachweisbarkeit macht ihn zur sichersten Wahl.",
+  bad:"Nicht ganz — suchen Sie nach dem Lieferanten mit Richtlinien UND Nachweisen (Zahlen, Schulungen, Audits). Nur B hat alle drei; A liefert keine Nachweise, und C lehnt Regelkonformität offen ab."},
+ {part:"p2",pts:30,text:"Sehen Sie sich die folgenden drei Lieferantenprofile an. Bringen Sie sie in eine Reihenfolge — von dem, mit dem Sie am liebsten zusammenarbeiten würden, bis zu dem, mit dem am wenigsten.",
+  suppliers:[{name:"GreenLeaf Chemicals",desc:"Veröffentlicht seine ESG-Daten, hält Umweltgesetze ein und schult Mitarbeitende regelmäßig zu Sicherheit — weigert sich aber, unseren Verhaltenskodex für Lieferanten zu unterschreiben."},
+    {name:"Anchor Supply Co.",desc:"Hat unseren Verhaltenskodex für Lieferanten unterschrieben, erfüllt alle gesetzlichen Anforderungen, legt alle angeforderten Unterlagen vor und hatte bei Audits noch nie Beanstandungen."},
+    {name:"Lumen Materials",desc:"Hat eine hervorragende Nachhaltigkeitsbilanz und Zertifizierungen — hat aber kürzlich teure Geschenke angeboten, um eine Einkaufsentscheidung zu beeinflussen."}],
+  options:["GreenLeaf Chemicals → Anchor Supply Co. → Lumen Materials","Anchor Supply Co. → GreenLeaf Chemicals → Lumen Materials","Lumen Materials → Anchor Supply Co. → GreenLeaf Chemicals","GreenLeaf Chemicals → Lumen Materials → Anchor Supply Co."],correct:1,
+  good:"Richtig — Anchor Supply Co. zuerst, GreenLeaf Chemicals an zweiter Stelle, Lumen Materials zuletzt. Anchor macht alles richtig und hat es schriftlich bestätigt — die sicherste Wahl. GreenLeaf leistet gute Arbeit, will sich aber nicht schriftlich verpflichten — ein echtes Risiko, das man im Blick behalten sollte. Und wie gut Lumen auch aussieht: der Versuch, eine Entscheidung mit teuren Geschenken zu beeinflussen, lässt sich durch kein Zertifikat aufwiegen — deshalb steht Lumen an letzter Stelle.",
+  bad:"Nicht ganz — die richtige Reihenfolge ist Anchor Supply Co., GreenLeaf Chemicals, Lumen Materials. Gute Leistung mit schriftlicher Verpflichtung (Anchor) ist besser als gute Leistung ohne Verpflichtung (GreenLeaf). Und kein Zertifikat wiegt den Versuch auf, mit Geschenken zu bestechen (Lumen) — das steht immer an letzter Stelle."}
+]
+};
+
+const TAKEAWAY = {
+en:"Every case here comes down to two simple checks. First: is this something they can still fix, or something that already happened and can't be undone? Second: do they perform well, AND keep their word, AND do the right thing when it's tempting not to? Good performance on its own isn't enough.",
+th:"ทุกข้อในเกมนี้วนกลับไปที่ 2 คำถามง่ายๆ ข้อแรก: เรื่องนี้ยังแก้ไขได้ไหม หรือมันเกิดขึ้นไปแล้วและแก้คืนไม่ได้ ข้อสอง: ซัพพลายเออร์รายนี้ทำงานดี รักษาคำพูด และทำสิ่งที่ถูกต้องแม้ในสถานการณ์ที่ล่อใจหรือเปล่า แค่ทำงานดีอย่างเดียวไม่พอ",
+zh:"这个游戏里的每个情境，最终都归结为两个简单的问题。第一：这件事还能补救吗，还是已经发生、无法挽回？第二：这家供应商是不是既表现好，又说到做到，并且在有诱惑的时候依然做对的事？只有表现好是不够的。",
+de:"Jeder Fall in diesem Spiel läuft auf zwei einfache Fragen hinaus. Erstens: Lässt sich das noch beheben, oder ist es bereits passiert und nicht mehr rückgängig zu machen? Zweitens: Leistet dieser Lieferant nicht nur gute Arbeit, sondern hält auch sein Wort und handelt richtig, selbst wenn es verlockend wäre, es nicht zu tun? Gute Leistung allein reicht nicht."
+};
+
+const LANGS = [["en","EN"],["th","ไทย"],["zh","中文"],["de","DE"]];
+
+/* ============ STATE ============ */
+let lang = "en";
+let current = 0;
+let score = 0;
+let answered = [];
+let selectedAnswers = [];
+let pendingChoice = null;
+let player = {name:"", email:"", dept:""};
+let screen = "register"; // register | quiz | results | leaderboard | leaderboard-full
+let lbRows = [];
+let lbUsedMock = false;
+let lbLoaded = false;
+let lbLoadingPromise = null;
+let lbPage = 0;
+let myRowRef = null;
+let lastSubmittedScore = null;
+const LB_PAGE_SIZE = 50;
+
+function t(){ return UI[lang]; }
+function qs(){ return QUESTIONS[lang]; }
+
+/* ============ LANG SWITCH ============ */
+function renderLangSwitch(){
+  const el = document.getElementById('langswitch');
+  el.innerHTML = LANGS.map(([code,label])=>
+    `<button class="langbtn ${lang===code?'active':''}" onclick="setLang('${code}')">${label}</button>`
+  ).join('');
+}
+function setLang(code){
+  lang = code;
+  renderLangSwitch();
+  document.getElementById('brandName').textContent = t().brand;
+  document.getElementById('weekTag').textContent = t().week;
+  document.getElementById('footnote').textContent = t().footnote;
+  renderScore();
+  render();
+}
+
+/* ============ RENDER HELPERS ============ */
+function renderScore(){
+  document.getElementById('scoreLive').textContent = score + ' / 100';
+}
+function renderProgress(){
+  const bar = document.getElementById('progressBar');
+  if(screen !== "quiz"){ bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  bar.innerHTML = '';
+  qs().forEach((q,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    if(answered[i] === true) seg.classList.add('done');
+    else if(answered[i] === false) seg.classList.add('wrong');
+    bar.appendChild(seg);
+  });
+}
+
+function render(){
+  document.getElementById('scorePill').style.display = (screen==="quiz"||screen==="results") ? 'flex' : 'none';
+  renderProgress();
+  if(screen === "register") return renderRegister();
+  if(screen === "quiz") return renderQuestion();
+  if(screen === "results") return renderResults();
+  if(screen === "leaderboard") return renderLeaderboard();
+  if(screen === "leaderboard-full") return renderLeaderboardFull();
+}
+
+function renderRegister(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card">
+      <h1>${t().title}</h1>
+      <p class="subtitle">${t().subtitle}</p>
+      <div class="field">
+        <label>${t().nameLabel}</label>
+        <input id="nameInput" type="text" placeholder="${t().namePh}" value="${player.name}">
+      </div>
+      <div class="field">
+        <label>${t().emailLabel}</label>
+        <input id="emailInput" type="email" placeholder="${t().emailPh}" value="${player.email||''}">
+      </div>
+      <div class="field">
+        <label>${t().deptLabel}</label>
+        <input id="deptInput" type="text" placeholder="${t().deptPh}" value="${player.dept}">
+      </div>
+      <div class="nextrow" style="justify-content:flex-start;margin-top:6px;">
+        <button class="btn" id="startBtnEl" onclick="tryStart()">${t().startBtn}</button>
+      </div>
+    </div>
+  `;
+}
+
+function tryStart(){
+  const name = document.getElementById('nameInput').value.trim();
+  const email = document.getElementById('emailInput').value.trim();
+  const dept = document.getElementById('deptInput').value.trim();
+  const emailOk = /^\S+@\S+\.\S+$/.test(email);
+  if(!name || !emailOk || !dept){
+    document.getElementById('nameInput').style.borderColor = name ? 'var(--line)' : 'var(--red)';
+    document.getElementById('emailInput').style.borderColor = emailOk ? 'var(--line)' : 'var(--red)';
+    document.getElementById('deptInput').style.borderColor = dept ? 'var(--line)' : 'var(--red)';
+    return;
+  }
+  player = {name, email, dept};
+  current = 0; score = 0; answered = []; selectedAnswers = [];
+  screen = "quiz";
+  render();
+}
+
+function renderQuestion(){
+  const q = qs()[current];
+  const app = document.getElementById('app');
+  pendingChoice = null;
+  const isAnswered = selectedAnswers[current] !== undefined;
+
+  let extraHTML = '';
+  if(q.suppliers){
+    extraHTML = '<div class="suppliers">' + q.suppliers.map(s=>{
+      const clean = s.name ? s.name.replace(/^บริษัท\s+/,'').replace(/[「」]/g,'') : '';
+      const icon = s.tag ? s.tag : clean.charAt(0);
+      return `<div class="supplier"><div class="tag">${icon}</div><div class="desc">${s.name ? `<b>${s.name}</b><br>` : ''}${s.desc}</div></div>`;
+    }).join('') + '</div>';
+  }
+  if(q.compare){
+    extraHTML = '<div class="comparegrid">' + q.compare.map(c=>`
+      <div class="comparecol">
+        <div class="colhead">${c.name}</div>
+        <ul>${c.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+      </div>
+    `).join('') + '</div>';
+  }
+
+  let optionsHTML;
+  if(isAnswered){
+    const chosen = selectedAnswers[current];
+    optionsHTML = q.options.map((opt,i)=>{
+      const letter = String.fromCharCode(65+i);
+      let cls = 'opt locked';
+      if(i === q.correct) cls += ' correct';
+      if(i === chosen && i !== q.correct) cls += ' incorrect';
+      if(i !== chosen && i !== q.correct) cls += ' dim';
+      return `<button class="${cls}" data-i="${i}"><span class="letter">${letter}</span><span>${opt}</span></button>`;
+    }).join('');
+  } else {
+    optionsHTML = q.options.map((opt,i)=>{
+      const letter = String.fromCharCode(65+i);
+      return `<button class="opt" data-i="${i}" onclick="pickOption(${i})">
+        <span class="letter">${letter}</span><span>${opt}</span>
+      </button>`;
+    }).join('');
+  }
+
+  const partLabel = q.part === "p1" ? t().part1 : t().part2;
+  const qOfText = t().questionOf.replace('{n}', current+1).replace('{t}', qs().length);
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="qmeta">
+        <span class="qnum">${qOfText} · ${partLabel}</span>
+        <span class="qpts">${q.pts} ${t().pts}</span>
+      </div>
+      <p class="qtext">${q.text}</p>
+      ${extraHTML}
+      <div class="options" id="optionsWrap">${optionsHTML}</div>
+      <div class="lockNote" ${isAnswered ? 'style="display:none;"' : ''}>${t().lockNote}</div>
+      <div id="feedbackWrap"></div>
+      <div class="nextrow" id="confirmWrap"></div>
+      <div class="nextrow" id="nextWrap"></div>
+    </div>
+  `;
+
+  if(isAnswered){
+    const isCorrect = answered[current];
+    document.getElementById('feedbackWrap').innerHTML = `
+      <div class="feedback ${isCorrect ? 'good' : 'bad'}">
+        <div class="fhead">${isCorrect ? '✓' : '✕'}</div>
+        ${isCorrect ? q.good : q.bad}
+      </div>
+    `;
+    const isLast = current === qs().length - 1;
+    document.getElementById('nextWrap').innerHTML = `<button class="btn" onclick="${isLast ? 'finishQuiz()' : 'nextQuestion()'}">${isLast ? t().resultsBtn : t().nextBtn}</button>`;
+  }
+}
+
+function pickOption(i){
+  pendingChoice = i;
+  const opts = document.querySelectorAll('#optionsWrap .opt');
+  opts.forEach((el,idx)=>{
+    el.classList.toggle('selected', idx === i);
+  });
+  const confirmWrap = document.getElementById('confirmWrap');
+  confirmWrap.innerHTML = `<button class="btn" onclick="confirmAnswer()">${t().confirmBtn}</button>`;
+}
+
+function confirmAnswer(){
+  if(pendingChoice === null) return;
+  const i = pendingChoice;
+  const q = qs()[current];
+  const opts = document.querySelectorAll('#optionsWrap .opt');
+  const isCorrect = (i === q.correct);
+
+  opts.forEach((el,idx)=>{
+    el.classList.remove('selected');
+    el.classList.add('locked');
+    el.onclick = null;
+    if(idx === q.correct) el.classList.add('correct');
+    if(idx === i && !isCorrect) el.classList.add('incorrect');
+    if(idx !== i && idx !== q.correct) el.classList.add('dim');
+  });
+  document.getElementById('confirmWrap').innerHTML = '';
+
+  if(isCorrect){ score += q.pts; }
+  answered[current] = isCorrect;
+  selectedAnswers[current] = i;
+  renderScore();
+  renderProgress();
+
+  const fb = document.getElementById('feedbackWrap');
+  fb.innerHTML = `
+    <div class="feedback ${isCorrect ? 'good' : 'bad'}">
+      <div class="fhead">${isCorrect ? '✓' : '✕'}</div>
+      ${isCorrect ? q.good : q.bad}
+    </div>
+  `;
+
+  const nextWrap = document.getElementById('nextWrap');
+  const isLast = current === qs().length - 1;
+  nextWrap.innerHTML = `<button class="btn" onclick="${isLast ? 'finishQuiz()' : 'nextQuestion()'}">${isLast ? t().resultsBtn : t().nextBtn}</button>`;
+  pendingChoice = null;
+}
+
+function nextQuestion(){
+  current += 1;
+  render();
+}
+
+function finishQuiz(){
+  screen = "results";
+  render();
+  burstConfetti();
+  syncScoreAndLeaderboard();
+}
+
+async function syncScoreAndLeaderboard(){
+  lastSubmittedScore = score;
+  // Fire the POST (save score) and the GET (refresh leaderboard) at the same time —
+  // neither waits on the other, so this doesn't cost two sequential round-trips.
+  const postPromise = submitScore();
+  const lbPromise = ensureLeaderboardLoaded(true);
+  await Promise.all([postPromise, lbPromise]);
+  if(screen === "leaderboard") renderLeaderboard();
+  if(screen === "leaderboard-full") renderLeaderboardFull();
+}
+
+function computePartScores(){
+  const part1 = qs().slice(0,4).reduce((s,q,i)=> s + (answered[i] ? q.pts : 0), 0);
+  const part2 = qs().slice(4).reduce((s,q,i)=> s + (answered[i+4] ? q.pts : 0), 0);
+  return {part1, part2};
+}
+
+function renderResults(){
+  const {part1, part2} = computePartScores();
+  const label = score >= 80 ? t().high : score >= 50 ? t().mid : t().low;
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card">
+      <div class="resulthero">
+        <div class="resultscore">${score}<span> / 100</span></div>
+        <div class="resultlabel">${label}</div>
+      </div>
+      <div class="breakdown">
+        <div class="bkcard"><div class="bknum">${part1}/40</div><div class="bklabel">${t().part1}</div></div>
+        <div class="bkcard"><div class="bknum">${part2}/60</div><div class="bklabel">${t().part2}</div></div>
+      </div>
+      <div class="takeaway">
+        ${TAKEAWAY[lang]}
+        <div class="scale">
+          <div class="g">🟢 ${t().scaleG}</div>
+          <div class="y">🟡 ${t().scaleY}</div>
+          <div class="r">🔴 ${t().scaleR}</div>
+        </div>
+      </div>
+      <div class="submitnote" id="submitNote">${t().submitting}</div>
+      <div class="nextrow" style="justify-content:space-between;">
+        <button class="btn ghost" onclick="restart()">${t().againBtn}</button>
+        <button class="btn" onclick="openLeaderboard()">${t().lbBtn}</button>
+      </div>
+    </div>
+  `;
+}
+
+function restart(){
+  current = 0; score = 0; answered = []; selectedAnswers = [];
+  screen = "register";
+  render();
+}
+
+function openLeaderboard(){
+  screen = "leaderboard";
+  render();
+}
+
+async function openLeaderboardFull(){
+  await ensureLeaderboardLoaded();
+  lbPage = myRowRef ? Math.floor((myRowRef.rank - 1) / LB_PAGE_SIZE) : 0;
+  screen = "leaderboard-full";
+  render();
+}
+
+const MOCK_LEADERBOARD = [
+  {name:"Sample Player", dept:"Procurement", totalScore:100},
+  {name:"Sample Player", dept:"QA", totalScore:90},
+  {name:"Sample Player", dept:"Sales", totalScore:70}
+];
+
+async function ensureLeaderboardLoaded(forceRefresh){
+  if(lbLoaded && !forceRefresh) return;
+  if(lbLoadingPromise && !forceRefresh) return lbLoadingPromise;
+
+  lbLoadingPromise = (async () => {
+    lbUsedMock = false;
+    let rows = null;
+    if(SHEET_API_URL){
+      try{
+        const sep = SHEET_API_URL.includes('?') ? '&' : '?';
+        const bustUrl = SHEET_API_URL + sep + 'action=getProcurementLeaderboard&_=' + Date.now();
+        const payload = await jsonpFetch(bustUrl);
+        rows = Array.isArray(payload) ? payload : payload.data;
+      }catch(err){
+        rows = null;
+      }
+    }
+    if(!rows || !rows.length){
+      rows = MOCK_LEADERBOARD;
+      lbUsedMock = true;
+    }
+    lbRows = rows.slice();
+    finalizeLeaderboard();
+    lbLoaded = true;
+    lbLoadingPromise = null;
+  })();
+
+  return lbLoadingPromise;
+}
+
+// Sorts, ranks, and — critically — makes sure the row for the player who just
+// finished shows up even if the sheet write hasn't landed yet, so they always
+// see their own score/rank without waiting on the backend.
+function finalizeLeaderboard(){
+  myRowRef = null;
+  if(player.email && lastSubmittedScore !== null){
+    const existing = lbRows.find(r => r.email === player.email && Number(r.totalScore) === Number(lastSubmittedScore));
+    if(existing){
+      myRowRef = existing;
+    } else {
+      myRowRef = {name:player.name, email:player.email, dept:player.dept, totalScore:lastSubmittedScore};
+      lbRows = lbRows.concat([myRowRef]);
+    }
+  }
+  lbRows = lbRows.slice().sort((a,b)=> (b.totalScore||0) - (a.totalScore||0));
+  lbRows.forEach((r,i)=>{ r.rank = i+1; });
+}
+
+function myLbRow(){
+  return myRowRef;
+}
+
+function lbRowHTML(r){
+  const isMe = (r === myRowRef);
+  return `
+    <div class="lbrow ${isMe?'me':''}">
+      <div class="lbrank">${r.rank}</div>
+      <div class="lbinfo">
+        <div class="lbname">${r.name}${isMe ? ` <span class="youBadge">${t().youBadge}</span>` : ''}</div>
+        <div class="lbdept">${r.dept}</div>
+      </div>
+      <div class="lbscore">${r.totalScore}</div>
+    </div>
+  `;
+}
+
+function renderLeaderboard(){
+  const app = document.getElementById('app');
+  const alreadyLoaded = lbLoaded;
+  app.innerHTML = `
+    <div class="card">
+      <h1 style="font-size:20px;">${t().lbTitle}</h1>
+      <div id="lbList" style="margin-top:16px;">
+        ${alreadyLoaded ? '' : `<div class="lbloading"><span class="spinner"></span>${t().loadingLB}</div>`}
+      </div>
+      <div class="nextrow" style="justify-content:space-between;">
+        <button class="btn ghost" onclick="screen='results';render();">${t().resultsBtn}</button>
+        <button class="btn" onclick="openLeaderboardFull()">${t().viewAllBtn}</button>
+      </div>
+    </div>
+  `;
+  if(alreadyLoaded){
+    renderTop10Into(document.getElementById('lbList'));
+  } else {
+    loadTop10();
+  }
+}
+
+function renderTop10Into(listEl){
+  if(!listEl) return;
+  let html = lbUsedMock ? `<p class="subtitle">${t().errorLB}</p>` : '';
+  const top10 = lbRows.slice(0, 10);
+  html += top10.map(lbRowHTML).join('');
+  if(myRowRef && myRowRef.rank > 10){
+    html += `<div style="text-align:center;color:var(--ink-soft);font-size:12px;margin:8px 0;">···</div>` + lbRowHTML(myRowRef);
+  }
+  listEl.innerHTML = html;
+}
+
+async function loadTop10(){
+  await ensureLeaderboardLoaded();
+  renderTop10Into(document.getElementById('lbList')); // returns quietly if the user navigated away
+}
+
+function renderLeaderboardFull(){
+  const app = document.getElementById('app');
+  if(!lbLoaded){
+    app.innerHTML = `<div class="card"><div class="lbloading"><span class="spinner"></span>${t().loadingLB}</div></div>`;
+    ensureLeaderboardLoaded().then(render);
+    return;
+  }
+  const totalPages = Math.max(1, Math.ceil(lbRows.length / LB_PAGE_SIZE));
+  lbPage = Math.min(Math.max(lbPage, 0), totalPages - 1);
+  const start = lbPage * LB_PAGE_SIZE;
+  const pageRows = lbRows.slice(start, start + LB_PAGE_SIZE);
+  const pageOfText = t().pageOf.replace('{n}', lbPage + 1).replace('{t}', totalPages);
+
+  app.innerHTML = `
+    <div class="card">
+      <h1 style="font-size:20px;">${t().lbTitle}</h1>
+      <p class="subtitle">${pageOfText}</p>
+      <div style="margin-top:8px;">${pageRows.map(lbRowHTML).join('')}</div>
+      <div class="nextrow" style="justify-content:space-between;">
+        <button class="btn ghost" onclick="prevLbPage()" ${lbPage===0?'disabled':''}>${t().prevPageBtn}</button>
+        <button class="btn ghost" onclick="jumpToMyRank()">${t().jumpToMeBtn}</button>
+        <button class="btn ghost" onclick="nextLbPage()" ${lbPage>=totalPages-1?'disabled':''}>${t().nextPageBtn}</button>
+      </div>
+      <div class="nextrow" style="justify-content:flex-start;">
+        <button class="btn" onclick="screen='leaderboard';render();">${t().backTop10Btn}</button>
+      </div>
+    </div>
+  `;
+}
+
+function prevLbPage(){ if(lbPage>0){ lbPage--; render(); } }
+function nextLbPage(){
+  const totalPages = Math.max(1, Math.ceil(lbRows.length / LB_PAGE_SIZE));
+  if(lbPage < totalPages-1){ lbPage++; render(); }
+}
+function jumpToMyRank(){
+  if(myRowRef){ lbPage = Math.floor((myRowRef.rank - 1) / LB_PAGE_SIZE); render(); }
+}
+
+async function submitScore(){
+  const note = document.getElementById('submitNote');
+  if(!SHEET_API_URL){
+    if(note) note.textContent = "";
+    return {ok:false, skipped:true};
+  }
+  const {part1, part2} = computePartScores();
+  try{
+    const res = await fetch(SHEET_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "submitProcurementQuest",
+        name: player.name,
+        email: player.email,
+        dept: player.dept,
+        language: lang,
+        part1Score: part1,
+        part2Score: part2,
+        bonusScore: 0,
+        bonusPlayed: false,
+        totalScore: score,
+        finishedAt: new Date().toISOString()
+      })
+    });
+    let ok = true;
+    try{
+      const payload = await res.json();
+      if(payload && payload.ok === false) ok = false;
+      if(payload && payload.result && payload.result !== "success") ok = false;
+    }catch(parseErr){
+      // Non-JSON response from a working endpoint is fine — don't treat as a failure.
+    }
+    if(!ok) throw new Error("submit reported failure");
+    if(note){ note.classList.remove('submitwarn'); note.textContent = t().submitted; }
+    return {ok:true};
+  }catch(err){
+    if(note){ note.classList.add('submitwarn'); note.textContent = t().submitError; }
+    return {ok:false};
+  }
+}
+
+/* ============ CONFETTI ============ */
+function burstConfetti(){
+  const colors = ['#D66C87','#C99A3D','#6E1B29','#F8DEE6'];
+  for(let i=0;i<28;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random()*100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration = (2.2 + Math.random()*1.6) + 's';
+    document.body.appendChild(el);
+    setTimeout(()=> el.remove(), 4000);
+  }
+}
+
+/* ============ INIT ============ */
+renderLangSwitch();
+render();
+</script>
+</body>
+</html>
