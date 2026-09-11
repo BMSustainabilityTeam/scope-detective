@@ -84,6 +84,14 @@
   .btn-secondary{background:#fff;color:var(--primary-dark);border:2px solid var(--primary);}
   .btn-secondary:hover{background:#eafaf1;}
   .err{color:var(--danger);font-size:0.82rem;margin-top:4px;min-height:16px;}
+  .consent-row{margin-top:16px;}
+  .consent-label{
+    display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-size:0.82rem;
+    color:var(--muted);line-height:1.5;
+  }
+  .consent-label input[type=checkbox]{
+    flex-shrink:0;width:18px;height:18px;margin-top:1px;accent-color:var(--primary);cursor:pointer;
+  }
   .progress-wrap{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
   .progress-bar{flex:1;height:8px;background:var(--border);border-radius:6px;overflow:hidden;}
   .progress-fill{height:100%;background:var(--accent);transition:width .3s;}
@@ -169,6 +177,12 @@
     <input type="email" id="regEmail">
     <label data-i18n="labelDept">Department</label>
     <input type="text" id="regDept">
+    <div class="consent-row">
+      <label class="consent-label" for="consentCheckbox">
+        <input type="checkbox" id="consentCheckbox">
+        <span data-i18n="consentText">I agree that my name, email, and department will be collected to record my score, verify my identity, and display my name and score on the leaderboard, visible to other employees.</span>
+      </label>
+    </div>
     <div class="err" id="regErr"></div>
     <button class="btn" id="btnStart" data-i18n="btnStart">Start</button>
   </div>
@@ -311,6 +325,8 @@ const I18N = {
     viewAllPlayersBtn: "View all players", allPlayersTitle: "All players", backToLeaderboardBtn: "Back to leaderboard",
     youLabel: "You",
     errRegister: "Please fill in all fields with a valid email.",
+    consentText: "I agree that my name, email, and department will be collected to record my score, verify my identity, and display my name and score on the leaderboard, visible to other employees.",
+    errConsent: "Please check the consent box before starting.",
     errSelect: "Please select an answer.",
     errMatch: "Please match all 4 terms before continuing.",
     errText: "Please write your answer before continuing.",
@@ -345,6 +361,8 @@ const I18N = {
     viewAllPlayersBtn: "ดูผู้เล่นทั้งหมด", allPlayersTitle: "ผู้เล่นทั้งหมด", backToLeaderboardBtn: "กลับไปหน้า Leaderboard",
     youLabel: "คุณ",
     errRegister: "กรุณากรอกข้อมูลให้ครบและอีเมลให้ถูกต้อง",
+    consentText: "ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
+    errConsent: "กรุณาติ๊กยินยอมก่อนเริ่มเล่น",
     errSelect: "กรุณาเลือกคำตอบ",
     errMatch: "กรุณาจับคู่ให้ครบทั้ง 4 คู่ก่อนไปต่อ",
     errText: "กรุณาพิมพ์คำตอบก่อนไปต่อ",
@@ -379,6 +397,8 @@ const I18N = {
     viewAllPlayersBtn: "查看所有玩家", allPlayersTitle: "所有玩家", backToLeaderboardBtn: "返回排行榜",
     youLabel: "你",
     errRegister: "请填写所有字段并输入正确的电子邮件。",
+    consentText: "我同意收集我的姓名、电子邮件和部门信息，用于记录测验成绩、核实身份，并在其他员工可见的排行榜上显示我的姓名和成绩。",
+    errConsent: "请先勾选同意后再开始。",
     errSelect: "请选择一个答案。",
     errMatch: "请先完成全部4组配对再继续。",
     errText: "请先输入答案再继续。",
@@ -413,6 +433,8 @@ const I18N = {
     viewAllPlayersBtn: "Alle Teilnehmer ansehen", allPlayersTitle: "Alle Teilnehmer", backToLeaderboardBtn: "Zurück zur Bestenliste",
     youLabel: "Sie",
     errRegister: "Bitte füllen Sie alle Felder aus und geben Sie eine gültige E-Mail-Adresse ein.",
+    consentText: "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um mein Ergebnis zu erfassen, meine Identität zu bestätigen und meinen Namen sowie mein Ergebnis auf der für andere Mitarbeiter sichtbaren Bestenliste anzuzeigen.",
+    errConsent: "Bitte stimmen Sie zu, bevor Sie starten.",
     errSelect: "Bitte wählen Sie eine Antwort aus.",
     errMatch: "Bitte ordnen Sie alle 4 Begriffe zu, bevor Sie fortfahren.",
     errText: "Bitte schreiben Sie Ihre Antwort, bevor Sie fortfahren.",
@@ -488,13 +510,18 @@ document.getElementById('btnStart').addEventListener('click', ()=>{
   const name = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const dept = document.getElementById('regDept').value.trim();
+  const consentChecked = document.getElementById('consentCheckbox').checked;
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if(!name || !dept || !emailOk){
     document.getElementById('regErr').textContent = t('errRegister');
     return;
   }
+  if(!consentChecked){
+    document.getElementById('regErr').textContent = t('errConsent');
+    return;
+  }
   document.getElementById('regErr').textContent = '';
-  player = { name, email, dept };
+  player = { name, email, dept, consentGiven: true };
   show('screen-quiz');
   currentQ = 1;
   renderQ1();
@@ -740,7 +767,8 @@ function submitResult(autoScore){
     q4Answer: q4Text,
     q4Score: '',
     finishedAt: new Date().toISOString(),
-    lang: lang
+    lang: lang,
+    consentGiven: player.consentGiven === true
   };
   fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
     method: 'POST',
