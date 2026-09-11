@@ -101,6 +101,22 @@
   #startCard .badge{ width:56px;height:56px;border-radius:50%; background:linear-gradient(135deg,var(--forest-light),var(--forest)); display:flex;align-items:center;justify-content:center; margin:0 auto 14px; font-size:24px; }
   #startCard label{ display:block; text-align:left; font-size:13px; font-weight:600; color:var(--forest); margin-bottom:6px; }
   .field{ margin-bottom:16px; }
+  .consent-field{ margin-bottom:14px; }
+  #startCard label.consent-label{
+    position:relative;
+    display:block;
+    padding-left:27px;
+    cursor:pointer;
+    text-align:left;
+    margin-bottom:0; font-weight:400; color:inherit;
+  }
+  #startCard .consent-label input[type="checkbox"]{
+    position:absolute; left:0; top:2px;
+    width:16px; height:16px; margin:0; padding:0;
+    border:1.5px solid var(--paper-2); border-radius:4px;
+    accent-color:var(--forest); cursor:pointer;
+  }
+  .consent-label span{ display:block; font-size:12.5px; line-height:1.5; font-weight:400; color:#4b5a4f; }
   #startCard input{ width:100%; padding:12px 14px; border-radius:11px; border:1.5px solid var(--paper-2); font-family:inherit; font-size:15px; outline:none; }
   #startCard input:focus{ border-color:var(--forest-light); }
 
@@ -332,6 +348,12 @@
       <label id="lblDept" for="deptInput"></label>
       <input id="deptInput" type="text" maxlength="60">
     </div>
+    <div class="field consent-field">
+      <label class="consent-label" for="consentCheckbox">
+        <input type="checkbox" id="consentCheckbox">
+        <span id="consentText"></span>
+      </label>
+    </div>
     <p class="start-error" id="startError"></p>
     <button class="btn" id="startBtn" disabled></button>
   </div>
@@ -475,6 +497,8 @@ const I18N = {
     lblDept:'แผนก / บริษัท',
     deptPh:'เช่น Sustainability, Behn Meyer Thailand',
     errorRequired:'กรุณากรอกชื่อ-นามสกุล อีเมล และแผนก/บริษัท ให้ครบก่อนเริ่มเกม',
+    consentText:'ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้',
+    consentError:'กรุณายืนยันความยินยอมก่อนเริ่มเกม',
     errorEmail:'รูปแบบอีเมลไม่ถูกต้อง',
     startBtn:'เริ่มเกม',
     gameTitle:'จับคู่ให้ครบทั้ง 8 กิจกรรม',
@@ -573,6 +597,8 @@ const I18N = {
     lblDept:'Department / Company',
     deptPh:'e.g. Sustainability, Behn Meyer Thailand',
     errorRequired:'Please fill in your full name, email, and department/company before starting.',
+    consentText:'I consent to my full name, email, and department being collected to verify scores, identify players, and display my name with my score on the leaderboard, visible to other employees.',
+    consentError:'Please confirm your consent before starting.',
     errorEmail:'Please enter a valid email address.',
     startBtn:'Start game',
     gameTitle:'Match all 8 activities',
@@ -671,6 +697,8 @@ const I18N = {
     lblDept:'部门 / 公司',
     deptPh:'例如：Sustainability, Behn Meyer Thailand',
     errorRequired:'开始游戏前，请填写姓名、电子邮箱和部门/公司。',
+    consentText:'我同意收集我的姓名、电子邮箱和部门信息，用于核实分数、识别玩家身份，并将我的姓名和分数显示在其他员工可见的排行榜上。',
+    consentError:'请先确认同意后再开始游戏。',
     errorEmail:'请输入有效的电子邮箱地址。',
     startBtn:'开始游戏',
     gameTitle:'完成全部 8 项活动的配对',
@@ -770,6 +798,8 @@ const I18N = {
     lblDept:'Abteilung / Unternehmen',
     deptPh:'z. B. Sustainability, Behn Meyer Thailand',
     errorRequired:'Bitte geben Sie vor dem Start Ihren vollständigen Namen, Ihre E-Mail und Ihre Abteilung/Ihr Unternehmen ein.',
+    consentText:'Ich stimme zu, dass mein vollständiger Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um Punktzahlen zu überprüfen, Spieler zu identifizieren und meinen Namen mit meiner Punktzahl auf der für andere Mitarbeiter sichtbaren Bestenliste anzuzeigen.',
+    consentError:'Bitte bestätigen Sie Ihre Zustimmung, bevor Sie starten.',
     errorEmail:'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
     startBtn:'Spiel starten',
     gameTitle:'Alle 8 Aktivitäten zuordnen',
@@ -889,6 +919,7 @@ activityIds.forEach(id => state.assignments[id] = { scope:null, cat:null });
 const $ = (id)=>document.getElementById(id);
 const startCard=$('startCard'), quizCard=$('quizCard'), gameCard=$('gameCard'), reflectionCard=$('reflectionCard'), resultCard=$('resultCard');
 const nameInput=$('nameInput'), emailInput=$('emailInput'), deptInput=$('deptInput'), startBtn=$('startBtn');
+const consentCheckbox=$('consentCheckbox');
 const playerChip=$('playerChip');
 const colScope=$('colScope'), colActivity=$('colActivity'), colCategory=$('colCategory');
 const svg=$('link-layer'), cols=document.querySelector('.cols');
@@ -953,6 +984,7 @@ function applyStaticText(){
   setHTML('lblDept', t.lblDept + ' <span class="req-star">*</span>');
   if(deptInput) deptInput.placeholder = t.deptPh;
   if(startBtn) startBtn.textContent = t.startBtn;
+  setText('consentText', t.consentText);
 
   setText('gameTitle', t.gameTitle);
   setText('gameHint', t.gameHint);
@@ -1027,13 +1059,15 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validateStartForm(){
   const ok = nameInput.value.trim().length > 0
     && emailPattern.test(emailInput.value.trim())
-    && deptInput.value.trim().length > 0;
+    && deptInput.value.trim().length > 0
+    && consentCheckbox.checked;
   startBtn.disabled = !ok;
   return ok;
 }
 nameInput.addEventListener('input', ()=>{ validateStartForm(); startError.textContent=''; });
 emailInput.addEventListener('input', ()=>{ validateStartForm(); startError.textContent=''; });
 deptInput.addEventListener('input', ()=>{ validateStartForm(); startError.textContent=''; });
+consentCheckbox.addEventListener('change', ()=>{ validateStartForm(); startError.textContent=''; });
 
 startBtn.addEventListener('click', ()=>{
   const t = T();
@@ -1041,8 +1075,12 @@ startBtn.addEventListener('click', ()=>{
     startError.textContent = t.errorEmail;
     return;
   }
-  if(!validateStartForm()){
+  if(!(nameInput.value.trim().length > 0 && emailPattern.test(emailInput.value.trim()) && deptInput.value.trim().length > 0)){
     startError.textContent = t.errorRequired;
+    return;
+  }
+  if(!consentCheckbox.checked){
+    startError.textContent = t.consentError;
     return;
   }
   state.playerName = nameInput.value.trim();
@@ -1509,6 +1547,7 @@ async function saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer,
     name: state.playerName,
     email: state.playerEmail,
     dept: state.playerDept,
+    consentGiven: true, // the start button is unreachable until this is checked, so it's always true here
     quizAnswers: quizAnswersObj,
     // flat q1..q6 too — the shared Apps Script backend (used by all 5 Sustain
     // Connect games on this webhook) reads data.q1..data.q6 directly rather
@@ -1593,6 +1632,7 @@ $('playAgainBtn').addEventListener('click', ()=>{
   nameInput.value = '';
   emailInput.value = '';
   deptInput.value = '';
+  consentCheckbox.checked = false;
   part3Input.value = '';
   part3Error.textContent = '';
   finishBtn.disabled = false;
