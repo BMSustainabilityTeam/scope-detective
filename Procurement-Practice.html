@@ -400,6 +400,44 @@
   }
   .field input:focus{outline:none;border-color:var(--sage);}
 
+  /* Consent checkbox — scoped to .consent-label only, never a bare `label`
+     selector, so it can't leak onto the Name/Email/Department <label> tags
+     that already exist in .field. Checkbox sits absolutely positioned over
+     the text block instead of relying on flex alignment. */
+  .consent-wrap{margin:4px 0 16px;}
+  .consent-label{
+    position:relative;
+    display:block;
+    padding-left:27px;
+    cursor:pointer;
+  }
+  .consent-label input[type="checkbox"]{
+    position:absolute;
+    left:0;
+    top:2px;
+    width:16px;
+    height:16px;
+    margin:0;
+    padding:0;
+    border:1.5px solid var(--line);
+    border-radius:4px;
+    accent-color:var(--forest);
+  }
+  .consent-label span{
+    display:block;
+    font-size:13px;
+    line-height:1.5;
+    color:var(--ink-soft);
+  }
+  .consent-error{
+    display:none;
+    color:var(--red);
+    font-size:12px;
+    margin-top:6px;
+    padding-left:27px;
+  }
+  .consent-error.show{display:block;}
+
   .startgrid{display:flex;flex-direction:column;gap:9px;margin:18px 0 4px;}
   .startrow{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--ink-soft);}
   .startrow .ico{
@@ -574,6 +612,8 @@ const UI = {
 en:{brand:"Sustain Connect",week:"Week 11",title:"Sustainable Procurement in Practice",
   subtitle:"Test your judgment on real supplier scenarios — then see where you land on the leaderboard.",
   nameLabel:"Name",emailLabel:"Email",deptLabel:"Department",namePh:"Enter your name",emailPh:"Enter your email",deptPh:"Enter your department",
+  consentText:"I consent to my name, email, and department being collected to verify scores, identify me as a player, and display my name with my score on the Leaderboard, visible to other employees.",
+  consentError:"Please check the consent box to continue.",
   startBtn:"Start playing",nextBtn:"Next question",resultsBtn:"See my score",lbBtn:"View leaderboard",againBtn:"Play again",
   lbTitle:"Leaderboard — Week 11",rank:"Rank",name:"Name",dept:"Department",score:"Score",
   viewAllBtn:"View all players",backTop10Btn:"Back to top 10",pageOf:"Page {n} of {t}",prevPageBtn:"Previous",nextPageBtn:"Next",jumpToMeBtn:"Jump to my rank",
@@ -587,6 +627,8 @@ en:{brand:"Sustain Connect",week:"Week 11",title:"Sustainable Procurement in Pra
 th:{brand:"Sustain Connect",week:"สัปดาห์ที่ 11",title:"การจัดซื้อจัดจ้างอย่างยั่งยืนในทางปฏิบัติ",
   subtitle:"ทดสอบการตัดสินใจของคุณผ่านสถานการณ์ซัพพลายเออร์จริง แล้วไปดูอันดับของคุณในกระดานคะแนน",
   nameLabel:"ชื่อ",emailLabel:"อีเมล",deptLabel:"แผนก",namePh:"กรอกชื่อของคุณ",emailPh:"กรอกอีเมลของคุณ",deptPh:"กรอกแผนกของคุณ",
+  consentText:"ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
+  consentError:"กรุณาติ๊กยอมรับก่อนเริ่มเล่น",
   startBtn:"เริ่มเล่น",nextBtn:"ข้อถัดไป",resultsBtn:"ดูคะแนนของฉัน",lbBtn:"ดูกระดานคะแนน",againBtn:"เล่นอีกครั้ง",
   lbTitle:"กระดานคะแนน — สัปดาห์ที่ 11",rank:"อันดับ",name:"ชื่อ",dept:"แผนก",score:"คะแนน",
   viewAllBtn:"ดูผู้เล่นทั้งหมด",backTop10Btn:"กลับไปดู 10 อันดับแรก",pageOf:"หน้า {n} จาก {t}",prevPageBtn:"ก่อนหน้า",nextPageBtn:"ถัดไป",jumpToMeBtn:"ไปที่อันดับของฉัน",
@@ -600,6 +642,8 @@ th:{brand:"Sustain Connect",week:"สัปดาห์ที่ 11",title:"ก�
 zh:{brand:"Sustain Connect",week:"第11周",title:"可持续采购实务",
   subtitle:"通过真实供应商情境，测试你的判断力——然后看看你在排行榜上的位置。",
   nameLabel:"姓名",emailLabel:"电子邮箱",deptLabel:"部门",namePh:"请输入您的姓名",emailPh:"请输入您的电子邮箱",deptPh:"请输入您的部门",
+  consentText:"我同意收集我的姓名、电子邮箱和部门信息，用于核实分数、识别玩家身份，并在其他员工可见的排行榜（Leaderboard）上显示我的姓名和分数。",
+  consentError:"请先勾选同意，再继续。",
   startBtn:"开始游戏",nextBtn:"下一题",resultsBtn:"查看我的分数",lbBtn:"查看排行榜",againBtn:"再玩一次",
   lbTitle:"排行榜 — 第11周",rank:"排名",name:"姓名",dept:"部门",score:"分数",
   viewAllBtn:"查看全部玩家",backTop10Btn:"返回前10名",pageOf:"第{n}页，共{t}页",prevPageBtn:"上一页",nextPageBtn:"下一页",jumpToMeBtn:"跳转到我的排名",
@@ -613,6 +657,8 @@ zh:{brand:"Sustain Connect",week:"第11周",title:"可持续采购实务",
 de:{brand:"Sustain Connect",week:"Woche 11",title:"Nachhaltige Beschaffung in der Praxis",
   subtitle:"Testen Sie Ihr Urteilsvermögen anhand realer Lieferantenszenarien — und sehen Sie, wo Sie in der Bestenliste stehen.",
   nameLabel:"Name",emailLabel:"E-Mail",deptLabel:"Abteilung",namePh:"Ihren Namen eingeben",emailPh:"Ihre E-Mail-Adresse eingeben",deptPh:"Ihre Abteilung eingeben",
+  consentText:"Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um Ergebnisse zu überprüfen, mich als Spieler/in zu identifizieren und meinen Namen zusammen mit meinem Ergebnis auf der Bestenliste (Leaderboard) anzuzeigen, die für andere Mitarbeitende sichtbar ist.",
+  consentError:"Bitte stimmen Sie zu, um fortzufahren.",
   startBtn:"Spiel starten",nextBtn:"Nächste Frage",resultsBtn:"Mein Ergebnis ansehen",lbBtn:"Bestenliste ansehen",againBtn:"Nochmal spielen",
   lbTitle:"Bestenliste — Woche 11",rank:"Platz",name:"Name",dept:"Abteilung",score:"Punkte",
   viewAllBtn:"Alle Spieler ansehen",backTop10Btn:"Zurück zu den Top 10",pageOf:"Seite {n} von {t}",prevPageBtn:"Zurück",nextPageBtn:"Weiter",jumpToMeBtn:"Zu meinem Platz springen",
@@ -800,7 +846,7 @@ let score = 0;
 let answered = [];
 let selectedAnswers = [];
 let pendingChoice = null;
-let player = {name:"", email:"", dept:""};
+let player = {name:"", email:"", dept:"", consentGiven:false};
 let screen = "register"; // register | quiz | results | leaderboard | leaderboard-full
 let lbRows = [];
 let lbUsedMock = false;
@@ -877,6 +923,13 @@ function renderRegister(){
         <label>${t().deptLabel}</label>
         <input id="deptInput" type="text" placeholder="${t().deptPh}" value="${player.dept}">
       </div>
+      <div class="consent-wrap">
+        <label class="consent-label" for="consentInput">
+          <input type="checkbox" id="consentInput">
+          <span>${t().consentText}</span>
+        </label>
+        <div class="consent-error" id="consentError">${t().consentError}</div>
+      </div>
       <div class="nextrow" style="justify-content:flex-start;margin-top:6px;">
         <button class="btn" id="startBtnEl" onclick="tryStart()">${t().startBtn}</button>
       </div>
@@ -889,13 +942,17 @@ function tryStart(){
   const email = document.getElementById('emailInput').value.trim();
   const dept = document.getElementById('deptInput').value.trim();
   const emailOk = /^\S+@\S+\.\S+$/.test(email);
-  if(!name || !emailOk || !dept){
+  const consentBox = document.getElementById('consentInput');
+  const consentOk = consentBox.checked;
+  const consentErrorEl = document.getElementById('consentError');
+  if(!name || !emailOk || !dept || !consentOk){
     document.getElementById('nameInput').style.borderColor = name ? 'var(--line)' : 'var(--red)';
     document.getElementById('emailInput').style.borderColor = emailOk ? 'var(--line)' : 'var(--red)';
     document.getElementById('deptInput').style.borderColor = dept ? 'var(--line)' : 'var(--red)';
+    consentErrorEl.classList.toggle('show', !consentOk);
     return;
   }
-  player = {name, email, dept};
+  player = {name, email, dept, consentGiven: true};
   current = 0; score = 0; answered = []; selectedAnswers = [];
   screen = "quiz";
   render();
@@ -1273,7 +1330,8 @@ async function submitScore(){
         bonusScore: 0,
         bonusPlayed: false,
         totalScore: score,
-        finishedAt: new Date().toISOString()
+        finishedAt: new Date().toISOString(),
+        consentGiven: player.consentGiven
       })
     });
     let ok = true;
