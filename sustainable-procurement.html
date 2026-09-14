@@ -112,6 +112,18 @@
     font-size:15px; font-family:'Inter',sans-serif; background:#FBFAF6;
   }
   .field input:focus{outline:none; border-color:var(--green);}
+  .consent-row{margin-bottom:14px;}
+  .consent-row label{
+    position:relative; display:block; padding-left:27px;
+    font-size:12.5px; line-height:1.55; color:var(--ink-soft); cursor:pointer;
+  }
+  .consent-row label input[type="checkbox"]{
+    position:absolute; left:0; top:2px;
+    width:16px; height:16px; margin:0; padding:0;
+    border:1.5px solid var(--line); border-radius:4px;
+    accent-color:var(--green);
+  }
+  .consent-row label span{display:block;}
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
     padding:14px 18px; background:var(--green); color:#fff; border:none; border-radius:12px;
@@ -305,7 +317,14 @@
       <div class="field"><label data-t="formName"></label><input type="text" id="inputName"></div>
       <div class="field"><label data-t="formEmail"></label><input type="email" id="inputEmail"></div>
       <div class="field"><label data-t="formDept"></label><input type="text" id="inputDept"></div>
+      <div class="consent-row">
+        <label>
+          <input type="checkbox" id="consentCheckbox">
+          <span data-t="consentText"></span>
+        </label>
+      </div>
       <div class="err" id="formErr" data-t="formErrTxt"></div>
+      <div class="err" id="consentErr" data-t="consentErrTxt"></div>
       <button class="btn" id="startBtn" data-t="startBtn"></button>
     </div>
   </section>
@@ -463,6 +482,8 @@ en:{
   introSubtitle:"Match the ESG principles to their pillar, then make the call in two real procurement scenarios.",
   formName:"Full name", formEmail:"Email", formDept:"Department / Country",
   formErrTxt:"Please fill in all fields.",
+  consentText:"I agree to my name, email, and department being collected to check my answers, identify me as a player, and show my name and score on the Leaderboard, which other employees can see.",
+  consentErrTxt:"Please agree to the data consent before starting.",
   startBtn:"Start the quest",
   part1Title:"Match the ESG pillar",
   part1Instructions:"Tap a statement, then tap a pillar to link them. You can change any match as many times as you like. Only correct pairs earn points — tap Submit when all five are linked to see your score.",
@@ -546,6 +567,8 @@ th:{
   introSubtitle:"จับคู่หลักการ ESG กับเสาหลักที่ถูกต้อง แล้วตัดสินใจในสถานการณ์จัดซื้อจริง 2 เรื่อง",
   formName:"ชื่อ-นามสกุล", formEmail:"อีเมล", formDept:"แผนก / ประเทศ",
   formErrTxt:"กรุณากรอกข้อมูลให้ครบทุกช่อง",
+  consentText:"ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
+  consentErrTxt:"กรุณายอมรับการเก็บข้อมูลก่อนเริ่มเกม",
   startBtn:"เริ่มภารกิจ",
   part1Title:"จับคู่เสาหลัก ESG",
   part1Instructions:"แตะข้อความ แล้วแตะเสาหลักเพื่อจับคู่กัน เปลี่ยนคู่ไหนก็ได้กี่ครั้งก็ได้ก่อนส่งคำตอบ คู่ที่ถูกต้องเท่านั้นที่จะได้คะแนน กดส่งคำตอบเมื่อจับคู่ครบทั้ง 5 คู่แล้ว",
@@ -629,6 +652,8 @@ zh:{
   introSubtitle:"将ESG原则与相应支柱配对,然后在两个真实采购场景中做出决策。",
   formName:"姓名", formEmail:"电子邮箱", formDept:"部门 / 国家",
   formErrTxt:"请填写所有字段。",
+  consentText:"我同意收集我的姓名、电子邮箱和部门信息,用于核实成绩、识别玩家身份,并在其他员工可见的排行榜上显示我的姓名和得分。",
+  consentErrTxt:"请先同意数据使用条款再开始游戏。",
   startBtn:"开始任务",
   part1Title:"配对ESG支柱",
   part1Instructions:"点击一句陈述,再点击一个支柱将它们连接起来。提交前可以随时更改配对,次数不限。只有正确的配对才能得分——五对都连接好后,点击提交查看得分。",
@@ -712,6 +737,8 @@ de:{
   introSubtitle:"Ordnen Sie die ESG-Grundsätze der passenden Säule zu und treffen Sie dann Entscheidungen in zwei echten Beschaffungsszenarien.",
   formName:"Name", formEmail:"E-Mail", formDept:"Abteilung / Land",
   formErrTxt:"Bitte füllen Sie alle Felder aus.",
+  consentText:"Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um meine Antworten auszuwerten, mich als Spieler zu identifizieren und meinen Namen mit meinem Ergebnis auf der Rangliste anzuzeigen, die für andere Mitarbeitende sichtbar ist.",
+  consentErrTxt:"Bitte stimmen Sie der Datennutzung zu, bevor Sie starten.",
   startBtn:"Mission starten",
   part1Title:"Ordnen Sie die ESG-Säule zu",
   part1Instructions:"Tippen Sie auf eine Aussage und dann auf eine Säule, um sie zu verknüpfen. Sie können jede Zuordnung beliebig oft ändern, bevor Sie absenden. Nur richtige Paare zählen Punkte — tippen Sie auf Absenden, sobald alle fünf verknüpft sind.",
@@ -869,10 +896,16 @@ $('startBtn').addEventListener('click', ()=>{
   const dept = $('inputDept').value.trim();
   if(!name || !email || !dept){
     $('formErr').style.display = 'block';
+    $('consentErr').style.display = 'none';
     return;
   }
   $('formErr').style.display = 'none';
-  player = { name, email, dept, lang };
+  if(!$('consentCheckbox').checked){
+    $('consentErr').style.display = 'block';
+    return;
+  }
+  $('consentErr').style.display = 'none';
+  player = { name, email, dept, lang, consentGiven: true };
   startPart1();
 });
 
@@ -1300,7 +1333,8 @@ function submitScore(total, bonusScore){
     bonusScore: bonusScore,
     bonusPlayed: bonusPlayed,
     totalScore: total,
-    finishedAt: new Date().toISOString()
+    finishedAt: new Date().toISOString(),
+    consentGiven: player.consentGiven === true
   };
   fetch(BACKEND.webhookUrl, {
     method: "POST",
@@ -1463,7 +1497,9 @@ function resetGame(){
   $('inputName').value = '';
   $('inputEmail').value = '';
   $('inputDept').value = '';
+  $('consentCheckbox').checked = false;
   $('formErr').style.display = 'none';
+  $('consentErr').style.display = 'none';
 
   showScreen('screen-intro');
 }
