@@ -198,6 +198,34 @@
   .reg-submit:hover{transform:translateY(-2px);}
   .reg-note{font-size:11.5px;color:var(--sage);text-align:center;margin-top:10px;}
 
+  .consent-row{margin-bottom:14px;}
+  #regScreen .consent-label{
+    position:relative;
+    display:block;
+    padding-left:27px;
+    cursor:pointer;
+  }
+  #regScreen .consent-label input[type="checkbox"]{
+    position:absolute;
+    left:0;
+    top:2px;
+    width:16px;
+    height:16px;
+    padding:0;
+    margin:0;
+    border:1.5px solid rgba(15,61,58,.35);
+    border-radius:4px;
+    background:var(--paper);
+    outline:none;
+    accent-color:var(--teal);
+  }
+  #regScreen .consent-label span{
+    display:block;
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+
   /* ===== CARD / STAGE ===== */
   .stage{
     background:var(--paper);
@@ -528,6 +556,8 @@ const UI = {
     firstName:"First name", lastName:"Last name", email:"Email", department:"Department", country:"Country",
     startBtn:"Start the game →", requiredNote:"All fields are required.",
     invalidEmail:"Please enter a valid email address.",
+    consentText:"I consent to my first name, last name, email, and department being collected to score my answers, identify me as a player, and display my name with my score on a leaderboard visible to other employees.",
+    consentRequired:"Please check the consent box to continue.",
     continueBtn:"Continue →",
     ptsInline:"+{n} pts", ptsChip:"{n} pts",
     finalScore:"{n}<span>/{t} pts</span>",
@@ -553,6 +583,8 @@ const UI = {
     firstName:"ชื่อ", lastName:"นามสกุล", email:"อีเมล", department:"แผนก", country:"ประเทศ",
     startBtn:"เริ่มเกม →", requiredNote:"กรุณากรอกข้อมูลให้ครบทุกช่อง",
     invalidEmail:"กรุณากรอกอีเมลให้ถูกต้อง",
+    consentText:"ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
+    consentRequired:"กรุณาติ๊กยินยอมก่อนเริ่มเกม",
     continueBtn:"ถัดไป →",
     ptsInline:"+{n} คะแนน", ptsChip:"{n} คะแนน",
     finalScore:"{n}<span>/{t} คะแนน</span>",
@@ -578,6 +610,8 @@ const UI = {
     firstName:"名", lastName:"姓", email:"电子邮箱", department:"部门", country:"国家",
     startBtn:"开始游戏 →", requiredNote:"所有字段均为必填项。",
     invalidEmail:"请输入有效的电子邮箱地址。",
+    consentText:"我同意收集我的名、姓、电子邮箱和部门信息,用于核对答题得分、识别玩家身份,并在其他员工可见的排行榜上显示我的姓名和分数。",
+    consentRequired:"请先勾选同意选项才能继续。",
     continueBtn:"继续 →",
     ptsInline:"+{n}分", ptsChip:"{n}分",
     finalScore:"{n}<span>/{t}分</span>",
@@ -603,6 +637,8 @@ const UI = {
     firstName:"Vorname", lastName:"Nachname", email:"E-Mail", department:"Abteilung", country:"Land",
     startBtn:"Spiel starten →", requiredNote:"Alle Felder sind erforderlich.",
     invalidEmail:"Bitte gib eine gültige E-Mail-Adresse ein.",
+    consentText:"Ich stimme zu, dass mein Vorname, Nachname, meine E-Mail-Adresse und meine Abteilung erfasst werden, um meine Antworten zu bewerten, mich als Spieler zu identifizieren und meinen Namen mit meiner Punktzahl auf einer für andere Mitarbeitende sichtbaren Bestenliste anzuzeigen.",
+    consentRequired:"Bitte aktiviere das Zustimmungsfeld, um fortzufahren.",
     continueBtn:"Weiter →",
     ptsInline:"+{n} Pkt.", ptsChip:"{n} Pkt.",
     finalScore:"{n}<span>/{t} Pkt.</span>",
@@ -993,6 +1029,12 @@ function renderRegistration(){
       <div class="field" id="f-dept"><label>${t('department')}</label><input type="text" id="inDept"></div>
       <div class="field" id="f-country"><label>${t('country')}</label><input type="text" id="inCountry"></div>
     </div>
+    <div class="consent-row">
+      <label class="consent-label">
+        <input type="checkbox" id="inConsent">
+        <span>${t('consentText')}</span>
+      </label>
+    </div>
     <div class="reg-error" id="regError"></div>
     <button class="reg-submit" id="regSubmit">${t('startBtn')}</button>
   `;
@@ -1025,6 +1067,13 @@ function onRegisterSubmit(){
   if(!emailOk){
     document.getElementById('f-email').classList.add('err');
     errBox.textContent = t('invalidEmail');
+    errBox.classList.add('show');
+    return;
+  }
+
+  const consentChecked = document.getElementById('inConsent').checked;
+  if(!consentChecked){
+    errBox.textContent = t('consentRequired');
     errBox.classList.add('show');
     return;
   }
@@ -1377,7 +1426,8 @@ function submitScore(){
     language: player.language,
     score: score,
     total: totalPoints,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    consentGiven: true
   };
   return fetch(BACKEND.webhookUrl, {
     method:"POST",
