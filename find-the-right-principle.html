@@ -371,6 +371,36 @@
     background:var(--paper-dark);
   }
 
+  #regConsentRow{
+    margin-top:16px;
+  }
+  #regConsentRow .consent-label{
+    position:relative;
+    display:block;
+    padding-left:30px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    font-size:clamp(12.5px,2.7vw,15px);
+    line-height:1.5;
+  }
+  #regConsentRow .consent-label span{
+    display:block;
+  }
+  #regConsentRow .consent-label input[type="checkbox"]{
+    position:absolute;
+    left:0;
+    top:2px;
+    width:18px;
+    height:18px;
+    margin:0;
+    padding:0;
+    border:1.5px solid rgba(23,58,86,0.35);
+    border-radius:4px;
+    background:var(--white);
+    accent-color:var(--ink);
+    cursor:pointer;
+  }
+
   .lb-banner{
     font-family:'Inter',sans-serif;
     font-size:clamp(12px,2.8vw,15px);
@@ -571,6 +601,8 @@ const I18N = {
       regDeptCountryLabel: "Department / Country",
       regDeptCountryPlaceholder: "e.g. Sustainability, Thailand",
       regError: "Please fill in all fields with a valid email address.",
+      regConsentText: "I consent to my full name, email, and department being collected for score verification, player identification, and to display my name and score on the Leaderboard, visible to other employees.",
+      regConsentError: "Please accept the data consent before starting.",
       regSubmit: "Start playing →",
     },
     questions: [
@@ -698,6 +730,8 @@ const I18N = {
       regDeptCountryLabel: "แผนก / ประเทศ",
       regDeptCountryPlaceholder: "เช่น ฝ่ายความยั่งยืน, ประเทศไทย",
       regError: "กรุณากรอกข้อมูลให้ครบทุกช่อง และใส่อีเมลให้ถูกต้อง",
+      regConsentText: "ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
+      regConsentError: "กรุณายอมรับเงื่อนไขการเก็บข้อมูลก่อนเริ่มเล่น",
       regSubmit: "เริ่มเล่น →",
     },
     questions: [
@@ -825,6 +859,8 @@ const I18N = {
       regDeptCountryLabel: "部门 / 国家",
       regDeptCountryPlaceholder: "例如：可持续发展部，泰国",
       regError: "请填写所有字段并输入有效的电子邮箱。",
+      regConsentText: "我同意收集我的姓名、电子邮箱和部门信息,用于核实分数、识别玩家身份,并在其他员工可见的排行榜上显示我的姓名和分数。",
+      regConsentError: "请先同意数据收集条款再开始游戏。",
       regSubmit: "开始游戏 →",
     },
     questions: [
@@ -952,6 +988,8 @@ const I18N = {
       regDeptCountryLabel: "Abteilung / Land",
       regDeptCountryPlaceholder: "z. B. Nachhaltigkeit, Thailand",
       regError: "Bitte füllen Sie alle Felder aus und geben Sie eine gültige E-Mail-Adresse ein.",
+      regConsentText: "Ich stimme zu, dass mein vollständiger Name, meine E-Mail-Adresse und meine Abteilung zur Punkteüberprüfung, Spieleridentifikation sowie zur Anzeige meines Namens und meiner Punktzahl auf der Rangliste, die für andere Mitarbeitende sichtbar ist, erfasst werden.",
+      regConsentError: "Bitte stimmen Sie der Datenerfassung zu, bevor Sie beginnen.",
       regSubmit: "Spiel starten →",
     },
     questions: [
@@ -1041,7 +1079,7 @@ function hasBackend(){
   return CONFIG.WEBHOOK_URL.trim().length > 0;
 }
 
-let player = { name: "", email: "", deptCountry: "" };
+let player = { name: "", email: "", deptCountry: "", consentGiven: false };
 let localLeaderboard = []; // in-memory fallback until CONFIG.WEBHOOK_URL is wired up
 let myEntryId = null;
 
@@ -1143,7 +1181,14 @@ function renderRegistration(){
         </div>
       </div>
 
-      <div id="regError" style="color:var(--case-red); font-size:clamp(13px,3vw,16px); display:none; margin-top:10px;">${t('regError')}</div>
+      <div id="regConsentRow">
+        <label class="consent-label">
+          <input type="checkbox" id="regConsent" ${player.consentGiven ? 'checked' : ''}>
+          <span>${t('regConsentText')}</span>
+        </label>
+      </div>
+
+      <div id="regError" style="color:var(--case-red); font-size:clamp(13px,3vw,16px); display:none; margin-top:10px;"></div>
 
       <div class="footer-row"><button class="next-btn show" id="regSubmit" style="position:static;">${t('regSubmit')}</button></div>
     </div>
@@ -1153,14 +1198,23 @@ function renderRegistration(){
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const deptCountry = document.getElementById('regDeptCountry').value.trim();
+    const consentGiven = document.getElementById('regConsent').checked;
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const errorEl = document.getElementById('regError');
 
     if(!name || !emailOk || !deptCountry){
-      document.getElementById('regError').style.display = 'block';
+      errorEl.textContent = t('regError');
+      errorEl.style.display = 'block';
       return;
     }
 
-    player = { name, email, deptCountry };
+    if(!consentGiven){
+      errorEl.textContent = t('regConsentError');
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    player = { name, email, deptCountry, consentGiven };
     resetAll();
     render();
   });
@@ -1460,6 +1514,7 @@ function buildScoreEntry(){
     playerKey,
     name: player.name,
     deptCountry: player.deptCountry,
+    consentGiven: !!player.consentGiven,
     mainPoints,
     bonus1Points,
     pendingPoints,
