@@ -159,6 +159,34 @@
   }
   input.text-input:focus{outline:none;border-color:var(--brass);}
   .privacy-note{font-size:13px;color:var(--ink-soft);line-height:1.6;margin:2px 0 18px;}
+  .consent-label{
+    position:relative;
+    display:block;
+    padding-left:27px;
+    margin:4px 0 14px;
+    cursor:pointer;
+  }
+  .consent-label input[type="checkbox"]{
+    position:absolute;
+    left:0;
+    top:2px;
+    width:16px;
+    height:16px;
+    margin:0;
+    padding:0;
+    border:1.5px solid var(--paper-line);
+    border-radius:4px;
+    accent-color:var(--brass);
+    cursor:pointer;
+  }
+  .consent-label span{
+    display:block;
+    font-size:13px;
+    line-height:1.6;
+    color:var(--ink-soft);
+  }
+  .consent-label.error input[type="checkbox"]{border-color:var(--red);}
+  .consent-error{color:var(--red);font-size:12.5px;margin:-8px 0 14px;}
   .btn-primary{
     width:100%;
     background:var(--ink);
@@ -451,6 +479,8 @@
       emailPlaceholder: "Email",
       deptPlaceholder: "Department, Country (e.g. Sales, Thailand)",
       privacyNote: "Your name and score will appear on the leaderboard, visible to other players.",
+      consentText: "I consent to my name, email, and department being collected to verify scores, identify players, and display my name with my score on the Leaderboard, visible to other employees.",
+      consentError: "Please check the consent box before starting",
       startBtn: "Start Investigation",
       caseLabel: "CASE",
       whatWouldYouDo: "What would you do?",
@@ -495,6 +525,8 @@
       emailPlaceholder: "อีเมล",
       deptPlaceholder: "แผนก, ประเทศ (เช่น ฝ่ายขาย, ไทย)",
       privacyNote: "ชื่อและคะแนนของคุณจะแสดงบนกระดานเกียรติยศที่ผู้เล่นคนอื่นมองเห็นได้",
+      consentText: "ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
+      consentError: "กรุณาติ๊กยินยอมก่อนเริ่มเกม",
       startBtn: "เริ่มสืบสวน",
       caseLabel: "คดีที่",
       whatWouldYouDo: "คุณจะทำอย่างไร?",
@@ -539,6 +571,8 @@
       emailPlaceholder: "E-Mail",
       deptPlaceholder: "Abteilung, Land (z. B. Sales, Thailand)",
       privacyNote: "Ihr Name und Ihre Punktzahl erscheinen auf der Bestenliste und sind für andere Spieler sichtbar.",
+      consentText: "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um Punktzahlen zu überprüfen, Spieler zu identifizieren und meinen Namen zusammen mit meiner Punktzahl auf der Bestenliste anzuzeigen, die für andere Mitarbeiter sichtbar ist.",
+      consentError: "Bitte aktivieren Sie das Zustimmungsfeld, bevor Sie beginnen",
       startBtn: "Untersuchung starten",
       caseLabel: "FALL",
       whatWouldYouDo: "Was würden Sie tun?",
@@ -583,6 +617,8 @@
       emailPlaceholder: "电子邮箱",
       deptPlaceholder: "部门, 国家（例如 Sales, Thailand）",
       privacyNote: "您的姓名和分数将显示在排行榜上，其他玩家可以看到。",
+      consentText: "我同意收集我的姓名、电子邮箱和部门信息，用于核实分数、识别玩家身份，并在其他员工可见的排行榜上显示我的姓名和分数。",
+      consentError: "请先勾选同意框再开始游戏",
       startBtn: "开始调查",
       caseLabel: "案例",
       whatWouldYouDo: "您会怎么做？",
@@ -839,6 +875,7 @@
     name: '',
     email: '',
     deptCountry: '',
+    consentGiven: false,
     submittedName: null,
     submittedScore: null,
     index: 0,
@@ -996,6 +1033,7 @@
         name: state.name,
         email: state.email,
         dept: state.deptCountry,
+        consentGiven: state.consentGiven,
         c1Pts: h[0] ? h[0].pts : 0,
         c2Pts: h[1] ? h[1].pts : 0,
         c3Pts: h[2] ? h[2].pts : 0,
@@ -1150,6 +1188,11 @@
           <input type="text" class="text-input" id="deptInput" placeholder="${t('deptPlaceholder')}" maxlength="60" value="${esc(state.deptCountry)}">
         </div>
         <div class="privacy-note">${t('privacyNote')}</div>
+        <label class="consent-label" id="consentLabel">
+          <input type="checkbox" id="consentCheckbox">
+          <span>${t('consentText')}</span>
+        </label>
+        <div class="consent-error" id="consentError" style="display:none;">${t('consentError')}</div>
         <button class="btn-primary" id="startBtn">${t('startBtn')}</button>
       </div>
     `;
@@ -1445,11 +1488,22 @@
       const nameInput = document.getElementById('nameInput');
       const emailInput = document.getElementById('emailInput');
       const deptInput = document.getElementById('deptInput');
+      const consentCheckbox = document.getElementById('consentCheckbox');
+      const consentLabel = document.getElementById('consentLabel');
+      const consentError = document.getElementById('consentError');
       const name = nameInput.value.trim();
       if(!name){ nameInput.focus(); nameInput.style.borderColor = 'var(--red)'; return; }
+      if(!consentCheckbox.checked){
+        if(consentLabel) consentLabel.classList.add('error');
+        if(consentError) consentError.style.display = 'block';
+        return;
+      }
+      if(consentLabel) consentLabel.classList.remove('error');
+      if(consentError) consentError.style.display = 'none';
       state.name = name;
       state.email = emailInput.value.trim();
       state.deptCountry = deptInput.value.trim();
+      state.consentGiven = true;
       state.screen = 'question';
       loadQuestion(0);
     };
@@ -1518,6 +1572,7 @@
     state.photos = [];
     state.history = [];
     state.submitted = false;
+    state.consentGiven = false;
     state.submittedName = null;
     state.submittedScore = null;
     render();
