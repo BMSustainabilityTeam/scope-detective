@@ -185,13 +185,13 @@
 
   /* Crossword */
   .cw-stats{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-weight:800; font-size:13.5px; color:var(--leaf-dark); }
-  .cw-grid-wrap{ overflow-x:auto; padding-bottom:6px; }
-  .cw-grid{ display:grid; gap:3px; width:max-content; margin:0 auto 14px; user-select:none; }
+  .cw-grid-wrap{ padding-bottom:6px; }
+  .cw-grid{ display:grid; gap:3px; width:100%; margin:0 0 14px; user-select:none; }
   .cw-cell{
-    width:26px; height:26px; display:flex; align-items:center; justify-content:center;
-    background:var(--cloud); border-radius:6px; font-weight:800; font-size:13px; cursor:pointer;
+    width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    background:var(--cloud); border-radius:5px; font-weight:800; font-size:clamp(8px, 2.4vw, 13px); cursor:pointer;
     border:2px solid transparent; color:var(--plum); transition: all .1s ease;
-    touch-action:none;
+    touch-action:none; min-width:0;
   }
   .cw-cell.selected{ border-color:var(--sun); background:#FFF4D6; }
   .cw-cell.found{ background:var(--leaf); color:#fff; }
@@ -230,7 +230,6 @@
   .footer-note{ text-align:center; font-size:11.5px; color:var(--plum-soft); margin-top:18px; opacity:0.75; }
 
   @media (max-width:400px){
-    .cw-cell{ width:22px; height:22px; font-size:11.5px; }
     h1.screen-title{ font-size:21px; }
   }
 </style>
@@ -307,7 +306,7 @@ en: {
   mcq_sub:"Which topic did you enjoy the most during ESG Connect? (10 points)",
   mcq_next:"Next: word search →",
   cw_title:"Bonus 2 · ESG word search",
-  cw_sub:"Find the hidden ESG words. Tap the first letter, then the last letter of a word. Each word is worth 2 points — find as many as you can, then finish whenever you like.",
+  cw_sub:"Find the hidden ESG words. Press and hold the first letter, drag to the last letter, then release. Each word is worth 2 points — find as many as you can, then finish whenever you like.",
   cw_found:"Found",
   cw_finish:"Finish word search →",
   cw_skip:"Can't find more? Skip to the next round →",
@@ -374,7 +373,7 @@ th: {
   mcq_sub:"หัวข้อไหนที่คุณชอบมากที่สุดในกิจกรรม ESG Connect? (10 คะแนน)",
   mcq_next:"ถัดไป: เกมหาคำศัพท์ →",
   cw_title:"โบนัสข้อ 2 · หาคำศัพท์ ESG",
-  cw_sub:"ค้นหาคำศัพท์ ESG ที่ซ่อนอยู่ในตาราง แตะตัวอักษรแรก แล้วแตะตัวอักษรสุดท้ายของคำนั้น แต่ละคำมีค่า 2 คะแนน หาได้เท่าไหร่ก็เท่านั้น แล้วกดจบเมื่อพร้อม",
+  cw_sub:"ค้นหาคำศัพท์ ESG ที่ซ่อนอยู่ในตาราง กดค้างที่ตัวอักษรแรก แล้วลากไปยังตัวอักษรสุดท้ายของคำนั้น จากนั้นปล่อยนิ้ว/เมาส์ แต่ละคำมีค่า 2 คะแนน หาได้เท่าไหร่ก็เท่านั้น แล้วกดจบเมื่อพร้อม",
   cw_found:"หาเจอแล้ว",
   cw_finish:"จบเกมหาคำศัพท์ →",
   cw_skip:"หาไม่เจอแล้วใช่ไหม? ข้ามไปข้อถัดไป →",
@@ -441,7 +440,7 @@ zh: {
   mcq_sub:"在 ESG Connect 活动中，你最喜欢哪个主题？（10分）",
   mcq_next:"下一步：单词搜索 →",
   cw_title:"加分题2 · ESG 单词搜索",
-  cw_sub:"在字母表中找出隐藏的 ESG 单词。先点第一个字母，再点最后一个字母。每找到一个单词得2分，找到多少算多少，完成后可随时结束。",
+  cw_sub:"在字母表中找出隐藏的 ESG 单词。按住第一个字母不放，拖动到最后一个字母，然后松开。每找到一个单词得2分，找到多少算多少，完成后可随时结束。",
   cw_found:"已找到",
   cw_finish:"结束单词搜索 →",
   cw_skip:"找不到更多了？跳到下一题 →",
@@ -508,7 +507,7 @@ de: {
   mcq_sub:"Welches Thema hat dir bei ESG Connect am meisten Spaß gemacht? (10 Punkte)",
   mcq_next:"Weiter: Wortsuche →",
   cw_title:"Bonus 2 · ESG-Wortsuche",
-  cw_sub:"Finde die versteckten ESG-Begriffe. Tippe auf den ersten Buchstaben, dann auf den letzten Buchstaben eines Wortes. Jedes Wort ist 2 Punkte wert — finde so viele wie du kannst und beende jederzeit.",
+  cw_sub:"Finde die versteckten ESG-Begriffe. Halte den ersten Buchstaben gedrückt, ziehe bis zum letzten Buchstaben und lass dann los. Jedes Wort ist 2 Punkte wert — finde so viele wie du kannst und beende jederzeit.",
   cw_found:"Gefunden",
   cw_finish:"Wortsuche beenden →",
   cw_skip:"Findest du keine weiteren? Weiter zur nächsten Runde →",
