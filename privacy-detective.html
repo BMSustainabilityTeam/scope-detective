@@ -158,6 +158,21 @@
     animation:fadeUp .4s ease both;
   }
   .reg-screen.show{display:block;}
+
+  .closed-screen{
+    display:none;
+    text-align:center;
+    background:var(--paper);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:44px 28px;
+    animation:fadeUp .4s ease both;
+  }
+  .closed-screen.show{display:block;}
+  .closed-screen .closed-icon{font-size:48px;margin-bottom:12px;}
+  .closed-screen .closed-title{font-size:21px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+  .closed-screen .closed-message{font-size:14px;color:var(--sage);line-height:1.6;max-width:420px;margin:0 auto;}
+
   .reg-title{font-size:21px;font-weight:800;margin:0 0 4px;}
   .reg-sub{font-size:13.5px;color:var(--sage);margin:0 0 18px;line-height:1.5;}
   .field-row{display:flex;gap:10px;}
@@ -537,6 +552,8 @@
 
   <div class="reg-screen" id="regScreen"></div>
 
+  <div class="closed-screen" id="closedScreen"></div>
+
   <div class="stage" id="stage"></div>
 
   <div class="end-screen" id="endScreen"></div>
@@ -558,6 +575,8 @@ const UI = {
     invalidEmail:"Please enter a valid email address.",
     consentText:"I consent to my first name, last name, email, and department being collected to score my answers, identify me as a player, and display my name with my score on a leaderboard visible to other employees.",
     consentRequired:"Please check the consent box to continue.",
+    closedTitle:"Responses Closed",
+    closedMessage:"This quest is no longer accepting responses. Thank you to everyone who took part! If you have any questions, please contact the Sustainability team.",
     continueBtn:"Continue →",
     ptsInline:"+{n} pts", ptsChip:"{n} pts",
     finalScore:"{n}<span>/{t} pts</span>",
@@ -585,6 +604,8 @@ const UI = {
     invalidEmail:"กรุณากรอกอีเมลให้ถูกต้อง",
     consentText:"ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
     consentRequired:"กรุณาติ๊กยินยอมก่อนเริ่มเกม",
+    closedTitle:"ปิดรับคำตอบแล้ว",
+    closedMessage:"เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย",
     continueBtn:"ถัดไป →",
     ptsInline:"+{n} คะแนน", ptsChip:"{n} คะแนน",
     finalScore:"{n}<span>/{t} คะแนน</span>",
@@ -612,6 +633,8 @@ const UI = {
     invalidEmail:"请输入有效的电子邮箱地址。",
     consentText:"我同意收集我的名、姓、电子邮箱和部门信息,用于核对答题得分、识别玩家身份,并在其他员工可见的排行榜上显示我的姓名和分数。",
     consentRequired:"请先勾选同意选项才能继续。",
+    closedTitle:"已停止接受作答",
+    closedMessage:"此任务已停止接受作答。感谢所有参与的人!如有任何疑问,请联系 Sustainability 团队。",
     continueBtn:"继续 →",
     ptsInline:"+{n}分", ptsChip:"{n}分",
     finalScore:"{n}<span>/{t}分</span>",
@@ -639,6 +662,8 @@ const UI = {
     invalidEmail:"Bitte gib eine gültige E-Mail-Adresse ein.",
     consentText:"Ich stimme zu, dass mein Vorname, Nachname, meine E-Mail-Adresse und meine Abteilung erfasst werden, um meine Antworten zu bewerten, mich als Spieler zu identifizieren und meinen Namen mit meiner Punktzahl auf einer für andere Mitarbeitende sichtbaren Bestenliste anzuzeigen.",
     consentRequired:"Bitte aktiviere das Zustimmungsfeld, um fortzufahren.",
+    closedTitle:"Beantwortung geschlossen",
+    closedMessage:"Diese Quest nimmt keine Antworten mehr entgegen. Vielen Dank an alle, die teilgenommen haben! Bei Fragen wende dich gerne an das Sustainability-Team.",
     continueBtn:"Weiter →",
     ptsInline:"+{n} Pkt.", ptsChip:"{n} Pkt.",
     finalScore:"{n}<span>/{t} Pkt.</span>",
@@ -949,6 +974,37 @@ const BACKEND = {
 };
 
 /* =========================================================
+   GAME OPEN/CLOSED SETTINGS
+   Reads a published Google Sheet (CSV) to check whether this
+   quest is still accepting responses. Leave the URL blank to
+   always keep the game open.
+   ========================================================= */
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+const GAME_SETTINGS_KEY = 'GameOpen_Privacy';
+
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true; // not configured — always open
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true; // fail open — a network hiccup shouldn't lock everyone out
+    const text = await res.text();
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+    const header = rows[0] || [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+      }
+    }
+    return true; // no matching row — always open
+  }catch(e){
+    return true; // fail open
+  }
+}
+
+/* =========================================================
    STATE
    ========================================================= */
 let currentLang = "en";
@@ -967,6 +1023,7 @@ const scoreChip = document.getElementById('scoreChip');
 const progressTrack = document.getElementById('progressTrack');
 const regScreen = document.getElementById('regScreen');
 const endScreen = document.getElementById('endScreen');
+const closedScreen = document.getElementById('closedScreen');
 const langPillsEl = document.getElementById('langPills');
 const brandText = document.getElementById('brandText');
 const mainWeekTitle = document.getElementById('mainWeekTitle');
@@ -998,6 +1055,18 @@ function setLanguage(lang){
   if(regScreen.classList.contains('show')) renderRegistration();
   else if(stage.classList.contains('show')) renderStep();
   else if(endScreen.classList.contains('show')) renderEndScreen();
+  else if(closedScreen.classList.contains('show')) renderClosedScreen();
+}
+
+/* =========================================================
+   GAME OPEN/CLOSED SCREEN
+   ========================================================= */
+function renderClosedScreen(){
+  closedScreen.innerHTML = `
+    <div class="closed-icon">⏱️</div>
+    <div class="closed-title">${t('closedTitle')}</div>
+    <div class="closed-message">${t('closedMessage')}</div>
+  `;
 }
 
 function buildCases(){
@@ -1517,10 +1586,17 @@ function renderLeaderboard(data){
 function restartGame(){
   score=0; answeredCount=0; cursor=0; showAllRows=false; stepAnswers={}; lastSubmission=null;
   endScreen.classList.remove('show');
-  regScreen.classList.add('show');
   progressTrack.style.display = 'none';
   scoreChip.style.display = 'none';
-  renderRegistration();
+  isGameOpen().then(open=>{
+    if(open){
+      regScreen.classList.add('show');
+      renderRegistration();
+    } else {
+      closedScreen.classList.add('show');
+      renderClosedScreen();
+    }
+  });
 }
 
 /* init */
@@ -1528,8 +1604,15 @@ renderLangPills();
 brandText.textContent = t('brand');
 mainWeekTitle.textContent = t('weekTag');
 buildCases();
-regScreen.classList.add('show');
-renderRegistration();
+isGameOpen().then(open=>{
+  if(open){
+    regScreen.classList.add('show');
+    renderRegistration();
+  } else {
+    closedScreen.classList.add('show');
+    renderClosedScreen();
+  }
+});
 </script>
 </body>
 </html>
