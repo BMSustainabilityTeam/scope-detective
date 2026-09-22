@@ -529,6 +529,33 @@
 </div>
 
 <script>
+// --- Open/close control (added, purely additive — see isGameOpen / renderGameClosed below) ---
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+const GAME_SETTINGS_KEY = 'GameOpen_Principle';
+
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true; // ไม่ได้ตั้งค่า — เปิดเสมอ
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true; // fail open — เน็ตมีปัญหาไม่ควรปิดกั้นทุกคน
+    const text = await res.text();
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+    const header = rows[0] || [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+      }
+    }
+    return true; // ไม่เจอแถว — เปิดเสมอ
+  }catch(e){
+    return true; // fail open
+  }
+}
+// --- end open/close control config ---
+
 const ALL_LETTERS = ["A","B","C","D","E","F","G","H","I","J"];
 const QUESTION_ANSWERS = ["A","B","C","D","E","F","G","H","I","J","A","C","D","F","I"];
 const TOTAL_QUESTIONS = QUESTION_ANSWERS.length;
@@ -541,6 +568,8 @@ const I18N = {
     ui: {
       eyebrow: "Behn Meyer Integrity Bureau",
       title: "Find the Right Principle",
+      gameClosedTitle: "Responses Closed",
+      gameClosedMessage: "This quest is now closed. Thank you to everyone who took part! If you have any questions, please contact the Sustainability team.",
       subtitle: "Read the case, then match it to the right principle.",
       caseLabel: "Case",
       scoreLabel: "Score",
@@ -670,6 +699,8 @@ const I18N = {
     ui: {
       eyebrow: "Behn Meyer หน่วยงานจริยธรรม",
       title: "ค้นหาหลักการที่ใช่",
+      gameClosedTitle: "ปิดรับคำตอบแล้ว",
+      gameClosedMessage: "เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย",
       subtitle: "อ่านสำนวนคดี แล้วจับคู่กับหลักการที่ถูกต้อง",
       caseLabel: "คดีที่",
       scoreLabel: "คะแนน",
@@ -799,6 +830,8 @@ const I18N = {
     ui: {
       eyebrow: "Behn Meyer 诚信事务局",
       title: "寻找正确原则",
+      gameClosedTitle: "已停止接收作答",
+      gameClosedMessage: "本任务已停止接收作答,感谢大家的参与!如有疑问,欢迎联系可持续发展团队。",
       subtitle: "阅读案例,然后匹配正确的原则。",
       caseLabel: "案例",
       scoreLabel: "得分",
@@ -928,6 +961,8 @@ const I18N = {
     ui: {
       eyebrow: "Behn Meyer Ethikbüro",
       title: "Das richtige Prinzip finden",
+      gameClosedTitle: "Antworten geschlossen",
+      gameClosedMessage: "Dieses Quest ist jetzt geschlossen. Vielen Dank an alle, die teilgenommen haben! Bei Fragen wenden Sie sich bitte an das Sustainability-Team.",
       subtitle: "Lesen Sie den Fall und ordnen Sie ihn dem richtigen Prinzip zu.",
       caseLabel: "Fall",
       scoreLabel: "Punkte",
@@ -1138,6 +1173,7 @@ function renderMasthead(){
 function rerenderCurrent(){
   switch(screen){
     case 'registration': renderRegistration(); break;
+    case 'gameClosed': renderGameClosed(); break;
     case 'quiz': render(); break;
     case 'mainEnd': renderMainEnd(); break;
     case 'bonusPrompt': renderBonusPrompt(); break;
@@ -1158,6 +1194,30 @@ function setLang(lang){
 document.querySelectorAll('.lang-btn').forEach(btn=>{
   btn.addEventListener('click', ()=> setLang(btn.dataset.lang));
 });
+
+function renderGameClosed(){
+  screen = 'gameClosed';
+  gameEl.innerHTML = `
+    <div class="file-card end-screen">
+      <div style="font-size:48px; line-height:1;">⏱️</div>
+      <div class="rank" style="font-size:clamp(20px,4.4vw,28px);">${t('gameClosedTitle')}</div>
+      <p>${t('gameClosedMessage')}</p>
+    </div>
+  `;
+}
+
+// Gate for the two entry points (initial page load, and "play again" from
+// the leaderboard's end button): checks isGameOpen() first, then shows
+// either the normal registration screen or the closed screen. Checked only
+// at these two points, per spec — never mid-play.
+async function enterGate(){
+  const open = await isGameOpen();
+  if(open){
+    renderRegistration();
+  } else {
+    renderGameClosed();
+  }
+}
 
 function renderRegistration(){
   screen = 'registration';
@@ -1631,7 +1691,7 @@ function renderLeaderboard(){
     resetAll();
     player = { name: "", email: "", deptCountry: "" };
     myEntryId = null;
-    renderRegistration();
+    enterGate();
   });
 
   fetchLeaderboard((entries)=>{
@@ -1675,7 +1735,7 @@ function renderLeaderboard(){
 }
 
 renderMasthead();
-renderRegistration();
+enterGate();
 </script>
 </body>
 </html>
