@@ -576,6 +576,11 @@
 // tab happens via the `action` field/param, not a separate URL.
 const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec";
 
+// Open/close gate — published Google Sheet (CSV) controlling whether this
+// game currently accepts new registrations/submissions.
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+const GAME_SETTINGS_KEY = 'GameOpen_ProcurementPractice';
+
 // JSONP loader — the shared backend documents this as the way to sidestep
 // CORS restrictions on cross-origin GET requests to Apps Script (the other
 // five games on this webhook already rely on it for their leaderboards).
@@ -607,6 +612,30 @@ function jsonpFetch(url, timeoutMs){
   });
 }
 
+// Checks the published Game Settings sheet to see whether this game is
+// currently open for new registrations/submissions.
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true; // ไม่ได้ตั้งค่า — เปิดเสมอ
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true; // fail open — เน็ตมีปัญหาไม่ควรปิดกั้นทุกคน
+    const text = await res.text();
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+    const header = rows[0] || [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+      }
+    }
+    return true; // ไม่เจอแถว — เปิดเสมอ
+  }catch(e){
+    return true; // fail open
+  }
+}
+
 /* ============ CONTENT ============ */
 const UI = {
 en:{brand:"Sustain Connect",week:"Week 11",title:"Sustainable Procurement in Practice",
@@ -614,6 +643,8 @@ en:{brand:"Sustain Connect",week:"Week 11",title:"Sustainable Procurement in Pra
   nameLabel:"Name",emailLabel:"Email",deptLabel:"Department",namePh:"Enter your name",emailPh:"Enter your email",deptPh:"Enter your department",
   consentText:"I consent to my name, email, and department being collected to verify scores, identify me as a player, and display my name with my score on the Leaderboard, visible to other employees.",
   consentError:"Please check the consent box to continue.",
+  closedTitle:"Submissions Closed",
+  closedMessage:"This quest is no longer accepting responses. Thank you to everyone who took part — if you have any questions, please reach out to the Sustainability team.",
   startBtn:"Start playing",nextBtn:"Next question",resultsBtn:"See my score",lbBtn:"View leaderboard",againBtn:"Play again",
   lbTitle:"Leaderboard — Week 11",rank:"Rank",name:"Name",dept:"Department",score:"Score",
   viewAllBtn:"View all players",backTop10Btn:"Back to top 10",pageOf:"Page {n} of {t}",prevPageBtn:"Previous",nextPageBtn:"Next",jumpToMeBtn:"Jump to my rank",
@@ -629,6 +660,8 @@ th:{brand:"Sustain Connect",week:"สัปดาห์ที่ 11",title:"ก�
   nameLabel:"ชื่อ",emailLabel:"อีเมล",deptLabel:"แผนก",namePh:"กรอกชื่อของคุณ",emailPh:"กรอกอีเมลของคุณ",deptPh:"กรอกแผนกของคุณ",
   consentText:"ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
   consentError:"กรุณาติ๊กยอมรับก่อนเริ่มเล่น",
+  closedTitle:"ปิดรับคำตอบแล้ว",
+  closedMessage:"เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย",
   startBtn:"เริ่มเล่น",nextBtn:"ข้อถัดไป",resultsBtn:"ดูคะแนนของฉัน",lbBtn:"ดูกระดานคะแนน",againBtn:"เล่นอีกครั้ง",
   lbTitle:"กระดานคะแนน — สัปดาห์ที่ 11",rank:"อันดับ",name:"ชื่อ",dept:"แผนก",score:"คะแนน",
   viewAllBtn:"ดูผู้เล่นทั้งหมด",backTop10Btn:"กลับไปดู 10 อันดับแรก",pageOf:"หน้า {n} จาก {t}",prevPageBtn:"ก่อนหน้า",nextPageBtn:"ถัดไป",jumpToMeBtn:"ไปที่อันดับของฉัน",
@@ -644,6 +677,8 @@ zh:{brand:"Sustain Connect",week:"第11周",title:"可持续采购实务",
   nameLabel:"姓名",emailLabel:"电子邮箱",deptLabel:"部门",namePh:"请输入您的姓名",emailPh:"请输入您的电子邮箱",deptPh:"请输入您的部门",
   consentText:"我同意收集我的姓名、电子邮箱和部门信息，用于核实分数、识别玩家身份，并在其他员工可见的排行榜（Leaderboard）上显示我的姓名和分数。",
   consentError:"请先勾选同意，再继续。",
+  closedTitle:"已停止提交",
+  closedMessage:"本任务已不再接受提交。感谢大家的参与——如有任何问题，欢迎联系可持续发展团队。",
   startBtn:"开始游戏",nextBtn:"下一题",resultsBtn:"查看我的分数",lbBtn:"查看排行榜",againBtn:"再玩一次",
   lbTitle:"排行榜 — 第11周",rank:"排名",name:"姓名",dept:"部门",score:"分数",
   viewAllBtn:"查看全部玩家",backTop10Btn:"返回前10名",pageOf:"第{n}页，共{t}页",prevPageBtn:"上一页",nextPageBtn:"下一页",jumpToMeBtn:"跳转到我的排名",
@@ -659,6 +694,8 @@ de:{brand:"Sustain Connect",week:"Woche 11",title:"Nachhaltige Beschaffung in de
   nameLabel:"Name",emailLabel:"E-Mail",deptLabel:"Abteilung",namePh:"Ihren Namen eingeben",emailPh:"Ihre E-Mail-Adresse eingeben",deptPh:"Ihre Abteilung eingeben",
   consentText:"Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um Ergebnisse zu überprüfen, mich als Spieler/in zu identifizieren und meinen Namen zusammen mit meinem Ergebnis auf der Bestenliste (Leaderboard) anzuzeigen, die für andere Mitarbeitende sichtbar ist.",
   consentError:"Bitte stimmen Sie zu, um fortzufahren.",
+  closedTitle:"Einsendeschluss erreicht",
+  closedMessage:"Bei dieser Quest werden keine Antworten mehr angenommen. Vielen Dank an alle, die teilgenommen haben — bei Fragen wenden Sie sich gerne an das Sustainability-Team.",
   startBtn:"Spiel starten",nextBtn:"Nächste Frage",resultsBtn:"Mein Ergebnis ansehen",lbBtn:"Bestenliste ansehen",againBtn:"Nochmal spielen",
   lbTitle:"Bestenliste — Woche 11",rank:"Platz",name:"Name",dept:"Abteilung",score:"Punkte",
   viewAllBtn:"Alle Spieler ansehen",backTop10Btn:"Zurück zu den Top 10",pageOf:"Seite {n} von {t}",prevPageBtn:"Zurück",nextPageBtn:"Weiter",jumpToMeBtn:"Zu meinem Platz springen",
@@ -847,7 +884,7 @@ let answered = [];
 let selectedAnswers = [];
 let pendingChoice = null;
 let player = {name:"", email:"", dept:"", consentGiven:false};
-let screen = "register"; // register | quiz | results | leaderboard | leaderboard-full
+let screen = "register"; // closed | register | quiz | results | leaderboard | leaderboard-full
 let lbRows = [];
 let lbUsedMock = false;
 let lbLoaded = false;
@@ -898,11 +935,33 @@ function renderProgress(){
 function render(){
   document.getElementById('scorePill').style.display = (screen==="quiz"||screen==="results") ? 'flex' : 'none';
   renderProgress();
+  if(screen === "closed") return renderClosed();
   if(screen === "register") return renderRegister();
   if(screen === "quiz") return renderQuestion();
   if(screen === "results") return renderResults();
   if(screen === "leaderboard") return renderLeaderboard();
   if(screen === "leaderboard-full") return renderLeaderboardFull();
+}
+
+// New, standalone screen — does not touch or replace renderRegister().
+function renderClosed(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card" style="text-align:center;">
+      <div style="font-size:44px;line-height:1;margin-bottom:10px;">⏱️</div>
+      <h1>${t().closedTitle}</h1>
+      <p class="subtitle">${t().closedMessage}</p>
+    </div>
+  `;
+}
+
+// Runs the open/close gate check, then goes to whichever screen it resolves
+// to. Only called at initial page load and from restart() ("Play again") —
+// never mid-quiz, so someone already playing is never interrupted.
+async function checkGameOpenAndGoToRegister(){
+  const open = await isGameOpen();
+  screen = open ? "register" : "closed";
+  render();
 }
 
 function renderRegister(){
@@ -1142,8 +1201,7 @@ function renderResults(){
 
 function restart(){
   current = 0; score = 0; answered = []; selectedAnswers = [];
-  screen = "register";
-  render();
+  checkGameOpenAndGoToRegister();
 }
 
 function openLeaderboard(){
@@ -1371,7 +1429,8 @@ function burstConfetti(){
 
 /* ============ INIT ============ */
 renderLangSwitch();
-render();
+document.getElementById('app').innerHTML = '<div class="card"><div class="lbloading"><span class="spinner"></span></div></div>';
+checkGameOpenAndGoToRegister();
 </script>
 </body>
 </html>
