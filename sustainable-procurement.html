@@ -471,6 +471,18 @@
     </div>
   </section>
 
+  <!-- CLOSED -->
+  <section id="screen-closed" class="screen">
+    <div class="topband">
+      <div class="week-tag week-tag-hero" data-t="weekLabel"></div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="complete-emoji">⏱️</div>
+      <div class="complete-title" data-t="closedTitle"></div>
+      <div class="complete-sub" data-t="closedMessage"></div>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -484,6 +496,8 @@ en:{
   formErrTxt:"Please fill in all fields.",
   consentText:"I agree to my name, email, and department being collected to check my answers, identify me as a player, and show my name and score on the Leaderboard, which other employees can see.",
   consentErrTxt:"Please agree to the data consent before starting.",
+  closedTitle:"Submissions Closed",
+  closedMessage:"This quest is now closed for submissions. Thank you to everyone who took part. If you have any questions, please contact the Sustainability team.",
   startBtn:"Start the quest",
   part1Title:"Match the ESG pillar",
   part1Instructions:"Tap a statement, then tap a pillar to link them. You can change any match as many times as you like. Only correct pairs earn points — tap Submit when all five are linked to see your score.",
@@ -569,6 +583,8 @@ th:{
   formErrTxt:"กรุณากรอกข้อมูลให้ครบทุกช่อง",
   consentText:"ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
   consentErrTxt:"กรุณายอมรับการเก็บข้อมูลก่อนเริ่มเกม",
+  closedTitle:"ปิดรับคำตอบแล้ว",
+  closedMessage:"เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย",
   startBtn:"เริ่มภารกิจ",
   part1Title:"จับคู่เสาหลัก ESG",
   part1Instructions:"แตะข้อความ แล้วแตะเสาหลักเพื่อจับคู่กัน เปลี่ยนคู่ไหนก็ได้กี่ครั้งก็ได้ก่อนส่งคำตอบ คู่ที่ถูกต้องเท่านั้นที่จะได้คะแนน กดส่งคำตอบเมื่อจับคู่ครบทั้ง 5 คู่แล้ว",
@@ -654,6 +670,8 @@ zh:{
   formErrTxt:"请填写所有字段。",
   consentText:"我同意收集我的姓名、电子邮箱和部门信息,用于核实成绩、识别玩家身份,并在其他员工可见的排行榜上显示我的姓名和得分。",
   consentErrTxt:"请先同意数据使用条款再开始游戏。",
+  closedTitle:"答题已截止",
+  closedMessage:"本任务已停止接受答案。感谢所有参与的伙伴。如有任何疑问,请联系可持续发展团队。",
   startBtn:"开始任务",
   part1Title:"配对ESG支柱",
   part1Instructions:"点击一句陈述,再点击一个支柱将它们连接起来。提交前可以随时更改配对,次数不限。只有正确的配对才能得分——五对都连接好后,点击提交查看得分。",
@@ -739,6 +757,8 @@ de:{
   formErrTxt:"Bitte füllen Sie alle Felder aus.",
   consentText:"Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um meine Antworten auszuwerten, mich als Spieler zu identifizieren und meinen Namen mit meinem Ergebnis auf der Rangliste anzuzeigen, die für andere Mitarbeitende sichtbar ist.",
   consentErrTxt:"Bitte stimmen Sie der Datennutzung zu, bevor Sie starten.",
+  closedTitle:"Einreichung geschlossen",
+  closedMessage:"Diese Mission ist für Einsendungen geschlossen. Vielen Dank an alle, die teilgenommen haben. Bei Fragen wenden Sie sich gerne an das Sustainability-Team.",
   startBtn:"Mission starten",
   part1Title:"Ordnen Sie die ESG-Säule zu",
   part1Instructions:"Tippen Sie auf eine Aussage und dann auf eine Säule, um sie zu verknüpfen. Sie können jede Zuordnung beliebig oft ändern, bevor Sie absenden. Nur richtige Paare zählen Punkte — tippen Sie auf Absenden, sobald alle fünf verknüpft sind.",
@@ -820,6 +840,32 @@ de:{
 
 /* ======================= BACKEND ======================= */
 const BACKEND = { webhookUrl: "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec" };
+
+/* ======================= GAME OPEN/CLOSED CHECK ======================= */
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+const GAME_SETTINGS_KEY = 'GameOpen_Procurement';
+
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true; // ไม่ได้ตั้งค่า — เปิดเสมอ
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true; // fail open — เน็ตมีปัญหาไม่ควรปิดกั้นทุกคน
+    const text = await res.text();
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+    const header = rows[0] || [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+      }
+    }
+    return true; // ไม่เจอแถว — เปิดเสมอ
+  }catch(e){
+    return true; // fail open
+  }
+}
 
 /* ======================= STATE ======================= */
 let lang = 'en';
@@ -1504,10 +1550,25 @@ function resetGame(){
   showScreen('screen-intro');
 }
 
-$('restartBtn').addEventListener('click', resetGame);
+async function handleRestartClick(){
+  resetGame(); // existing reset logic, unchanged — leaves screen-intro showing
+  const open = await isGameOpen();
+  if(!open){
+    showScreen('screen-closed');
+  }
+}
+
+$('restartBtn').addEventListener('click', handleRestartClick);
 
 /* ======================= INIT ======================= */
 renderStatic();
+
+(async function checkInitialGameOpen(){
+  const open = await isGameOpen();
+  if(!open){
+    showScreen('screen-closed');
+  }
+})();
 
 </script>
 </body>
