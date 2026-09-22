@@ -98,6 +98,8 @@
 
   /* start screen */
   #startCard{ max-width:440px; text-align:center; }
+  #closedCard{ max-width:440px; text-align:center; }
+  #closedCard p{ font-size:14.5px; line-height:1.6; color:#4b5a4f; margin-top:10px; }
   #startCard .badge{ width:56px;height:56px;border-radius:50%; background:linear-gradient(135deg,var(--forest-light),var(--forest)); display:flex;align-items:center;justify-content:center; margin:0 auto 14px; font-size:24px; }
   #startCard label{ display:block; text-align:left; font-size:13px; font-weight:600; color:var(--forest); margin-bottom:6px; }
   .field{ margin-bottom:16px; }
@@ -333,6 +335,13 @@
     <div class="part-pill" data-part="3"><span class="num">3</span><span id="partLabel3"></span></div>
   </div>
 
+  <!-- CLOSED SCREEN — shown when the Settings sheet says the quest is closed -->
+  <div class="card" id="closedCard">
+    <div class="badge">⏱️</div>
+    <h2 id="closedTitle"></h2>
+    <p id="closedMessage"></p>
+  </div>
+
   <!-- START SCREEN -->
   <div class="card visible" id="startCard">
     <div class="badge">🌱</div>
@@ -501,6 +510,8 @@ const I18N = {
     consentError:'กรุณายืนยันความยินยอมก่อนเริ่มเกม',
     errorEmail:'รูปแบบอีเมลไม่ถูกต้อง',
     startBtn:'เริ่มเกม',
+    closedTitle:'ปิดรับคำตอบแล้ว',
+    closedMessage:'เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย',
     gameTitle:'จับคู่ให้ครบทั้ง 8 กิจกรรม',
     gameHint:'คลิกกิจกรรมตรงกลางเพื่อเลือก จากนั้นคลิก Scope ทางซ้าย และคลิกประเภทการปล่อยก๊าซทางขวา ระบบจะยังไม่บอกว่าถูกหรือผิด จนกว่าจะกด "ส่งคำตอบ"',
     colScope:'Scope', colActivity:'กิจกรรม', colCategory:'ประเภทการปล่อยก๊าซ',
@@ -601,6 +612,8 @@ const I18N = {
     consentError:'Please confirm your consent before starting.',
     errorEmail:'Please enter a valid email address.',
     startBtn:'Start game',
+    closedTitle:'Submissions closed',
+    closedMessage:'This quest is no longer accepting entries. Thanks to everyone who took part — reach out to the Sustainability team with any questions.',
     gameTitle:'Match all 8 activities',
     gameHint:'Click an activity in the middle to select it, then click a Scope on the left and an emission category on the right. Correct/incorrect answers stay hidden until you press "Submit answers".',
     colScope:'Scope', colActivity:'Activity', colCategory:'Emission category',
@@ -701,6 +714,8 @@ const I18N = {
     consentError:'请先确认同意后再开始游戏。',
     errorEmail:'请输入有效的电子邮箱地址。',
     startBtn:'开始游戏',
+    closedTitle:'已停止接受答案',
+    closedMessage:'本次任务已结束，不再接受提交。感谢所有参与者！如有疑问，请联系可持续发展团队。',
     gameTitle:'完成全部 8 项活动的配对',
     gameHint:'先点击中间的活动进行选择，然后点击左侧的范围（Scope）和右侧的排放类别。答案在您点击"提交答案"之前不会显示对错。',
     colScope:'范围 Scope', colActivity:'活动', colCategory:'排放类别',
@@ -802,6 +817,8 @@ const I18N = {
     consentError:'Bitte bestätigen Sie Ihre Zustimmung, bevor Sie starten.',
     errorEmail:'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
     startBtn:'Spiel starten',
+    closedTitle:'Einsendeschluss erreicht',
+    closedMessage:'Dieses Quest nimmt keine Antworten mehr an. Danke an alle, die teilgenommen haben — bei Fragen wenden Sie sich an das Sustainability-Team.',
     gameTitle:'Alle 8 Aktivitäten zuordnen',
     gameHint:'Klicken Sie in der Mitte auf eine Aktivität, um sie auszuwählen, dann links auf einen Scope und rechts auf eine Emissionskategorie. Richtig/falsch bleibt verborgen, bis Sie auf „Antworten einreichen" klicken.',
     colScope:'Scope', colActivity:'Aktivität', colCategory:'Emissionskategorie',
@@ -917,7 +934,7 @@ activityIds.forEach(id => state.assignments[id] = { scope:null, cat:null });
 
 /* ---------- DOM refs ---------- */
 const $ = (id)=>document.getElementById(id);
-const startCard=$('startCard'), quizCard=$('quizCard'), gameCard=$('gameCard'), reflectionCard=$('reflectionCard'), resultCard=$('resultCard');
+const startCard=$('startCard'), quizCard=$('quizCard'), gameCard=$('gameCard'), reflectionCard=$('reflectionCard'), resultCard=$('resultCard'), closedCard=$('closedCard');
 const nameInput=$('nameInput'), emailInput=$('emailInput'), deptInput=$('deptInput'), startBtn=$('startBtn');
 const consentCheckbox=$('consentCheckbox');
 const playerChip=$('playerChip');
@@ -932,7 +949,7 @@ const partStepper=$('partStepper');
 
 function T(){ return I18N[state.lang]; }
 
-const ALL_CARDS = [startCard, quizCard, gameCard, reflectionCard, resultCard];
+const ALL_CARDS = [startCard, quizCard, gameCard, reflectionCard, resultCard, closedCard];
 function showCard(card){
   ALL_CARDS.forEach(c=>c.classList.remove('visible'));
   card.classList.add('visible');
@@ -984,6 +1001,8 @@ function applyStaticText(){
   setHTML('lblDept', t.lblDept + ' <span class="req-star">*</span>');
   if(deptInput) deptInput.placeholder = t.deptPh;
   if(startBtn) startBtn.textContent = t.startBtn;
+  setText('closedTitle', t.closedTitle);
+  setText('closedMessage', t.closedMessage);
   setText('consentText', t.consentText);
 
   setText('gameTitle', t.gameTitle);
@@ -1444,6 +1463,52 @@ async function finishAndShowResults(quizScore, matchScore, perfectActivities, pa
   await saveScoreAndRenderLeaderboard(quizScore, matchScore, part3Answer, finishedAtISO);
 }
 
+/* ---------- open/closed gate ----------
+   Reads a TRUE/FALSE value from a shared "Settings" tab (published to web
+   as CSV) so Panit can open or close any of the 5 Sustain Connect games
+   from one sheet, one row per game — no GitHub upload needed for this.
+
+   SETUP (shared across all 5 games, do this once):
+   1. In the shared Google Sheet, add a tab named "Settings" with two
+      columns — Key | Value — and one row per game, e.g.:
+        GameOpen_ScopeDetective | TRUE
+        GameOpen_ESGPillars     | TRUE
+        GameOpen_Ethics         | TRUE
+        GameOpen_Principle      | TRUE
+        GameOpen_Privacy        | TRUE
+        GameOpen_Procurement    | TRUE
+   2. File > Share > Publish to web → select the "Settings" sheet → CSV →
+      Publish → copy that ONE url into GAME_SETTINGS_CSV_URL below. Every
+      game points at this same URL; each one only reads its own row via
+      GAME_SETTINGS_KEY.
+   3. To close just this quest later, change ONLY the
+      GameOpen_ScopeDetective cell to FALSE — other games' rows are
+      untouched. Leave GAME_SETTINGS_CSV_URL empty (default) to skip this
+      check entirely and always allow play. */
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv'; // <-- paste the shared Settings tab's "Publish to web" CSV URL here
+const GAME_SETTINGS_KEY = 'GameOpen_ScopeDetective'; // this game's own row key — unique per game
+
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true; // not configured — always open
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true; // fail open — a fetch hiccup shouldn't lock everyone out
+    const rows = parseCSV(await res.text());
+    const header = rows[0] ? rows[0].map(h=>h.trim()) : [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'').trim() === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').trim().toUpperCase() !== 'FALSE';
+      }
+    }
+    return true; // no matching row found — default open
+  }catch(e){
+    return true; // fail open
+  }
+}
+
 /* ---------- Google Sheets backend (write + read) ----------
    This game no longer uses window.storage at all — that API only works
    for viewers logged into a paid Claude plan, which breaks the "anyone,
@@ -1628,6 +1693,11 @@ $('viewAllBtn').addEventListener('click', async ()=>{
 $('modalCloseBtn').addEventListener('click', ()=> modalOverlay.classList.remove('visible'));
 modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) modalOverlay.classList.remove('visible'); });
 
+async function goToStartOrClosed(){
+  const open = await isGameOpen();
+  showCard(open ? startCard : closedCard);
+}
+
 $('playAgainBtn').addEventListener('click', ()=>{
   nameInput.value = '';
   emailInput.value = '';
@@ -1643,7 +1713,7 @@ $('playAgainBtn').addEventListener('click', ()=>{
   playerChip.dataset.hasName = '0';
   validateStartForm();
   startError.textContent = '';
-  showCard(startCard);
+  goToStartOrClosed();
 });
 
 /* ---------- global safety net ----------
@@ -1655,6 +1725,7 @@ window.addEventListener('unhandledrejection', (e)=>{ console.error('Scope Detect
 /* ---------- init ---------- */
 try{
   setLanguage('en');
+  goToStartOrClosed();
 }catch(e){
   console.error('Init error:', e);
   // even if language setup partially fails, make sure the start screen is visible
