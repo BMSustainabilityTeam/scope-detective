@@ -138,6 +138,7 @@
   .intro-card p{
     font-size:14.5px;line-height:1.7;color:var(--ink-soft);margin:0 0 18px;
   }
+  .closed-icon{font-size:40px;text-align:center;margin-bottom:6px;}
   .case-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;}
   .case-chip{
     font-size:13px;background:var(--ink);border:none;
@@ -513,7 +514,9 @@
       myRankLabel: "Your rank",
       of: "of",
       people: "players",
-      pointsSuffix: "pts"
+      pointsSuffix: "pts",
+      closedTitle: "Responses Closed",
+      closedMessage: "This quest is no longer accepting responses. Thank you to everyone who took part. If you have any questions, please contact the Sustainability team."
     },
     th: {
       kicker: "สัปดาห์ที่ 8 · แฟ้มคดีจริยธรรมทางธุรกิจ",
@@ -559,7 +562,9 @@
       myRankLabel: "อันดับของคุณ",
       of: "จาก",
       people: "คน",
-      pointsSuffix: "คะแนน"
+      pointsSuffix: "คะแนน",
+      closedTitle: "ปิดรับคำตอบแล้ว",
+      closedMessage: "เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย"
     },
     de: {
       kicker: "Woche 8 · Fallakte: Wirtschaftsethik",
@@ -605,7 +610,9 @@
       myRankLabel: "Ihr Rang",
       of: "von",
       people: "Personen",
-      pointsSuffix: "Punkte"
+      pointsSuffix: "Punkte",
+      closedTitle: "Antworten geschlossen",
+      closedMessage: "Diese Aufgabe nimmt keine Antworten mehr entgegen. Vielen Dank an alle, die teilgenommen haben. Bei Fragen wenden Sie sich bitte an das Sustainability-Team."
     },
     zh: {
       kicker: "第8周 · 案例档案：商业道德",
@@ -651,7 +658,9 @@
       myRankLabel: "您的排名",
       of: "/",
       people: "人",
-      pointsSuffix: "分"
+      pointsSuffix: "分",
+      closedTitle: "已停止接收作答",
+      closedMessage: "该任务已停止接收作答。感谢所有参与的同事。如有疑问，请联系可持续发展团队。"
     }
   };
 
@@ -867,6 +876,31 @@
   // Data routes to its own "Ethics_Responses" sheet tab via the quest field below.
   const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy5u53CSq4SlwJRmgwi_HgBYDkdRB7PWvXcFv_yKbAphXpBdm8fd4A/exec';
   const QUEST_ID = 'Business_Ethics';
+
+  const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+  const GAME_SETTINGS_KEY = 'GameOpen_Ethics';
+
+  async function isGameOpen(){
+    if(!GAME_SETTINGS_CSV_URL) return true; // not configured — always open
+    try{
+      const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+      if(!res.ok) return true; // fail open — a network hiccup shouldn't lock everyone out
+      const text = await res.text();
+      const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+      const header = rows[0] || [];
+      const keyIdx = header.indexOf('Key');
+      const valIdx = header.indexOf('Value');
+      if(keyIdx === -1 || valIdx === -1) return true;
+      for(let i=1;i<rows.length;i++){
+        if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+          return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+        }
+      }
+      return true; // no matching row — always open
+    }catch(e){
+      return true; // fail open
+    }
+  }
 
   const app = document.getElementById('app');
   const state = {
@@ -1161,7 +1195,17 @@
           <button class="lb-btn" id="lbToggle"><span class="lb-dot"></span>${t('lbBtn')}</button>
           <div></div>
         </div>
-        ${(state.screen !== 'intro' && state.screen !== 'leaderboard') ? progressDotsHTML() : ''}
+        ${(state.screen !== 'intro' && state.screen !== 'leaderboard' && state.screen !== 'closed') ? progressDotsHTML() : ''}
+      </div>
+    `;
+  }
+
+  function closedScreenHTML(){
+    return `
+      <div class="intro-card">
+        <div class="closed-icon">⏱️</div>
+        <h1>${t('closedTitle')}</h1>
+        <p>${t('closedMessage')}</p>
       </div>
     `;
   }
@@ -1460,7 +1504,8 @@
 
   function render(){
     let bodyHTML = '';
-    if(state.screen === 'intro') bodyHTML = introHTML();
+    if(state.screen === 'closed') bodyHTML = closedScreenHTML();
+    else if(state.screen === 'intro') bodyHTML = introHTML();
     else if(state.screen === 'question') bodyHTML = questionHTML();
     else if(state.screen === 'end') bodyHTML = endHTML();
     else if(state.screen === 'leaderboard') bodyHTML = leaderboardPageHTML();
@@ -1561,8 +1606,9 @@
     if(replayBtn) replayBtn.onclick = resetGame;
   }
 
-  function resetGame(){
-    state.screen = 'intro';
+  async function resetGame(){
+    const open = await isGameOpen();
+    state.screen = open ? 'intro' : 'closed';
     state.index = 0;
     state.score = 0;
     state.selected = null;
@@ -1578,7 +1624,11 @@
     render();
   }
 
-  render();
+  (async function init(){
+    const open = await isGameOpen();
+    state.screen = open ? 'intro' : 'closed';
+    render();
+  })();
 })();
 </script>
 </body>
