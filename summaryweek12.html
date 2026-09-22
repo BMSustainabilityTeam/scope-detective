@@ -258,6 +258,32 @@ const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwSOUBZuylkpWQSuy
 const ACTION_SUBMIT = "submitWeek12";
 const ACTION_LEADERBOARD = "getWeek12Leaderboard";
 
+// ---- Open/close control (NEW — additive only, doesn't touch existing game logic) ----
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+const GAME_SETTINGS_KEY = 'GameOpen_Week12';
+
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true; // ไม่ได้ตั้งค่า — เปิดเสมอ
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true; // fail open — เน็ตมีปัญหาไม่ควรปิดกั้นทุกคน
+    const text = await res.text();
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+    const header = rows[0] || [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+      }
+    }
+    return true; // ไม่เจอแถว — เปิดเสมอ
+  }catch(e){
+    return true; // fail open
+  }
+}
+
 /* ============================================================
    I18N
    ============================================================ */
@@ -335,6 +361,8 @@ en: {
   lb_show_all:"Show all players",
   lb_show_top10:"Show top 10 only",
   footer:"Behn Meyer Sustainability Team · Sustain Connect Week 12",
+  closed_title:"Registration Closed",
+  closed_text:"This quest is now closed for responses. Thank you to everyone who took part! If you have any questions, please contact the Sustainability team.",
   countries:["Singapore","Malaysia","Thailand","Indonesia","Philippines","Vietnam","China","Hong Kong","Taiwan","India","Germany","Other"]
 },
 th: {
@@ -402,6 +430,8 @@ th: {
   lb_show_all:"แสดงผู้เล่นทั้งหมด",
   lb_show_top10:"แสดงแค่ 10 อันดับแรก",
   footer:"ทีมความยั่งยืน Behn Meyer · Sustain Connect สัปดาห์ที่ 12",
+  closed_title:"ปิดรับคำตอบแล้ว",
+  closed_text:"เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย",
   countries:["สิงคโปร์","มาเลเซีย","ไทย","อินโดนีเซีย","ฟิลิปปินส์","เวียดนาม","จีน","ฮ่องกง","ไต้หวัน","อินเดีย","เยอรมนี","อื่น ๆ"]
 },
 zh: {
@@ -469,6 +499,8 @@ zh: {
   lb_show_all:"显示所有玩家",
   lb_show_top10:"只显示前10名",
   footer:"Behn Meyer 可持续发展团队 · Sustain Connect 第12周",
+  closed_title:"报名已截止",
+  closed_text:"本任务现已停止接受作答，感谢大家的参与！如有任何疑问，请联系 Sustainability 团队。",
   countries:["新加坡","马来西亚","泰国","印度尼西亚","菲律宾","越南","中国","中国香港","中国台湾","印度","德国","其他"]
 },
 de: {
@@ -536,6 +568,8 @@ de: {
   lb_show_all:"Alle Spieler anzeigen",
   lb_show_top10:"Nur Top 10 anzeigen",
   footer:"Behn Meyer Sustainability Team · Sustain Connect Woche 12",
+  closed_title:"Anmeldung geschlossen",
+  closed_text:"Diese Quest ist für Antworten geschlossen. Vielen Dank an alle, die teilgenommen haben! Bei Fragen wende dich bitte an das Sustainability-Team.",
   countries:["Singapur","Malaysia","Thailand","Indonesien","Philippinen","Vietnam","China","Hongkong","Taiwan","Indien","Deutschland","Andere"]
 }
 };
@@ -653,6 +687,7 @@ function render(){
   app.innerHTML = "";
   switch(state.screen){
     case "register": renderRegister(app); break;
+    case "closed": renderClosed(app); break;
     case "q1": renderQ1(app); break;
     case "q2": renderQ2(app); break;
     case "bonusPrompt": renderBonusPrompt(app); break;
@@ -662,6 +697,18 @@ function render(){
     case "finish": renderFinish(app); break;
     case "leaderboard": renderLeaderboard(app); break;
   }
+}
+
+/* ============================================================
+   SCREEN: CLOSED (NEW — shown instead of registration when the
+   game is toggled off via the shared Settings sheet)
+   ============================================================ */
+function renderClosed(app){
+  app.innerHTML = `
+    <div class="center-emoji">⏱️</div>
+    <h1 class="screen-title" style="text-align:center;">${t("closed_title")}</h1>
+    <p class="screen-sub" style="text-align:center;">${t("closed_text")}</p>
+  `;
 }
 
 /* ============================================================
@@ -1267,7 +1314,7 @@ function renderLeaderboard(app){
   if(canExpand){
     document.getElementById("lbToggleBtn").onclick = ()=>{ state.lbShowAll = !state.lbShowAll; render(); };
   }
-  document.getElementById("playAgainBtn").onclick = ()=>{
+  document.getElementById("playAgainBtn").onclick = async ()=>{
     const lang = state.lang;
     state = {
       lang, screen:"register",
@@ -1276,6 +1323,10 @@ function renderLeaderboard(app){
       mainScore:0, bonusPlayed:false, mcqAnswer:"", cwFound:[], cwScore:0, cwSelection:null, cwGrid:null,
       report:{note:"",imageData:""}, bonusScore:0, totalScore:0, leaderboard:[], lbLoading:false, lbShowAll:false, submitting:false, submitError:false
     };
+    // NEW — additive: re-check the open/close switch before letting them register again
+    if(!(await isGameOpen())){
+      state.screen = "closed";
+    }
     render();
   };
 }
@@ -1291,8 +1342,13 @@ function focusEnd(id){
   const el = document.getElementById(id);
   if(el){ el.focus(); const v = el.value; el.value=""; el.value=v; }
 }
-
-render();
+// Initial load: check the open/close switch once, then render (NEW — additive; state.screen already defaults to "register" so this only overrides it when closed).
+(async function initialLoadCheck(){
+  if(!(await isGameOpen())){
+    state.screen = "closed";
+  }
+  render();
+})();
 </script>
 </body>
 </html>
