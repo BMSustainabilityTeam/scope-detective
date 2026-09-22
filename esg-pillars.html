@@ -155,6 +155,10 @@
   .review-box{background:#f8faf9;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:0.85rem;}
   .review-box b{color:var(--primary-dark);}
   .hidden{display:none !important;}
+  #screen-closed.card{text-align:center;padding:40px 24px;}
+  #screen-closed .closed-icon{font-size:2.6rem;margin-bottom:10px;}
+  #screen-closed h1{margin-bottom:10px;}
+  #screen-closed .closed-text{color:var(--muted);font-size:0.92rem;line-height:1.6;margin:0;}
 </style>
 </head>
 <body>
@@ -168,7 +172,13 @@
 
 <div class="wrap">
 
-  <div class="card" id="screen-register">
+  <div class="card hidden" id="screen-closed">
+    <div class="closed-icon">⏱️</div>
+    <h1 data-i18n="closedTitle">Submissions Closed</h1>
+    <p class="closed-text" data-i18n="closedText">This quest is no longer accepting responses. Thank you to everyone who took part. If you have any questions, please contact the Sustainability team.</p>
+  </div>
+
+  <div class="card hidden" id="screen-register">
     <h1 data-i18n="appTitle">ESG Pillars Quest</h1>
     <p class="sub" data-i18n="registerSub">Register to start the quest</p>
     <label data-i18n="labelName">Full name</label>
@@ -295,6 +305,8 @@ const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwSOU
 // The leaderboard reads through the same Apps Script web app (doGet), so the
 // Google Sheet itself never needs to be published / made public.
 const QUEST_ID = 'ESG_Pillars';
+const GAME_SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjo4DZRO9EXbzbgj7xMtshixAy2-3ui-yc9i57v7vxz-M61ssUiUSd-Izdk5KdndktpkSPBO24pnfP/pub?gid=1092130384&single=true&output=csv';
+const GAME_SETTINGS_KEY = 'GameOpen_ESG';
 
 /* ================= I18N ================= */
 const I18N = {
@@ -327,6 +339,8 @@ const I18N = {
     errRegister: "Please fill in all fields with a valid email.",
     consentText: "I agree that my name, email, and department will be collected to record my score, verify my identity, and display my name and score on the leaderboard, visible to other employees.",
     errConsent: "Please check the consent box before starting.",
+    closedTitle: "Submissions Closed",
+    closedText: "This quest is no longer accepting responses. Thank you to everyone who took part. If you have any questions, please contact the Sustainability team.",
     errSelect: "Please select an answer.",
     errMatch: "Please match all 4 terms before continuing.",
     errText: "Please write your answer before continuing.",
@@ -363,6 +377,8 @@ const I18N = {
     errRegister: "กรุณากรอกข้อมูลให้ครบและอีเมลให้ถูกต้อง",
     consentText: "ฉันยินยอมให้เก็บชื่อ-นามสกุล อีเมล และแผนกของฉัน เพื่อใช้ตรวจคะแนน ระบุตัวตนผู้เล่น และแสดงชื่อพร้อมคะแนนของฉันบน Leaderboard ที่พนักงานคนอื่นเห็นได้",
     errConsent: "กรุณาติ๊กยินยอมก่อนเริ่มเล่น",
+    closedTitle: "ปิดรับคำตอบแล้ว",
+    closedText: "เควสนี้ปิดรับคำตอบแล้วครับ ขอบคุณทุกคนที่เข้าร่วม หากมีข้อสงสัยติดต่อทีม Sustainability ได้เลย",
     errSelect: "กรุณาเลือกคำตอบ",
     errMatch: "กรุณาจับคู่ให้ครบทั้ง 4 คู่ก่อนไปต่อ",
     errText: "กรุณาพิมพ์คำตอบก่อนไปต่อ",
@@ -399,6 +415,8 @@ const I18N = {
     errRegister: "请填写所有字段并输入正确的电子邮件。",
     consentText: "我同意收集我的姓名、电子邮件和部门信息，用于记录测验成绩、核实身份，并在其他员工可见的排行榜上显示我的姓名和成绩。",
     errConsent: "请先勾选同意后再开始。",
+    closedTitle: "已停止提交",
+    closedText: "本次任务已停止接受回答。感谢所有参与的同事。如有任何问题，请联系可持续发展团队。",
     errSelect: "请选择一个答案。",
     errMatch: "请先完成全部4组配对再继续。",
     errText: "请先输入答案再继续。",
@@ -435,6 +453,8 @@ const I18N = {
     errRegister: "Bitte füllen Sie alle Felder aus und geben Sie eine gültige E-Mail-Adresse ein.",
     consentText: "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und meine Abteilung erfasst werden, um mein Ergebnis zu erfassen, meine Identität zu bestätigen und meinen Namen sowie mein Ergebnis auf der für andere Mitarbeiter sichtbaren Bestenliste anzuzeigen.",
     errConsent: "Bitte stimmen Sie zu, bevor Sie starten.",
+    closedTitle: "Einsendeschluss erreicht",
+    closedText: "Bei dieser Aufgabe werden keine Antworten mehr angenommen. Vielen Dank an alle Teilnehmenden. Bei Fragen wenden Sie sich bitte an das Sustainability-Team.",
     errSelect: "Bitte wählen Sie eine Antwort aus.",
     errMatch: "Bitte ordnen Sie alle 4 Begriffe zu, bevor Sie fortfahren.",
     errText: "Bitte schreiben Sie Ihre Antwort, bevor Sie fortfahren.",
@@ -485,9 +505,35 @@ function applyI18n(){
 
 /* ================= SCREENS ================= */
 function show(id){
-  ['screen-register','screen-quiz','screen-result','screen-leaderboard','screen-leaderboard-all'].forEach(s=>{
+  ['screen-register','screen-quiz','screen-result','screen-leaderboard','screen-leaderboard-all','screen-closed'].forEach(s=>{
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
+}
+
+// Checks the shared game-settings sheet to see whether this quest is still
+// accepting responses. Fails open (returns true) on any error, missing
+// config, or missing row, so a temporary network hiccup never locks
+// everyone out.
+async function isGameOpen(){
+  if(!GAME_SETTINGS_CSV_URL) return true;
+  try{
+    const res = await fetch(GAME_SETTINGS_CSV_URL, { cache:'no-store' });
+    if(!res.ok) return true;
+    const text = await res.text();
+    const rows = text.trim().split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+    const header = rows[0] || [];
+    const keyIdx = header.indexOf('Key');
+    const valIdx = header.indexOf('Value');
+    if(keyIdx === -1 || valIdx === -1) return true;
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][keyIdx]||'') === GAME_SETTINGS_KEY){
+        return (rows[i][valIdx]||'').toUpperCase() !== 'FALSE';
+      }
+    }
+    return true;
+  }catch(e){
+    return true;
+  }
 }
 
 function setLangButtons(){
@@ -504,7 +550,9 @@ document.querySelectorAll('#langFloat button').forEach(btn=>{
 });
 setLangButtons();
 applyI18n();
-show('screen-register');
+isGameOpen().then(open=>{
+  show(open ? 'screen-register' : 'screen-closed');
+});
 
 document.getElementById('btnStart').addEventListener('click', ()=>{
   const name = document.getElementById('regName').value.trim();
