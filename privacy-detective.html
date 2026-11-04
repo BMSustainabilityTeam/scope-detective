@@ -1018,6 +1018,29 @@ let answeredCount = 0;
 let totalQuestions = 0;
 let stepAnswers = {}; // flatSteps index -> chosen option index (for rebuilding on language switch)
 
+/* ---- Refresh persistence: keeps the player on the same step so a reload can't be used to retry ---- */
+const SAVE_KEY = 'privacyMatters_state_v1';
+let gameFinished = false;
+function persistState(){
+  try{
+    if(!player) return;
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      player, score, cursor, answeredCount, stepAnswers, currentLang,
+      finished: gameFinished, lastSubmission: (typeof lastSubmission!=='undefined' ? lastSubmission : null)
+    }));
+  }catch(e){}
+}
+function clearSavedState(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function loadSavedState(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const d = JSON.parse(raw);
+    if(!d || !d.player) return null;
+    return d;
+  }catch(e){ return null; }
+}
+
 const stage = document.getElementById('stage');
 const scoreChip = document.getElementById('scoreChip');
 const progressTrack = document.getElementById('progressTrack');
@@ -1048,6 +1071,7 @@ function renderLangPills(){
 
 function setLanguage(lang){
   currentLang = lang;
+  persistState();
   brandText.textContent = t('brand');
   mainWeekTitle.textContent = t('weekTag');
   renderLangPills();
@@ -1207,6 +1231,7 @@ function typewriter(el, text, speed=16){
    GAME RENDER
    ========================================================= */
 function renderStep(){
+  persistState();
   const {ci,si} = flatSteps[cursor];
   const c = CASES[ci];
   const step = c.steps[si];
@@ -1393,6 +1418,7 @@ function renderQuestion(step, convo, nameMap){
       }
       answeredCount++;
       updateProgress();
+      persistState();
       showContinue(()=>{
         cursor++;
         if(cursor >= flatSteps.length){
@@ -1419,11 +1445,13 @@ let showAllRows = false;
 let leaderboardCache = null;
 
 function finishGame(){
+  gameFinished = true;
+  persistState();
   stage.classList.remove('show');
   progressTrack.style.display = 'none';
   renderEndScreen();
   endScreen.classList.add('show');
-  submitScore().finally(()=>{ loadLeaderboard(); });
+  submitScore().finally(()=>{ persistState(); loadLeaderboard(); });
 }
 
 function renderEndScreen(){
@@ -1584,6 +1612,7 @@ function renderLeaderboard(data){
 }
 
 function restartGame(){
+  clearSavedState(); gameFinished=false;
   score=0; answeredCount=0; cursor=0; showAllRows=false; stepAnswers={}; lastSubmission=null;
   endScreen.classList.remove('show');
   progressTrack.style.display = 'none';
@@ -1600,10 +1629,35 @@ function restartGame(){
 }
 
 /* init */
+const savedState = loadSavedState();
+if(savedState && CASES_BY_LANG[savedState.currentLang]) currentLang = savedState.currentLang;
 renderLangPills();
 brandText.textContent = t('brand');
 mainWeekTitle.textContent = t('weekTag');
 buildCases();
+if(savedState){
+  // Resume exactly where the player left off (no re-registration, no retry)
+  player = savedState.player;
+  score = savedState.score || 0;
+  cursor = Math.min(savedState.cursor || 0, flatSteps.length-1);
+  answeredCount = savedState.answeredCount || 0;
+  stepAnswers = savedState.stepAnswers || {};
+  lastSubmission = savedState.lastSubmission || null;
+  scoreChip.textContent = fmt(t('ptsChip'), {n:score});
+  if(savedState.finished){
+    gameFinished = true;
+    renderEndScreen();
+    endScreen.classList.add('show');
+    loadLeaderboard();
+  } else {
+    scoreChip.style.display = 'inline-flex';
+    progressTrack.style.display = 'flex';
+    stage.classList.add('show');
+    buildProgress();
+    updateProgress();
+    renderStep();
+  }
+} else
 isGameOpen().then(open=>{
   if(open){
     regScreen.classList.add('show');
