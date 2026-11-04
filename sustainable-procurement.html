@@ -886,6 +886,117 @@ let bonusQ1Selected = null;
 let bonusQ2Selection = [];
 let bonusQ2Submitted = false;
 let lbShowAll = false;
+let gameFinished = false;
+
+/* ======================= STATE PERSISTENCE (refresh-proof) ======================= */
+/* Additive-only: remembers progress in localStorage so a refresh/F5 can't be used
+   to reset answered questions and retry for a better score. Every access is wrapped
+   in try/catch — if localStorage is unavailable for any reason, the game simply
+   plays normally with no persistence (fail open), per spec. */
+const STATE_KEY = 'procurementQuest_state_v1';
+
+function getCurrentScreenId(){
+  const activeEl = document.querySelector('.screen.active');
+  return activeEl ? activeEl.id : null;
+}
+
+function persistState(){
+  try{
+    const data = {
+      player, lang,
+      part1Score, correctPairs, assignment, part1Submitted, shuffledRightOrder,
+      scenarioIdx, part2Score, part2Answered, scenarioSelected,
+      bonusPlayed, bonusQ1Score, bonusQ2Score, bonusQ1Answered, bonusQ1Selected,
+      bonusQ2Selection, bonusQ2Submitted,
+      gameFinished,
+      currentScreen: getCurrentScreenId(),
+      savedAt: Date.now()
+    };
+    localStorage.setItem(STATE_KEY, JSON.stringify(data));
+  }catch(e){ /* localStorage unavailable/full — fail open, game stays playable */ }
+}
+
+function loadSavedState(){
+  try{
+    const raw = localStorage.getItem(STATE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){
+    return null;
+  }
+}
+
+function clearSavedState(){
+  try{
+    localStorage.removeItem(STATE_KEY);
+  }catch(e){ /* ignore */ }
+}
+
+// Restores progress on page load, before the open/closed check. Returns true if a
+// screen was actually resumed (registration should be skipped), false if there was
+// nothing resumable (normal fresh-start flow should proceed as before).
+function restoreSavedState(){
+  const saved = loadSavedState();
+  if(!saved || typeof saved !== 'object') return false;
+
+  if(saved.lang && T[saved.lang]) lang = saved.lang;
+
+  if(saved.gameFinished){
+    // Finished game — show the leaderboard again without resubmitting the score.
+    if(saved.player) player = saved.player;
+    gameFinished = true;
+    renderStatic();
+    lbShowAll = false;
+    showScreen('screen-leaderboard');
+    loadLeaderboard(player ? player.lastScore : undefined);
+    return true;
+  }
+
+  const screen = saved.currentScreen;
+  const resumableScreens = [
+    'screen-part1','screen-part1-complete','screen-part2',
+    'screen-bonus-choice','screen-bonus-q1','screen-bonus-q2'
+  ];
+  if(!saved.player || !screen || resumableScreens.indexOf(screen) === -1) return false;
+
+  player = saved.player;
+  part1Score = saved.part1Score || 0;
+  correctPairs = saved.correctPairs || 0;
+  assignment = Array.isArray(saved.assignment) ? saved.assignment : [null,null,null,null,null];
+  part1Submitted = !!saved.part1Submitted;
+  shuffledRightOrder = (Array.isArray(saved.shuffledRightOrder) && saved.shuffledRightOrder.length === 5) ? saved.shuffledRightOrder : shuffle([0,1,2,3,4]);
+  scenarioIdx = saved.scenarioIdx || 0;
+  part2Score = saved.part2Score || 0;
+  part2Answered = !!saved.part2Answered;
+  scenarioSelected = (saved.scenarioSelected !== undefined) ? saved.scenarioSelected : null;
+  bonusPlayed = !!saved.bonusPlayed;
+  bonusQ1Score = saved.bonusQ1Score || 0;
+  bonusQ2Score = saved.bonusQ2Score || 0;
+  bonusQ1Answered = !!saved.bonusQ1Answered;
+  bonusQ1Selected = (saved.bonusQ1Selected !== undefined) ? saved.bonusQ1Selected : null;
+  bonusQ2Selection = Array.isArray(saved.bonusQ2Selection) ? saved.bonusQ2Selection : [];
+  bonusQ2Submitted = !!saved.bonusQ2Submitted;
+  selectedSide = null; selectedIdx = null;
+
+  renderStatic();
+
+  if(screen === 'screen-part1'){
+    renderPart1Board();
+  } else if(screen === 'screen-part1-complete'){
+    $('p1FinalScore').textContent = part1Score;
+    $('p1CorrectPairs').textContent = correctPairs + '/5';
+  } else if(screen === 'screen-part2'){
+    renderScenario();
+  } else if(screen === 'screen-bonus-q1'){
+    renderBonusQ1();
+  } else if(screen === 'screen-bonus-q2'){
+    renderBonusQ2();
+  }
+  // screen-bonus-choice needs no extra render — it's a static card
+
+  showScreen(screen);
+  return true;
+}
 
 /* ======================= HELPERS ======================= */
 function tr(){ return T[lang]; }
@@ -929,6 +1040,7 @@ function setLang(l){
   if($('screen-bonus-q1').classList.contains('active')) renderBonusQ1();
   if($('screen-bonus-q2').classList.contains('active')) renderBonusQ2();
   if($('screen-leaderboard').classList.contains('active')) renderLeaderboard(window.__lbCache || []);
+  persistState();
 }
 
 document.querySelectorAll('.lang-btn').forEach(b=>{
@@ -964,6 +1076,7 @@ function startPart1(){
   shuffledRightOrder = shuffle([0,1,2,3,4]);
   renderPart1Board();
   showScreen('screen-part1');
+  persistState();
 }
 
 // find which left index (if any) is currently assigned to a given right index
@@ -1055,12 +1168,14 @@ function handlePick(side, idx){
   if(selectedSide === null){
     selectedSide = side; selectedIdx = idx;
     renderPart1Board();
+    persistState();
     return;
   }
   if(selectedSide === side){
     // re-selecting within the same column just moves the selection
     selectedIdx = idx;
     renderPart1Board();
+    persistState();
     return;
   }
 
@@ -1074,6 +1189,7 @@ function handlePick(side, idx){
 
   selectedSide = null; selectedIdx = null;
   renderPart1Board();
+  persistState();
 }
 
 $('submitMatchesBtn').addEventListener('click', ()=>{
@@ -1083,6 +1199,7 @@ $('submitMatchesBtn').addEventListener('click', ()=>{
   for(let i=0;i<5;i++){ if(assignment[i] === i) correctPairs++; }
   part1Score = correctPairs * 10;
   renderPart1Board();
+  persistState();
   setTimeout(finishPart1, 900);
 });
 
@@ -1090,6 +1207,7 @@ function finishPart1(){
   $('p1FinalScore').textContent = part1Score;
   $('p1CorrectPairs').textContent = correctPairs + '/5';
   showScreen('screen-part1-complete');
+  persistState();
 }
 
 $('toPart2Btn').addEventListener('click', ()=>{
@@ -1101,6 +1219,7 @@ $('toPart2Btn').addEventListener('click', ()=>{
 function startPart2(){
   startScenario();
   showScreen('screen-part2');
+  persistState();
 }
 
 function startScenario(){
@@ -1182,6 +1301,7 @@ function handleScenarioAnswer(i){
     part2Score += 25;
   }
   renderScenario();
+  persistState();
 }
 
 $('nextScenarioBtn').addEventListener('click', ()=>{
@@ -1189,8 +1309,10 @@ $('nextScenarioBtn').addEventListener('click', ()=>{
   const t = tr();
   if(scenarioIdx >= t.scenarios.length){
     showScreen('screen-bonus-choice');
+    persistState();
   } else {
     startScenario();
+    persistState();
   }
 });
 
@@ -1200,6 +1322,7 @@ $('bonusTakeBtn').addEventListener('click', ()=>{
   bonusQ1Score = 0; bonusQ2Score = 0;
   startBonusQ1();
   showScreen('screen-bonus-q1');
+  persistState();
 });
 
 $('bonusSkipBtn').addEventListener('click', ()=>{
@@ -1272,11 +1395,13 @@ function handleBonusQ1Answer(i){
   const t = tr();
   bonusQ1Score = (i === t.bonusQ1Correct) ? 15 : 0;
   renderBonusQ1();
+  persistState();
 }
 
 $('bonusQ1NextBtn').addEventListener('click', ()=>{
   startBonusQ2();
   showScreen('screen-bonus-q2');
+  persistState();
 });
 
 function startBonusQ2(){
@@ -1348,6 +1473,7 @@ $('bonusQ2SubmitBtn').addEventListener('click', ()=>{
   const isExact = correctSet.length === pickedSet.length && correctSet.every((v,i)=> v === pickedSet[i]);
   bonusQ2Score = isExact ? 15 : 0;
   renderBonusQ2();
+  persistState();
 });
 
 $('bonusQ2FinishBtn').addEventListener('click', ()=>{
@@ -1360,6 +1486,9 @@ function finishGame(){
   const total = part1Score + part2Score + bonusScore;
   lbShowAll = false;
   showScreen('screen-leaderboard');
+  gameFinished = true;                 // mark finished before persisting/submitting
+  if(player) player.lastScore = total; // so the persisted state already carries the final score
+  persistState();                      // save the finished state before the score is sent, so a refresh never resubmits
   submitScore(total, bonusScore);   // fire in parallel — no waiting
   loadLeaderboard(total);           // starts fetching immediately too
 }
@@ -1551,6 +1680,8 @@ function resetGame(){
 }
 
 async function handleRestartClick(){
+  clearSavedState(); // the ONLY place saved progress is cleared
+  gameFinished = false;
   resetGame(); // existing reset logic, unchanged — leaves screen-intro showing
   const open = await isGameOpen();
   if(!open){
@@ -1563,12 +1694,24 @@ $('restartBtn').addEventListener('click', handleRestartClick);
 /* ======================= INIT ======================= */
 renderStatic();
 
-(async function checkInitialGameOpen(){
-  const open = await isGameOpen();
-  if(!open){
-    showScreen('screen-closed');
-  }
-})();
+let __resumedFromSavedState = false;
+try{
+  __resumedFromSavedState = restoreSavedState();
+}catch(e){
+  __resumedFromSavedState = false;
+}
+
+// A player who is already mid-game (or viewing their finished result) must be
+// able to continue even if the quest closes afterward — the open/closed check
+// only applies to a fresh start, matching the existing "Play Again" behavior.
+if(!__resumedFromSavedState){
+  (async function checkInitialGameOpen(){
+    const open = await isGameOpen();
+    if(!open){
+      showScreen('screen-closed');
+    }
+  })();
+}
 
 </script>
 </body>
