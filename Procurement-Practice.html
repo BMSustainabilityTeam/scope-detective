@@ -894,6 +894,96 @@ let myRowRef = null;
 let lastSubmittedScore = null;
 const LB_PAGE_SIZE = 50;
 
+/* ============ STATE PERSISTENCE (anti-refresh-cheat) ============ */
+// Purely additive: lets a mid-quiz refresh resume exactly where the player
+// left off instead of letting them restart and see answers for free.
+// Game-specific key so it never collides with any sibling game's storage.
+const STATE_KEY = 'procurementPractice_state_v1';
+
+function persistState(){
+  try{
+    const data = {
+      player: player,
+      lang: lang,
+      current: current,
+      score: score,
+      answered: answered,
+      selectedAnswers: selectedAnswers,
+      ended: (screen === "results" || screen === "leaderboard" || screen === "leaderboard-full"),
+      lastSubmittedScore: lastSubmittedScore
+    };
+    localStorage.setItem(STATE_KEY, JSON.stringify(data));
+  }catch(e){
+    // localStorage unavailable/blocked — fail silently, game still plays normally
+  }
+}
+
+function loadSavedState(){
+  try{
+    const raw = localStorage.getItem(STATE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){
+    return null;
+  }
+}
+
+function clearSavedState(){
+  try{
+    localStorage.removeItem(STATE_KEY);
+  }catch(e){
+    // nothing to do — if it couldn't be read/written, there's nothing to clear
+  }
+}
+
+// Shows the results screen + leaderboard for a player who already finished
+// before refreshing, WITHOUT re-submitting their score to the sheet.
+function restoreEndedSession(){
+  screen = "results";
+  render();
+  try{
+    const note = document.getElementById('submitNote');
+    if(note) note.textContent = t().submitted;
+  }catch(e){}
+  ensureLeaderboardLoaded(true).then(()=>{
+    if(screen === "leaderboard") renderLeaderboard();
+    if(screen === "leaderboard-full") renderLeaderboardFull();
+  });
+}
+
+// Entry point used by the bottom INIT block. Recovers any saved session
+// before the normal open/close gate check runs, so someone already playing
+// is never sent back to registration or blocked by a later closure.
+function initGame(){
+  const saved = loadSavedState();
+  if(saved && saved.player && saved.player.email){
+    try{
+      player = saved.player;
+      lang = saved.lang || lang;
+      renderLangSwitch();
+      document.getElementById('brandName').textContent = t().brand;
+      document.getElementById('weekTag').textContent = t().week;
+      document.getElementById('footnote').textContent = t().footnote;
+      current = (typeof saved.current === 'number') ? saved.current : 0;
+      score = (typeof saved.score === 'number') ? saved.score : 0;
+      answered = Array.isArray(saved.answered) ? saved.answered : [];
+      selectedAnswers = Array.isArray(saved.selectedAnswers) ? saved.selectedAnswers : [];
+      lastSubmittedScore = (typeof saved.lastSubmittedScore === 'number') ? saved.lastSubmittedScore : null;
+      renderScore();
+      if(saved.ended){
+        restoreEndedSession();
+      } else {
+        screen = "quiz";
+        render();
+      }
+      return;
+    }catch(e){
+      // malformed saved state — fall through to the normal flow below
+    }
+  }
+  checkGameOpenAndGoToRegister();
+}
+
 function t(){ return UI[lang]; }
 function qs(){ return QUESTIONS[lang]; }
 
@@ -912,6 +1002,7 @@ function setLang(code){
   document.getElementById('footnote').textContent = t().footnote;
   renderScore();
   render();
+  persistState();
 }
 
 /* ============ RENDER HELPERS ============ */
@@ -1090,6 +1181,7 @@ function renderQuestion(){
     const isLast = current === qs().length - 1;
     document.getElementById('nextWrap').innerHTML = `<button class="btn" onclick="${isLast ? 'finishQuiz()' : 'nextQuestion()'}">${isLast ? t().resultsBtn : t().nextBtn}</button>`;
   }
+  persistState();
 }
 
 function pickOption(i){
@@ -1124,6 +1216,7 @@ function confirmAnswer(){
   selectedAnswers[current] = i;
   renderScore();
   renderProgress();
+  persistState();
 
   const fb = document.getElementById('feedbackWrap');
   fb.innerHTML = `
@@ -1146,6 +1239,7 @@ function nextQuestion(){
 
 function finishQuiz(){
   screen = "results";
+  persistState();
   render();
   burstConfetti();
   syncScoreAndLeaderboard();
@@ -1153,6 +1247,7 @@ function finishQuiz(){
 
 async function syncScoreAndLeaderboard(){
   lastSubmittedScore = score;
+  persistState();
   // Fire the POST (save score) and the GET (refresh leaderboard) at the same time —
   // neither waits on the other, so this doesn't cost two sequential round-trips.
   const postPromise = submitScore();
@@ -1201,6 +1296,7 @@ function renderResults(){
 
 function restart(){
   current = 0; score = 0; answered = []; selectedAnswers = [];
+  clearSavedState();
   checkGameOpenAndGoToRegister();
 }
 
@@ -1430,7 +1526,7 @@ function burstConfetti(){
 /* ============ INIT ============ */
 renderLangSwitch();
 document.getElementById('app').innerHTML = '<div class="card"><div class="lbloading"><span class="spinner"></span></div></div>';
-checkGameOpenAndGoToRegister();
+initGame();
 </script>
 </body>
 </html>
