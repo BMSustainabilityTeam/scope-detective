@@ -624,6 +624,56 @@ let state = {
   submitError: false
 };
 
+/* ============================================================
+   REFRESH-GUARD / RESUME STATE (NEW — additive only)
+   Prevents refreshing (F5) mid-game to re-answer for a better score.
+   Mirrors the pattern used in the sibling "Privacy Matters" game:
+   plain localStorage, wrapped in try/catch everywhere, under a
+   game-specific key so it can never collide with other games.
+   ============================================================ */
+const WEEK12_STATE_KEY = 'week12_sustainconnect_state_v1';
+
+function persistState(){
+  try{
+    // Don't persist before gameplay has actually started (register) or on the
+    // closed-game screen — nothing meaningful to resume there, and this avoids
+    // ever caching a stale "closed" verdict across visits.
+    if(state.screen === "register" || state.screen === "closed") return;
+    const snapshot = {
+      lang: state.lang,
+      screen: state.screen,
+      player: state.player,
+      q1: state.q1,
+      q2: state.q2,
+      mainScore: state.mainScore,
+      bonusPlayed: state.bonusPlayed,
+      mcqAnswer: state.mcqAnswer,
+      cwFound: state.cwFound,
+      cwScore: state.cwScore,
+      cwGrid: state.cwGrid,
+      report: state.report,
+      bonusScore: state.bonusScore,
+      totalScore: state.totalScore,
+      gameFinished: state.gameFinished === true
+    };
+    localStorage.setItem(WEEK12_STATE_KEY, JSON.stringify(snapshot));
+  }catch(e){ /* localStorage unavailable — fail silently, game still works */ }
+}
+
+function loadSavedState(){
+  try{
+    const raw = localStorage.getItem(WEEK12_STATE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(!parsed || typeof parsed !== "object" || !parsed.screen) return null;
+    return parsed;
+  }catch(e){ return null; }
+}
+
+function clearSavedState(){
+  try{ localStorage.removeItem(WEEK12_STATE_KEY); }catch(e){ /* ignore */ }
+}
+
 function t(key){
   const dict = I18N[state.lang] || I18N.en;
   return (dict && dict[key] !== undefined) ? dict[key] : I18N.en[key];
@@ -697,6 +747,7 @@ function render(){
     case "finish": renderFinish(app); break;
     case "leaderboard": renderLeaderboard(app); break;
   }
+  persistState(); // NEW — additive: snapshot state on every screen/step render so a refresh can resume
 }
 
 /* ============================================================
@@ -1203,6 +1254,7 @@ function jsonpRequest(url, params){
 function submitScore(){
   state.submitting = true;
   state.submitError = false;
+  state.gameFinished = true; // NEW — additive: mark finished before sending, so a refresh never re-submits
   render();
 
   const payload = {
@@ -1315,6 +1367,7 @@ function renderLeaderboard(app){
     document.getElementById("lbToggleBtn").onclick = ()=>{ state.lbShowAll = !state.lbShowAll; render(); };
   }
   document.getElementById("playAgainBtn").onclick = async ()=>{
+    clearSavedState(); // NEW — additive: only point where saved resume-state is cleared
     const lang = state.lang;
     state = {
       lang, screen:"register",
@@ -1342,8 +1395,39 @@ function focusEnd(id){
   const el = document.getElementById(id);
   if(el){ el.focus(); const v = el.value; el.value=""; el.value=v; }
 }
-// Initial load: check the open/close switch once, then render (NEW — additive; state.screen already defaults to "register" so this only overrides it when closed).
+// Initial load (NEW — additive, extends the existing open/close check):
+// first see if there's a saved in-progress or just-finished session for this
+// browser; if so, resume it and skip the open/close check entirely (someone
+// already mid-game, or who just finished, should never be blocked or reset).
+// Only when there's nothing saved do we fall back to the original behaviour:
+// check the open/close switch, then render the normal "register" screen.
 (async function initialLoadCheck(){
+  const saved = loadSavedState();
+  if(saved){
+    state.lang = saved.lang || state.lang;
+    state.player = saved.player || state.player;
+    state.q1 = saved.q1 || state.q1;
+    state.q2 = saved.q2 || state.q2;
+    state.mainScore = saved.mainScore || 0;
+    state.bonusPlayed = !!saved.bonusPlayed;
+    state.mcqAnswer = saved.mcqAnswer || "";
+    state.cwFound = saved.cwFound || [];
+    state.cwScore = saved.cwScore || 0;
+    state.cwGrid = saved.cwGrid || null;
+    state.report = saved.report || state.report;
+    state.bonusScore = saved.bonusScore || 0;
+    state.totalScore = saved.totalScore || 0;
+    state.gameFinished = saved.gameFinished === true;
+    if(state.gameFinished){
+      // already finished and (presumably) submitted — never resubmit, just
+      // reload the leaderboard and show the summary again
+      loadLeaderboardThenShow();
+    } else {
+      state.screen = saved.screen || "register";
+      render();
+    }
+    return;
+  }
   if(!(await isGameOpen())){
     state.screen = "closed";
   }
