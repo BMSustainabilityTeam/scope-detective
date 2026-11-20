@@ -651,7 +651,9 @@ function persistState(){
       cwFound: state.cwFound,
       cwScore: state.cwScore,
       cwGrid: state.cwGrid,
-      report: state.report,
+      // the attached screenshot (base64, can be several MB) is deliberately NOT saved —
+      // writing it on every render made the game sluggish; only the text note is kept
+      report: { note: state.report.note, imageData: "" },
       bonusScore: state.bonusScore,
       totalScore: state.totalScore,
       gameFinished: state.gameFinished === true
@@ -1190,7 +1192,25 @@ function renderReport(app){
     const file = e.target.files[0];
     if(!file) return;
     const reader = new FileReader();
-    reader.onload = ()=>{ state.report.imageData = reader.result; render(); };
+    reader.onload = ()=>{
+      const original = reader.result;
+      // NEW — additive: shrink big phone photos before storing/sending (max 1280px, JPEG),
+      // so the submit request stays small. Falls back to the original if anything fails.
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const scale = Math.min(1, 1280 / Math.max(img.width, img.height));
+          const c = document.createElement("canvas");
+          c.width = Math.round(img.width*scale); c.height = Math.round(img.height*scale);
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          const small = c.toDataURL("image/jpeg", 0.75);
+          state.report.imageData = (small.length < original.length) ? small : original;
+        }catch(e){ state.report.imageData = original; }
+        render();
+      };
+      img.onerror = ()=>{ state.report.imageData = original; render(); };
+      img.src = original;
+    };
     reader.readAsDataURL(file);
   };
   document.getElementById("brSubmitBtn").onclick = ()=>{
