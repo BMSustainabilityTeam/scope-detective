@@ -1117,9 +1117,7 @@ function renderQuestion(){
   let extraHTML = '';
   if(q.suppliers){
     extraHTML = '<div class="suppliers">' + q.suppliers.map(s=>{
-      const clean = s.name ? s.name.replace(/^บริษัท\s+/,'').replace(/[「」]/g,'') : '';
-      const icon = s.tag ? s.tag : clean.charAt(0);
-      return `<div class="supplier"><div class="tag">${icon}</div><div class="desc">${s.name ? `<b>${s.name}</b><br>` : ''}${s.desc}</div></div>`;
+      return `<div class="supplier"><div class="desc">${s.name ? `<b>${s.name}</b><br>` : ''}${s.desc}</div></div>`;
     }).join('') + '</div>';
   }
   if(q.compare){
